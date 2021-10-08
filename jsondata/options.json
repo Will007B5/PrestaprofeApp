@@ -1,0 +1,56 @@
+{
+    "appName": "Prestaprofe",
+    "routes" : {
+        "routesRegisterUser" : [
+            {
+                "route": "registerStepOne",
+                "icon": "camera_alt",
+                "text": "Step 1"
+            },
+            {
+                "route": "registerStepTwo",
+                "icon": "camera_alt",
+                "childRoutes": [
+                    {   "route": "",
+                        "icon": "camera_alt", 
+                        "text": "Frente de tu identificación INE"
+                    },
+                    {
+                        "route": "",
+                        "icon": "camera_alt", 
+                        "text": "Reverso de tu identificación INE"
+                    },
+                    {
+                        "route": "",
+                        "icon": "camera_alt", 
+                        "text": "Identificación oficial en mano"
+                    }
+                ],
+                "text": "Step 2"
+                
+            },
+            {
+                "route": "registerStepThree",
+                "icon": "camera_alt",
+                "text": "Step 3"
+            }
+        ],
+        "routesHome" :[
+            {
+                "route": "home",
+                "icon": "camera_alt",
+                "text": "Home"
+            },
+            {
+                "route": "newCredit",
+                "icon": "camera_alt",
+                "text": "Home"
+            },
+            {
+                "route": "myCredits",
+                "icon": "camera_alt",
+                "text": "Home"
+            }
+        ]
+    }
+}
