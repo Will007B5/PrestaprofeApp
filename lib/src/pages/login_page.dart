@@ -2,176 +2,197 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-class LoginPage extends StatefulWidget {
+import 'package:provider/provider.dart';
 
-  @override
-  _LoginPageState createState() => _LoginPageState();
+import 'package:prestaprofe/src/providers/providers.dart';
+import 'package:prestaprofe/src/services/services.dart';
+import 'package:prestaprofe/src/ui/input_decorations.dart';
 
-}
+class LoginPage extends StatelessWidget {
 
-class _LoginPageState extends State<LoginPage>{
+  static ButtonStyle _textButtonsStyle = ButtonStyle(
+    overlayColor: MaterialStateProperty.all(Color.fromRGBO(51, 114, 134, 0.2)),
+    shape: MaterialStateProperty.all(StadiumBorder()),
+    foregroundColor: MaterialStateProperty.all(Color.fromRGBO(255, 255, 255, 0.8)),
+    textStyle: MaterialStateProperty.all(TextStyle(
+      decoration: TextDecoration.underline,
+      fontSize: 16
+    ))
+  );
 
-  String _email = '';
-  String _password = '';
-  bool _showPassword = false;
+  static BoxDecoration _containerGradientDecoration = BoxDecoration(
+    gradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      //Puntos de quiebre de gradiente (son dos por los dos colores)
+      stops: [0.03, 0.95],
+      colors: [
+        Color.fromRGBO(177,145,134,1),
+        Color.fromRGBO(51, 114, 134, 0.7)
+      ]
+    )
+  );
 
-  //191, 155, 48
   @override
   Widget build(BuildContext context) {
 
-    final size = MediaQuery.of(context).size;
+    final _mediaQuerySize = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: Color.fromRGBO(51, 114, 134, 1),
-      body: SingleChildScrollView(
-        child: Container(
-          width: double.infinity,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Column(
-                children: <Widget>[
-                  Container(
-                    child: Image(
-                      image: AssetImage('assets/bussines.jpg'),
-                      fit: BoxFit.cover,
-                    ),
-                    width: double.infinity,
-                    height: size.height * 0.28,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 6.0),
-                  ),
-                  Image(
-                      image: AssetImage('assets/prestaprofelogowh.png'),
-                      height: size.height * 0.21,
-                      fit: BoxFit.cover,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 8.0),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 0.0),
-                    child: _widgetEmail()
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-                  ),
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 0.0),
-                    child: _widgetPassword()
-                  ),
-                  Column(
-                    children: <Widget>[
-                      TextButton(
-                          style: ButtonStyle(
-                            foregroundColor: MaterialStateProperty.all(Color.fromRGBO(255, 255, 255, 0.8)),
-                            textStyle: MaterialStateProperty.all(TextStyle(
-                              decoration: TextDecoration.underline,
-                            ))
-                          ),
-                          child: Text('¿Olvidaste tu contraseña?'),
-                          onPressed: (){},
-                      ),
-                      TextButton(
-                          style: ButtonStyle(
-                            foregroundColor: MaterialStateProperty.all(Color.fromRGBO(255, 255, 255, 0.8)),
-                            textStyle: MaterialStateProperty.all(TextStyle(
-                              decoration: TextDecoration.underline,
-                            ))
-                          ),
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        color: Color.fromRGBO(51, 114, 134, 1),
+        child: SingleChildScrollView(
+          child: _constructLoginBody(_mediaQuerySize, context)
+        ),
+      ),
+    );
+  }
+
+  Widget _constructLoginBody(Size _mediaQuerySize, BuildContext context) {
+    return Container(
+      height: _mediaQuerySize.height,
+      child: Column(
+        children: [
+          Container(
+            width: double.infinity,
+            height: _mediaQuerySize.height * 0.27,
+            child: Image(
+              image: AssetImage('assets/bussines.jpg'),
+              fit: BoxFit.cover,
+            ),
+          ),
+          Container(
+            height: 27,
+            decoration: _containerGradientDecoration
+          ),
+          Container(
+            height: _mediaQuerySize.height * 0.18,
+            child: Image(
+              image: AssetImage('assets/prestaprofelogowh.png'),
+              fit: BoxFit.cover,
+            ),
+          ),
+          SizedBox(height: 25),
+          //Crea una instancia de LoginFormProvider
+          //Y solo _LoginForm() va a vivir en este scope (ChangeNotifierProvider)
+          ChangeNotifierProvider(
+            create: ( _ ) => LoginFormProvider(),
+            child: _LoginForm(),
+          ),
+          Expanded(child: Container()), //Para agregar este expanden (sobre todo en elementos Scroll, es necesario que sea Container(aqui se insertan medidas)->Column->Expanded->Container)
+          Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Container(
+                height: 82,
+                child: Stack(
+                  children: [
+                    Positioned(
+                      bottom: 1,
+                      child: TextButton(
+                          style: _textButtonsStyle,
                           child: Text('¿Aún no estás registrado?'),
                           onPressed: (){
                             Navigator.pushNamed(context, 'registerStepOne');
                           },
                       ),
-                    ],
-                  ),
-                  ElevatedButton(
-                    child: Text(
-                      'Iniciar sesión', 
-                      style: TextStyle(
-                        color: Color.fromRGBO(27, 60, 70, 1)
-                      )
                     ),
-                    style: ElevatedButton.styleFrom(
-                      primary: Color.fromRGBO(191, 155, 48, 1),
+                    TextButton(
+                        style: _textButtonsStyle,
+                        child: Text('¿Olvidaste tu contraseña?'),
+                        onPressed: (){},
                     ),
-                    onPressed: (){
-                      _sendData(context);
-                    },
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 13.0),
-                  ),
-                ],
-              )
-            ]
+                  ],
+                ),
+              ),
+            ],
           ),
-        ),
-      )
-    );
-  }
-
-  Widget _widgetEmail(){
-    return TextField(
-      keyboardType: TextInputType.emailAddress,
-      decoration: InputDecoration(
-        fillColor: Colors.white,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50.0)
-        ),
-        hintText: 'Email',
+        ],
       ),
-      onChanged: (value){
-        _email = value;
-      },
     );
-  }
-
-  Widget _widgetPassword(){
-    return TextField(
-      autocorrect: false,
-      obscureText: !_showPassword,
-      decoration: InputDecoration(
-        fillColor: Colors.white,
-        filled: true,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(50.0)
-        ),
-        hintText: 'Contraseña',
-        suffixIcon: IconButton(
-          onPressed: (){
-            setState(() {
-              _showPassword = !_showPassword;
-            });
-          },
-          icon: Icon(_showPassword ? Icons.visibility_off : Icons.visibility),
-        ),
-      ),
-      onChanged: (value){
-        _password = value;
-      },
-    );
-  }
-
-  void _sendData(BuildContext context){
-    // showDialog(
-    //   context: context,
-    //   barrierDismissible: true,
-    //   builder: (context){
-    //     return AlertDialog(
-    //       content: Column(
-    //         mainAxisSize: MainAxisSize.min,
-    //         children: <Widget>[
-    //           Text('$_email'),
-    //           Text('$_password')
-    //         ],
-    //       ),
-    //     );
-    //   }
-    // );
-    Navigator.pushNamed(context, 'home');
   }
 }
+  class _LoginForm extends StatelessWidget {
+    @override
+    Widget build(BuildContext context) {
+      
+      final loginForm = Provider.of<LoginFormProvider>(context);
+
+      return Container(
+        padding: EdgeInsets.symmetric(horizontal: 25),
+        child: Form(
+          key: loginForm.formKey,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          child: Column(
+            children: [
+              TextFormField(
+                enabled: !loginForm.isLoading ? true : false,
+                autocorrect: false,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecorations.authInputDecoration(hintText: 'john.doe@gmail.com', labelText: 'Correo electrónico', prefixIcon: Icons.alternate_email_sharp), //Utilizando metodo estatico de clase InputDecorations creada por mi (lib/src/ui/input_decorations.dart),
+                onChanged: (value) => loginForm.email = value,
+                validator: (value) {
+                  String pattern = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+                  RegExp regExp  = new RegExp(pattern);
+                  return regExp.hasMatch(value ?? '') ? null : 'Ingrese un correo válido';
+                },
+              ),
+              SizedBox(height: 10),
+              TextFormField(
+                enabled: !loginForm.isLoading ? true : false,
+                autocorrect: false,
+                obscureText: true,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecorations.authInputDecoration(hintText: '*****', labelText: 'Contraseña', prefixIcon: Icons.lock_outline, suffixIcon: Icons.remove_red_eye), //Utilizando metodo estatico de clase InputDecorations creada por mi (lib/src/ui/input_decorations.dart)
+                onChanged: (value) => loginForm.password = value,
+                validator: (value) {
+                  if(value != null && value.length >= 6){
+                    return null;
+                  }
+                  return 'La contraseña debe tener minimo 6 carácteres';
+                },
+              ),
+              SizedBox(height: 10),
+              Container(
+                width: double.infinity,
+                child: MaterialButton(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  disabledColor: Colors.grey,
+                  color: Color.fromRGBO(191, 155, 48, 1),
+                  elevation: 0,
+                  child: Text(
+                    loginForm.isLoading ? 'Ingresando...' : 'Iniciar sesión', 
+                    style: TextStyle(
+                      color: Color.fromRGBO(27, 60, 70, 1)
+                    )
+                  ),
+                  onPressed: loginForm.isLoading ? null : () async {
+                    FocusScope.of(context).unfocus(); //Linea para ocultar el teclado
+                    final authService = Provider.of<AuthService>(context, listen: false);
+
+                    if(!loginForm.isValidForm()) return;
+
+                    loginForm.isLoading = true;
+
+                    final String? errorMessage = await authService.login(loginForm.email, loginForm.password);
+
+                    if(errorMessage == null){
+                      //Inicia sesion
+                      Navigator.pushReplacementNamed(context, 'home'); //pushReplacementNamed borra el stack de rutas para que ya no se pueda regresar
+                    }
+                    else{
+                      //Manda errores
+                      NotificationsService.showSnackbar(errorMessage);
+                      loginForm.isLoading = false;
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+  }

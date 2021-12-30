@@ -1,289 +1,199 @@
 import 'package:flutter/material.dart';
 
-class StepThree extends StatefulWidget {
+import 'package:prestaprofe/src/providers/json_menuoptions_provider.dart';
+import 'package:prestaprofe/src/ui/input_decorations.dart';
+import 'package:prestaprofe/src/utils/icons_string_util.dart';
+import 'package:prestaprofe/src/widgets/widgets.dart';
 
-  @override
-  _StepThreeState createState() => _StepThreeState();
-}
-
-class _StepThreeState extends State<StepThree> {
+class StepThree extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+
+    final _mediaQuerySize = MediaQuery.of(context).size;
+    final _mediaQuerySizeFixedHeightCircles = ((_mediaQuerySize.height - MediaQuery.of(context).padding.top - kToolbarHeight) *0.067);
+
     return Scaffold(
-      body: ListView(
-        children: _createWidgets(size),
+      appBar: AppBarRegister(mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles),
+      body: Container(
+        padding: EdgeInsets.symmetric(horizontal: 25),
+        height: double.infinity,
+        width: double.infinity,
+        color: Color.fromRGBO(191, 155, 48, 0.91),
+        child: SingleChildScrollView(
+          child: _constructRegisterBody(context, _mediaQuerySize),
+        ),
       ),
     );
   }
 
-  List<Widget> _createWidgets(size){
-    final List<Widget> widgets = [
-      Container(
-        width: double.infinity,
-        height: size.height * 0.19,
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
+  Widget _constructRegisterBody(BuildContext context, Size _mediaQuerySize) {
+    return Container(
+      width: double.infinity,
+      child: Column(
+        children: [
+          SizedBox(height: 10),
+          Text('Verificación',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
-            Text(
-              'REGISTRO', 
-              style: TextStyle(
-                fontSize: 19.0,
-                fontWeight: FontWeight.bold
-              )
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 3.0),
-            ),
-            Text(
-              'Verifica tu identidad',
-              style: TextStyle(
-                fontSize: 15.0,
-                fontWeight: FontWeight.bold
-
-              )
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 3.0),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                Icon(Icons.looks_one, size: 45.0, color: Colors.green),
-                Icon(Icons.looks_two, size: 45.0, color: Colors.green),
-                Icon(Icons.looks_3, size: 45.0, color: Colors.green),
-              ],
-            )
-          ],
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 0.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Padding(padding: EdgeInsets.symmetric(vertical: 10.0)),
-            Text('Ahora, es importante verificar tu teléfono',
-              style: TextStyle(
-                  fontSize: 16.0,
-                  fontWeight: FontWeight.bold
-              )
-            ),
-            Padding(padding: EdgeInsets.symmetric(vertical: 10.0)),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 30.0),
-              child: TextField(
-                decoration: InputDecoration(
-                  isDense: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(2.0)
-                  ),
-                ),
-              ),
-            ),
-            Padding(padding: EdgeInsets.symmetric(vertical: 10.0)),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                ElevatedButton(
-                  child: Text(
-                    'Enviar código', 
-                    style: TextStyle(
-                      color: Colors.white
-                    )
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.green,
-                  ),
-                  onPressed: (){
-                    
-                  },
-                ),
-              ],
-            ),
-            Padding(padding: EdgeInsets.symmetric(vertical: 15.0)),
-            Text('Te hemos enviado un SMS con el codigo de verificación que tendrás que ingresar a continuación',
-              style: TextStyle(
-                  fontSize: 15.0,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            Padding(padding: EdgeInsets.symmetric(vertical: 10.0)),
-            Container(
-              width: double.infinity,
-              height: size.height * 0.13,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Card(
-                    elevation: 0,
-                    shape:  RoundedRectangleBorder(			//Card with stadium border
-                      side: BorderSide(
-                        color: Colors.black,
-                        width: 2.0,
-                      ),
-                    ),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 9.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text('9',
-                            style: TextStyle(
-                                fontSize: 40.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Card(
-                    elevation: 0,
-                    shape:  RoundedRectangleBorder(			//Card with stadium border
-                      side: BorderSide(
-                        color: Colors.black,
-                        width: 2.0,
-                      ),
-                    ),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 9.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text('9',
-                            style: TextStyle(
-                                fontSize: 40.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Card(
-                    elevation: 0,
-                    shape:  RoundedRectangleBorder(			//Card with stadium border
-                      side: BorderSide(
-                        color: Colors.black,
-                        width: 2.0,
-                      ),
-                    ),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 9.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text('9',
-                            style: TextStyle(
-                                fontSize: 40.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Card(
-                    elevation: 0,
-                    shape:  RoundedRectangleBorder(			//Card with stadium border
-                      side: BorderSide(
-                        color: Colors.black,
-                        width: 2.0,
-                      ),
-                    ),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 9.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text('9',
-                            style: TextStyle(
-                                fontSize: 40.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Card(
-                    elevation: 0,
-                    shape:  RoundedRectangleBorder(			//Card with stadium border
-                      side: BorderSide(
-                        color: Colors.black,
-                        width: 2.0,
-                      ),
-                    ),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 9.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text('9',
-                            style: TextStyle(
-                                fontSize: 40.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Card(
-                    elevation: 0,
-                    shape:  RoundedRectangleBorder(			//Card with stadium border
-                      side: BorderSide(
-                        color: Colors.black,
-                        width: 2.0,
-                      ),
-                    ),
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 9.0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text('9',
-                            style: TextStyle(
-                                fontSize: 40.0,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          ]
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 37.0),
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          ElevatedButton(
-            child: Text(
-              'Finalizar', 
-              style: TextStyle(
-                color: Colors.white
-              )
-            ),
-            style: ElevatedButton.styleFrom(
-              primary: Colors.green,
-            ),
-            onPressed: (){
-              Navigator.pushNamed(context, '/');
-            },
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
+          SizedBox(height: 10),
+          Text('Ingresa el código',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.black38
+            ),
+          ),
+          SizedBox(height: _mediaQuerySize.height * 0.115),
+          Container(
+            decoration: BoxDecoration(color: Color.fromRGBO(255, 255, 255, 0.88), borderRadius: BorderRadius.circular(12)),
+            padding: EdgeInsets.symmetric(horizontal: 25),
+            child: Column(
+              children: [
+                SizedBox(height: 35),
+                TextFormField(
+                  keyboardType: TextInputType.number,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold
+                  ),
+                  decoration: InputDecoration(
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.black12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    prefix: Padding(
+                      padding: EdgeInsets.symmetric(horizontal:8),
+                      child: Text('(+52)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    ),
+                    suffixIcon: Icon(Icons.check_circle, color:Colors.green, size: 32)
+                  ),
+                ),
+                SizedBox(height: 20),
+                Container(
+                  width: double.infinity,
+                  child: MaterialButton(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    disabledColor: Colors.grey,
+                    color: Color.fromRGBO(51, 114, 134, 1),
+                    elevation: 0,
+                    child: Text(
+                      'Registrar', 
+                      style: TextStyle(
+                        color: Colors.white
+                      )
+                    ),
+                    onPressed: (){
+                      Navigator.pushReplacementNamed(context, 'login');
+                    },
+                  ),
+                ),
+                SizedBox(height: 25),
+              ],
+            ),
+          ),
+          Container(
+            decoration: BoxDecoration(color: Color.fromRGBO(255, 255, 255, 0.88), borderRadius: BorderRadius.circular(12)),
+            padding: EdgeInsets.symmetric(horizontal: 25),
+            child: Column(
+              children: [
+                SizedBox(height: 35),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _textFieldOTP(context, first: true, last: false),
+                    _textFieldOTP(context, first: false, last: false),
+                    _textFieldOTP(context, first: false, last: false),
+                    _textFieldOTP(context, first: false, last: true)
+                  ],
+                ),
+                SizedBox(height: 20),
+                Container(
+                  width: double.infinity,
+                  child: MaterialButton(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    disabledColor: Colors.grey,
+                    color: Color.fromRGBO(51, 114, 134, 1),
+                    elevation: 0,
+                    child: Text(
+                      'Verificar', 
+                      style: TextStyle(
+                        color: Colors.white
+                      )
+                    ),
+                    onPressed: (){
+                      Navigator.pushReplacementNamed(context, 'login');
+                    },
+                  ),
+                ),
+                SizedBox(height: 25),
+              ],
+            ),
+          ),
+          SizedBox(height: 21),
+          Text('¿Aún no recibes el código?',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              color: Colors.black38
+            ),
+          ),
+           SizedBox(height: 15),
+          Text('Reenviar nuevo código',
+            style: TextStyle(
+              fontSize: 21,
+              fontWeight: FontWeight.bold,
+              color: Color.fromRGBO(51, 114, 134, 1),
+            ),
           ),
         ],
       ),
-      Padding(
-        padding: EdgeInsets.symmetric(vertical: 5.0),
-      ),
-    ];
-    return widgets;
+    );
   }
+
+  _textFieldOTP(BuildContext context, {required bool first, required bool last}){
+    return Container(
+      height: 85,
+      child: AspectRatio(
+        aspectRatio: 0.7,
+        child: TextField(
+          autofocus: true,
+          onChanged: (value){
+            if(value.length == 1 && last == false){
+              FocusScope.of(context).nextFocus();
+            }
+            if(value.length == 0 && first == false){
+              FocusScope.of(context).previousFocus();
+            }
+          },
+          cursorColor: Color.fromRGBO(51, 114, 134, 1),
+          showCursor: false,
+          readOnly: false,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
+          keyboardType: TextInputType.number,
+          maxLength: 1,
+          decoration: InputDecoration(
+            counter: Offstage(),
+            enabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(width: 2, color: Colors.black12),
+              borderRadius: BorderRadius.circular(12)
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(width: 3, color: Color.fromRGBO(51, 114, 134, 1)),
+              borderRadius: BorderRadius.circular(12)
+            )
+          ),
+        ),
+      ),
+    );
+  }
+
 }
