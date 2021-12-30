@@ -1,74 +1,87 @@
 import 'package:flutter/material.dart';
-import 'package:prestaprofe/src/utils/icons_string_util.dart';
+
 import 'package:prestaprofe/src/providers/json_menuoptions_provider.dart';
+import 'package:prestaprofe/src/ui/input_decorations.dart';
+import 'package:prestaprofe/src/utils/icons_string_util.dart';
+import 'package:prestaprofe/src/widgets/widgets.dart';
 
 class StepTwo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+
+    final _mediaQuerySize = MediaQuery.of(context).size;
+    final _mediaQuerySizeFixedHeightCircles = ((_mediaQuerySize.height - MediaQuery.of(context).padding.top - kToolbarHeight) *0.067);
+    
     return Scaffold(
-      body: ListView(
-        children: 
-        _cardFromJSON(jsonMenuOptionsProvider.getMenuOptions['routes']['routesRegisterUser'][1]['childRoutes'], context, size),
+      appBar: AppBarRegister(mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles),
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        color: Color.fromRGBO(191, 155, 48, 0.91),
+        child: SingleChildScrollView(
+          child: _constructRegisterBody(context, _mediaQuerySize),
+        ),
       ),
     );
   }
 
-    List<Widget> _cardFromJSON(List<dynamic>? data, BuildContext context, size) {
-    final List<Widget> options = [];
-    options.add(
-      Container(
-        width: double.infinity,
-        height: size.height * 0.19,
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-            ),
-            Text(
-              'REGISTRO', 
-              style: TextStyle(
-                fontSize: 19.0,
-                fontWeight: FontWeight.bold
-              )
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 3.0),
-            ),
-            Text(
-              'Carga los documentos solicitados',
-              style: TextStyle(
-                fontSize: 15.0,
-                fontWeight: FontWeight.bold
+  Widget _constructRegisterBody(BuildContext context, Size _mediaQuerySize) {
 
-              )
+    final _mediaQuerySizeFixedHeight = ((_mediaQuerySize.height - MediaQuery.of(context).padding.top - kToolbarHeight - kBottomNavigationBarHeight - 9));
+    
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      child: Column(
+        children: [
+          _CardsFromJSON(),
+
+          SizedBox(height: 10),
+
+          Container(
+            width: double.infinity,
+            child: MaterialButton(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              disabledColor: Colors.grey,
+              color: Color.fromRGBO(51, 114, 134, 1),
+              elevation: 0,
+              child: Text(
+                'Continuar', 
+                style: TextStyle(
+                  color: Colors.white
+                )
+              ),
+              onPressed: (){
+                Navigator.pushNamed(context, 'registerStepThree');
+              },
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 3.0),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                Icon(Icons.looks_one, size: 45.0, color: Colors.green),
-                Icon(Icons.looks_two, size: 45.0, color: Colors.green),
-                Icon(Icons.looks_3_outlined, size: 45.0),
-              ],
-            )
-          ],
-        ),
+          ),
+        ],
       ),
     );
+  }
+}
+
+class _CardsFromJSON extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+
+    final _mediaQuerySize = MediaQuery.of(context).size;
+    final data = jsonMenuOptionsProvider.getMenuOptions['routes']['routesRegisterUser'][1]['childRoutes'];
+    final List<Widget> options = [];
+
+    options.add(SizedBox(height: 15));
+
     if(data != null){
       data.forEach((opt) {
         final widgetTemp = Container(
-          width: double.infinity,
-          height: size.height * 0.20,
+          height: _mediaQuerySize.height * 0.20,
           child: Card(
             color: Colors.grey.shade300,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
+              children: [
                 ListTile(
                   title: Text(opt['text']),
                   trailing: Icon(Icons.camera_alt, size: 60.0),
@@ -77,43 +90,16 @@ class StepTwo extends StatelessWidget {
             ),
           ),
         );
+
         options.add(widgetTemp);
+        
       });
     }
-    options.add(
-      Column(
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 26.0),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              ElevatedButton(
-                child: Text(
-                  'Continuar', 
-                  style: TextStyle(
-                    color: Colors.white
-                  )
-                ),
-                style: ElevatedButton.styleFrom(
-                  primary: Colors.green,
-                ),
-                onPressed: (){
-                  Navigator.pushNamed(context, 'registerStepThree');
-                },
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0),
-              ),
-            ],
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 5.0),
-          ),
-        ],
+    return Container(
+      width: double.infinity,
+      child: Column(
+        children: options
       )
     );
-    return options;
   }
 }

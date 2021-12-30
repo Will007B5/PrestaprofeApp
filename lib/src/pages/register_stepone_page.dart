@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
+
 import 'package:prestaprofe/src/providers/json_menuoptions_provider.dart';
+import 'package:prestaprofe/src/ui/input_decorations.dart';
 import 'package:prestaprofe/src/utils/icons_string_util.dart';
+import 'package:prestaprofe/src/widgets/widgets.dart';
 
-class StepOne extends StatefulWidget {
-
-  @override
-  _StepOneState createState() => _StepOneState();
-
-}
-
-class _StepOneState extends State<StepOne>{
+class StepOne extends StatelessWidget{
 
   String _date = '';
   List<String> _gender = ['Hombre', 'Mujer'];
@@ -21,265 +17,145 @@ class _StepOneState extends State<StepOne>{
   @override
   Widget build(BuildContext context) {
 
-  final size = MediaQuery.of(context).size;
+    final _mediaQuerySize = MediaQuery.of(context).size;
+    final _mediaQuerySizeFixedHeightCircles = ((_mediaQuerySize.height - MediaQuery.of(context).padding.top - kToolbarHeight) *0.067);
 
     return Scaffold(
-      body: ListView(
-        children: _createForm(context, size),
+      appBar: AppBarRegister(mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles),
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        color: Color.fromRGBO(191, 155, 48, 0.91),
+        child: SingleChildScrollView(
+          child: _constructRegisterBody(context, _mediaQuerySize)
+        ),
       )
     );
   }
 
-  List<Widget> _createForm(BuildContext context, Size size){
-    final List<Widget> textfields = [
-      Container(
-        width: double.infinity,
-        height: size.height * 0.19,
-        child: Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-            ),
-            Text(
-              'REGISTRO', 
-              style: TextStyle(
-                fontSize: 19.0,
-                fontWeight: FontWeight.bold
-              )
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 3.0),
-            ),
-            Text(
-              'Completa el siguiente formulario',
-              style: TextStyle(
-                fontSize: 15.0,
-                fontWeight: FontWeight.bold
+  Widget _constructRegisterBody(BuildContext context, Size _mediaQuerySize) {
 
-              )
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 3.0),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                Icon(Icons.looks_one, size: 45.0, color: Colors.green),
-                Icon(Icons.looks_two_outlined, size: 45.0),
-                Icon(Icons.looks_3_outlined, size: 45.0),
-              ],
-            )
-          ],
-        ),
-      ),
-      Container(
-        padding: EdgeInsets.symmetric(horizontal: 30.0, vertical: 0.0),
-        child: Column(
-          children: <Widget>[
-            TextField(
-              decoration: InputDecoration(
-                isDense: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(2.0)
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15),
+      child: Column(
+        children: [
+          SizedBox(height: 15),
+          Form(
+            child: Column(
+              children: [
+                TextFormField(
+                  decoration: InputDecorations.registerInputDecoration(hintText: 'Juan', labelText: 'Nombre', prefixIcon: Icons.account_circle_rounded),
                 ),
-                labelText: 'Nombre'
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-            ),
-            TextField(
-              decoration: InputDecoration(
-                isDense: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(2.0)
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecorations.registerInputDecoration(hintText: 'Pérez', labelText: 'Apellido Paterno', prefixIcon: Icons.account_circle_rounded),
                 ),
-                labelText: 'Apellido paterno'
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-            ),
-            TextField(
-              decoration: InputDecoration(
-                isDense: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(2.0)
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecorations.registerInputDecoration(hintText: 'Pérez', labelText: 'Apellido Materno', prefixIcon: Icons.account_circle_rounded),
                 ),
-                labelText: 'Apellido materno'
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-            ),
-            TextField(
-              controller: _textfieldDateController,
-              enableInteractiveSelection: false,
-              decoration: InputDecoration(
-                isDense: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(2.0)
+                SizedBox(height: 10),
+                TextFormField(
+                  controller: _textfieldDateController,
+                  enableInteractiveSelection: false,
+                  decoration: InputDecorations.registerInputDecoration(hintText: '16-09-1993', labelText: 'Fecha de nacimiento', prefixIcon: Icons.calendar_today_rounded),
+                  onTap: (){
+                    //Para quitar el focus del textfield
+                    FocusScope.of(context).requestFocus(new FocusNode());
+                    _selectDate(context);
+                  },
                 ),
-                labelText: 'Fecha de nacimiento'
-              ),
-              onTap: (){
-                //Para quitar el focus del textfield
-                FocusScope.of(context).requestFocus(new FocusNode());
-                _selectDate(context);
-              },
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-            ),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      isDense: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(2.0)
-                      ),
-                      labelText: 'Sexo'
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton(
+                SizedBox(height: 10),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: DropdownButtonFormField(
+                        decoration: InputDecorations.registerInputDecoration(hintText: 'Seleccione su genero', labelText: 'Genero', prefixIcon: Icons.recent_actors_rounded),
                         value: _optSelectedGender,
                         items: getGenderOptionsDropdown(),
                         onChanged: (opt){
-                          setState(() {
-                            _optSelectedGender = opt.toString();
-                          });
+          
                         },
                       ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-            ),
-            Row(
-              children: <Widget>[
-                Expanded(
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      isDense: true,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(2.0)
-                      ),
-                      labelText: 'Estado civil'
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton(
+                SizedBox(height: 10),
+                Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: DropdownButtonFormField(
+                        decoration: InputDecorations.registerInputDecoration(hintText: 'Seleccione su estado civil', labelText: 'Estado civil', prefixIcon: Icons.book_rounded),
                         value: _optSelectedCivil,
                         items: getCivilOptionsDropdown(),
                         onChanged: (opt){
-                          setState(() {
-                            _optSelectedCivil = opt.toString();
-                          });
+          
                         },
                       ),
                     ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecorations.registerInputDecoration(hintText: 'FRKLP0795D4T0', labelText: 'CURP', prefixIcon: Icons.create_rounded),
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecorations.registerInputDecoration(hintText: 'Avenida Acueducto #27', labelText: 'Domicilio', prefixIcon: Icons.home_rounded),
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecorations.registerInputDecoration(hintText: 'Zona Centro', labelText: 'Colonia', prefixIcon: Icons.home_rounded),
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecorations.registerInputDecoration(hintText: 'Morelia', labelText: 'Ciudad', prefixIcon: Icons.home_rounded),
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecorations.registerInputDecoration(hintText: 'Michoacán', labelText: 'Estado', prefixIcon: Icons.home_rounded),
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecorations.registerInputDecoration(hintText: 'Nombre y telefono', labelText: 'Referencia familiar', prefixIcon: Icons.home_rounded),
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecorations.registerInputDecoration(hintText: 'Seleccione una institución', labelText: 'Institución', prefixIcon: Icons.work_rounded),
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecorations.registerInputDecoration(hintText: 'Otra institución', labelText: 'Institución', prefixIcon: Icons.work_rounded),
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecorations.registerInputDecoration(hintText: 'Seleccione un tipo de empleo', labelText: 'Empleo', prefixIcon: Icons.work_rounded),
+                ),
+                SizedBox(height: 10),
+                Container(
+                  width: double.infinity,
+                  child: MaterialButton(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    disabledColor: Colors.grey,
+                    color: Color.fromRGBO(51, 114, 134, 1),
+                    elevation: 0,
+                    child: Text(
+                      'Continuar', 
+                      style: TextStyle(
+                        color: Colors.white
+                      )
+                    ),
+                    onPressed: (){
+                      Navigator.pushNamed(context, 'registerStepTwo');
+                    },
                   ),
                 ),
-              ],
+              ]
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-            ),
-            TextField(
-              decoration: InputDecoration(
-                isDense: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(2.0)
-                ),
-                labelText: 'CURP'
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-            ),
-            TextField(
-              decoration: InputDecoration(
-                isDense: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(2.0)
-                ),
-                labelText: 'Domicilio'
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-            ),
-            TextField(
-              decoration: InputDecoration(
-                isDense: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(2.0)
-                ),
-                labelText: 'Institución donde laboras'
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-            ),
-            TextField(
-              decoration: InputDecoration(
-                isDense: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(2.0)
-                ),
-                labelText: 'Tipo de empleo'
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-            ),
-            TextField(
-              decoration: InputDecoration(
-                isDense: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(2.0)
-                ),
-                labelText: 'Ingresos mensuales'
-              ),
-            )
-          ]
-        ),
-      ),
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: 0.0, vertical: 5.0),
-      ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          ElevatedButton(
-            child: Text(
-              'Continuar', 
-              style: TextStyle(
-                color: Colors.white
-              )
-            ),
-            style: ElevatedButton.styleFrom(
-              primary: Colors.green,
-            ),
-            onPressed: (){
-              Navigator.pushNamed(context, 'registerStepTwo');
-            },
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 8.0),
           ),
         ],
       ),
-      Padding(
-        padding: EdgeInsets.symmetric(vertical: 5.0),
-      ),
-    ];
-    
-    return textfields;
+    );
   }
 
   _selectDate(BuildContext context) async{
@@ -291,10 +167,7 @@ class _StepOneState extends State<StepOne>{
       locale: Locale('es', 'ES')
     );
     if(picked != null){
-      setState(() {
-        _date = picked.toIso8601String();
-        _textfieldDateController.text = _date;
-      });
+      
     }
   }
 
@@ -321,3 +194,5 @@ class _StepOneState extends State<StepOne>{
   }
 
 }
+
+

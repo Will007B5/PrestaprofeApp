@@ -23,7 +23,15 @@
                     {
                         "route": "",
                         "icon": "camera_alt", 
-                        "text": "Identificación oficial en mano"
+                        "text": "Selfie con identificación oficial en mano"
+                    },
+                    {   "route": "",
+                        "icon": "camera_alt", 
+                        "text": "Comprobante de domicilio"
+                    },
+                    {   "route": "",
+                        "icon": "camera_alt", 
+                        "text": "Talon de cheque"
                     }
                 ],
                 "text": "Step 2"

@@ -1,17 +1,38 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:prestaprofe/src/providers/json_menuoptions_provider.dart';
-import 'package:prestaprofe/src/routes/routes.dart';
-import 'package:prestaprofe/src/pages/error_page.dart';
+import 'package:provider/provider.dart';
 
-void main() => runApp(MyApp());
+
+import 'package:prestaprofe/src/pages/pages.dart';
+import 'package:prestaprofe/src/providers/db_provider.dart';
+import 'package:prestaprofe/src/providers/json_menuoptions_provider.dart';
+import 'package:prestaprofe/src/providers/providers.dart';
+import 'package:prestaprofe/src/routes/routes.dart';
+import 'package:prestaprofe/src/services/services.dart';
+
+
+void main() => runApp(AppState());
+
+class AppState extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider(create: (_) => UiProvider()),
+      ],
+      child: MyApp()
+    );
+  }
+}
 
 class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
     jsonMenuOptionsProvider.loadOptions(); //Carga las rutas del options.json
+    DBProvider.db.getTodosLosScans().then(print);
     return MaterialApp(
       title: 'Prestaprofe',
       debugShowCheckedModeBanner: false,
@@ -25,8 +46,9 @@ class MyApp extends StatelessWidget {
         Locale('es', 'ES'), // Spanish, no country code
       ],
       //Configuración de rutas
-      initialRoute: '/',
+      initialRoute: 'checking',
       routes: getAppRoutes(),
+      scaffoldMessengerKey: NotificationsService.messengerKey,
       //Regresa una ruta dinamica por defecto (de cualquier tipo)
       onGenerateRoute: (RouteSettings settings){
         return MaterialPageRoute(

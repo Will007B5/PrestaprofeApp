@@ -1,0 +1,10 @@
+export 'package:prestaprofe/src/pages/check_auth_page.dart';
+export 'package:prestaprofe/src/pages/error_page.dart';
+export 'package:prestaprofe/src/pages/home_page.dart';
+export 'package:prestaprofe/src/pages/login_page.dart';
+export 'package:prestaprofe/src/pages/mycredits_page.dart';
+export 'package:prestaprofe/src/pages/newcredit_stepone_page.dart';
+export 'package:prestaprofe/src/pages/newcredit_steptwo_page.dart';
+export 'package:prestaprofe/src/pages/register_stepone_page.dart';
+export 'package:prestaprofe/src/pages/register_stepthree_page.dart';
+export 'package:prestaprofe/src/pages/register_steptwo_page.dart';
