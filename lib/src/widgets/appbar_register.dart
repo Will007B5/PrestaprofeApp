@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 class AppBarRegister extends StatelessWidget with PreferredSizeWidget {
   const AppBarRegister({
     Key? key,
+    required String textStep,
     required double mediaQuerySizeFixedHeightCircles,
-  }) : _mediaQuerySizeFixedHeightCircles = mediaQuerySizeFixedHeightCircles, super(key: key);
+  }) : _mediaQuerySizeFixedHeightCircles = mediaQuerySizeFixedHeightCircles, _textStep = textStep, super(key: key);
 
   @override
   Size get preferredSize => Size.fromHeight(120);
 
   final double _mediaQuerySizeFixedHeightCircles;
+  final String _textStep;
 
   @override
   Widget build(BuildContext context) {
@@ -22,22 +24,14 @@ class AppBarRegister extends StatelessWidget with PreferredSizeWidget {
         child: Column(
           children: [
             Text(
-              'REGISTRO', 
+              _textStep,
               style: TextStyle(
-                fontSize: 19.0,
-                fontWeight: FontWeight.bold
-              )
-            ),
-            SizedBox(height: 5),
-            Text(
-              'Completa el siguiente formulario',
-              style: TextStyle(
-                fontSize: 15.0,
+                fontSize: 22.5,
                 fontWeight: FontWeight.bold
 
               )
             ),
-            SizedBox(height: 5),
+            SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -49,7 +43,7 @@ class AppBarRegister extends StatelessWidget with PreferredSizeWidget {
                     child: Text('1', textAlign: TextAlign.center),
                     height: _mediaQuerySizeFixedHeightCircles,
                     width: _mediaQuerySizeFixedHeightCircles,
-                    color: Colors.green
+                    color: Colors.green[300]
                   ),
                 ),
                 ClipRRect(
@@ -71,7 +65,7 @@ class AppBarRegister extends StatelessWidget with PreferredSizeWidget {
                     width: _mediaQuerySizeFixedHeightCircles,
                     color: Colors.grey[500]
                   ),
-                ),
+                )
               ],
             ),
             SizedBox(height: 6)

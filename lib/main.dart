@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import 'package:prestaprofe/src/pages/pages.dart';
 import 'package:prestaprofe/src/providers/db_provider.dart';
-import 'package:prestaprofe/src/providers/json_menuoptions_provider.dart';
 import 'package:prestaprofe/src/providers/providers.dart';
 import 'package:prestaprofe/src/routes/routes.dart';
 import 'package:prestaprofe/src/services/services.dart';
@@ -31,7 +30,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    jsonMenuOptionsProvider.loadOptions(); //Carga las rutas del options.json
     DBProvider.db.getTodosLosScans().then(print);
     return MaterialApp(
       title: 'Prestaprofe',
@@ -56,11 +54,15 @@ class MyApp extends StatelessWidget {
         );
       },
       //Agrega un tema general para la aplicación
-      theme: ThemeData.light().copyWith(
+      theme: ThemeData(
         appBarTheme: AppBarTheme(
           centerTitle: true,
           color: Color.fromRGBO(51, 114, 134, 1)
-        )
+        ),
+        colorScheme: ColorScheme.light(
+          primary: Color.fromRGBO(51, 114, 134, 1)
+        ),
+        fontFamily: 'Montserrat'
       ),
     );
   }

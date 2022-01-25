@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:prestaprofe/src/providers/json_menuoptions_provider.dart';
 import 'package:prestaprofe/src/ui/input_decorations.dart';
 import 'package:prestaprofe/src/utils/icons_string_util.dart';
 import 'package:prestaprofe/src/widgets/widgets.dart';
@@ -9,26 +8,31 @@ class StepOne extends StatelessWidget{
 
   String _date = '';
   List<String> _gender = ['Hombre', 'Mujer'];
-  List<String> _civilState = ['Solter@', 'Casad@', 'Viud@', 'Union libre'];
+  List<String> _civilState = ['Soltero/a', 'Casado/a', 'Divorciado/a', 'Separacion en proceso judicial', 'Viudo/a', 'Concubinato'];
   String _optSelectedGender = 'Hombre';
-  String _optSelectedCivil = 'Solter@';
+  String _optSelectedCivil = 'Soltero/a';
   TextEditingController _textfieldDateController = new TextEditingController();
 
   @override
   Widget build(BuildContext context) {
 
     final _mediaQuerySize = MediaQuery.of(context).size;
-    final _mediaQuerySizeFixedHeightCircles = ((_mediaQuerySize.height - MediaQuery.of(context).padding.top - kToolbarHeight) *0.067);
-
+    final _mediaQuerySizeFixedHeightCircles = ((_mediaQuerySize.height - MediaQuery.of(context).padding.top - kToolbarHeight) * 0.063);
+    
     return Scaffold(
-      appBar: AppBarRegister(mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles),
+      appBar: AppBarRegister(textStep: 'INFORMACIÓN PERSONAL', mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles),
       body: Container(
         height: double.infinity,
         width: double.infinity,
-        color: Color.fromRGBO(191, 155, 48, 0.91),
-        child: SingleChildScrollView(
-          child: _constructRegisterBody(context, _mediaQuerySize)
-        ),
+        color: Colors.white,
+        child: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _constructRegisterBody(context, _mediaQuerySize)
+            )
+          ],
+        )
       )
     );
   }
@@ -36,102 +40,177 @@ class StepOne extends StatelessWidget{
   Widget _constructRegisterBody(BuildContext context, Size _mediaQuerySize) {
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15),
-      child: Column(
-        children: [
-          SizedBox(height: 15),
-          Form(
-            child: Column(
+      padding: EdgeInsets.symmetric(horizontal: 30),
+      child: Form(
+        child: Column(
+          children: [
+            Column(
               children: [
-                TextFormField(
-                  decoration: InputDecorations.registerInputDecoration(hintText: 'Juan', labelText: 'Nombre', prefixIcon: Icons.account_circle_rounded),
+                SizedBox(height: 15),
+                Container(
+                  decoration: _inputBorderBoxDecoration(),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: TextFormField(
+                      decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'Nombre', prefixIcon: Icons.account_circle_rounded),
+                    ),
+                  ),
                 ),
                 SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecorations.registerInputDecoration(hintText: 'Pérez', labelText: 'Apellido Paterno', prefixIcon: Icons.account_circle_rounded),
+                Container(
+                  decoration: _inputBorderBoxDecoration(),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: TextFormField(
+                      decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'Apellido(s)', prefixIcon: Icons.account_circle_rounded),
+                    ),
+                  ),
                 ),
                 SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecorations.registerInputDecoration(hintText: 'Pérez', labelText: 'Apellido Materno', prefixIcon: Icons.account_circle_rounded),
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  controller: _textfieldDateController,
-                  enableInteractiveSelection: false,
-                  decoration: InputDecorations.registerInputDecoration(hintText: '16-09-1993', labelText: 'Fecha de nacimiento', prefixIcon: Icons.calendar_today_rounded),
-                  onTap: (){
-                    //Para quitar el focus del textfield
-                    FocusScope.of(context).requestFocus(new FocusNode());
-                    _selectDate(context);
-                  },
+                Container(
+                  decoration: _inputBorderBoxDecoration(),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: TextFormField(
+                      controller: _textfieldDateController,
+                      enableInteractiveSelection: false,
+                      decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'Fecha de nacimiento', prefixIcon: Icons.calendar_today_rounded),
+                      onTap: (){
+                        //Para quitar el focus del textfield
+                        FocusScope.of(context).requestFocus(new FocusNode());
+                        _selectDate(context);
+                      },
+                    ),
+                  ),
                 ),
                 SizedBox(height: 10),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Expanded(
-                      child: DropdownButtonFormField(
-                        decoration: InputDecorations.registerInputDecoration(hintText: 'Seleccione su genero', labelText: 'Genero', prefixIcon: Icons.recent_actors_rounded),
-                        value: _optSelectedGender,
-                        items: getGenderOptionsDropdown(),
-                        onChanged: (opt){
-          
-                        },
+                      child: Container(
+                        decoration: _inputBorderBoxDecoration(),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: DropdownButtonFormField(
+                            isDense: true,
+                            isExpanded: true,
+                            decoration: InputDecorations.registerInputDecoration(hintText: 'Seleccione su genero', labelText: 'Genero', prefixIcon: Icons.recent_actors_rounded),
+                            icon: Container(
+                              child: Icon(                  
+                                Icons.arrow_drop_down,  
+                                color: Color.fromRGBO(51, 114, 134, 1),   
+                              ),
+                            ),
+                            value: _optSelectedGender,
+                            items: getGenderOptionsDropdown(),
+                            onChanged: (opt){
+
+                            },
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
                 SizedBox(height: 10),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Expanded(
-                      child: DropdownButtonFormField(
-                        decoration: InputDecorations.registerInputDecoration(hintText: 'Seleccione su estado civil', labelText: 'Estado civil', prefixIcon: Icons.book_rounded),
-                        value: _optSelectedCivil,
-                        items: getCivilOptionsDropdown(),
-                        onChanged: (opt){
-          
-                        },
+                      child: Container(
+                        decoration: _inputBorderBoxDecoration(),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: DropdownButtonFormField(
+                            isDense: true,
+                            isExpanded: true,    
+                            decoration: InputDecorations.registerInputDecoration(hintText: 'Seleccione su estado civil', labelText: 'Estado civil', prefixIcon: Icons.book_rounded),
+                            icon: Container(
+                              child: Icon(                  
+                                Icons.arrow_drop_down,  
+                                color: Color.fromRGBO(51, 114, 134, 1),   
+                              ),
+                            ),
+                            value: _optSelectedCivil,
+                            items: getCivilOptionsDropdown(),
+                            onChanged: (opt){
+
+                            },
+                          ),
+                        ),
                       ),
                     ),
                   ],
                 ),
                 SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecorations.registerInputDecoration(hintText: 'FRKLP0795D4T0', labelText: 'CURP', prefixIcon: Icons.create_rounded),
+                Container(
+                  decoration: _inputBorderBoxDecoration(),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: TextFormField(
+                      decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'Domicilio', prefixIcon: Icons.home_rounded),
+                    ),
+                  ),
                 ),
                 SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecorations.registerInputDecoration(hintText: 'Avenida Acueducto #27', labelText: 'Domicilio', prefixIcon: Icons.home_rounded),
+                Table(
+                  children: [
+                    TableRow(
+                      children: [
+                        Container(
+                          margin: EdgeInsets.only(right: 10),
+                          decoration: _inputBorderBoxDecoration(),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: TextFormField(
+                              decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'C. Postal', prefixIcon: Icons.home_rounded),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          decoration: _inputBorderBoxDecoration(),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: TextFormField(
+                              decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'Estado', prefixIcon: Icons.home_rounded),
+                            ),
+                          ),
+                        ),
+                      ]
+                    ),
+                    TableRow(
+                      children: [
+                        Container(margin: EdgeInsets.only(top: 10)),
+                        Container(
+                          margin: EdgeInsets.only(top: 10),
+                          decoration: _inputBorderBoxDecoration(),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: TextFormField(
+                              decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'Ciudad', prefixIcon: Icons.home_rounded),
+                            ),
+                          ),
+                        ),
+                      ]
+                    )
+                  ],
                 ),
                 SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecorations.registerInputDecoration(hintText: 'Zona Centro', labelText: 'Colonia', prefixIcon: Icons.home_rounded),
+                Container(
+                  decoration: _inputBorderBoxDecoration(),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: TextFormField(
+                      decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'CURP', prefixIcon: Icons.account_circle_rounded),
+                    ),
+                  ),
                 ),
-                SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecorations.registerInputDecoration(hintText: 'Morelia', labelText: 'Ciudad', prefixIcon: Icons.home_rounded),
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecorations.registerInputDecoration(hintText: 'Michoacán', labelText: 'Estado', prefixIcon: Icons.home_rounded),
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecorations.registerInputDecoration(hintText: 'Nombre y telefono', labelText: 'Referencia familiar', prefixIcon: Icons.home_rounded),
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecorations.registerInputDecoration(hintText: 'Seleccione una institución', labelText: 'Institución', prefixIcon: Icons.work_rounded),
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecorations.registerInputDecoration(hintText: 'Otra institución', labelText: 'Institución', prefixIcon: Icons.work_rounded),
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  decoration: InputDecorations.registerInputDecoration(hintText: 'Seleccione un tipo de empleo', labelText: 'Empleo', prefixIcon: Icons.work_rounded),
-                ),
-                SizedBox(height: 10),
+              ],
+            ),
+            Expanded(child: Container()),
+            Column(
+              children: [
                 Container(
                   width: double.infinity,
                   child: MaterialButton(
@@ -150,10 +229,20 @@ class StepOne extends StatelessWidget{
                     },
                   ),
                 ),
-              ]
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  BoxDecoration _inputBorderBoxDecoration() {
+    return BoxDecoration(
+      borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+        color: Color.fromRGBO(51, 114, 134, 1),
+        width: 2.4,
       ),
     );
   }
@@ -161,9 +250,10 @@ class StepOne extends StatelessWidget{
   _selectDate(BuildContext context) async{
     DateTime? picked = await showDatePicker(
       context: context,
+      initialEntryMode: DatePickerEntryMode.calendarOnly,
       initialDate: new DateTime.now(),
       firstDate: new DateTime(1940),
-      lastDate: new DateTime(2050),
+      lastDate: new DateTime.now(),
       locale: Locale('es', 'ES')
     );
     if(picked != null){
