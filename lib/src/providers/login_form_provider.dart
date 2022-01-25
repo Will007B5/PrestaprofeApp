@@ -13,12 +13,23 @@ class LoginFormProvider extends ChangeNotifier {
 
   bool _isLoading = false;
 
+  bool _obscurePasswordField = false;
+
   bool get isLoading {
     return _isLoading;
   }
 
   set isLoading (bool value) {
     _isLoading = value;
+    notifyListeners(); //Notifica que hay que redibujar
+  }
+
+  bool get obscurePasswordField {
+    return _obscurePasswordField;
+  }
+
+  set obscurePasswordField (bool value) {
+    _obscurePasswordField = value;
     notifyListeners(); //Notifica que hay que redibujar
   }
 

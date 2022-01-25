@@ -26,7 +26,7 @@ class CheckAuthPage extends StatelessWidget {
               Future.microtask((){
                 //Navigator.of(context).pushReplacementNamed('home');
                 Navigator.pushReplacement(context, PageRouteBuilder(//Para crear animacion al redirigir a la pagina (transicion)
-                  pageBuilder: ( _ , __ , ___ ) => LoginPage(),
+                  pageBuilder: ( _ , __ , ___ ) => HomePage(),
                   transitionDuration: Duration(seconds: 0)
                 ));
               });

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import 'package:prestaprofe/src/services/services.dart';
 import 'package:prestaprofe/src/widgets/widgets.dart';
 
@@ -12,8 +13,18 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBarHome(), //Widget en carpeta Widgets 
-      body: SingleChildScrollView(
-        child: _constructHomeBody(context)
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        color: Colors.white,
+        child: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _constructHomeBody(context),
+            )
+          ],
+        ),
       ),
       bottomNavigationBar: CustomBottomNavigation(), //Widget en carpeta Widgets 
     );
@@ -27,79 +38,101 @@ class HomePage extends StatelessWidget {
     //kBottomNavigationBarHeight = constante de Flutter que indica el tamaño del BottomNavigationBar
 
     final _mediaQuerySize = MediaQuery.of(context).size;
-    final _mediaQuerySizeFixedHeight = _mediaQuerySize.height - MediaQuery.of(context).padding.top;
 
     return Container(
-      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 15),
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Stack(
+          Column(
+            children: [
+              SizedBox(height: 15),
+
+              _ProfileNameAndPicture(),
+
+              SizedBox(height: 30),
+
+              _ProfileCardActions(mediaQuerySize: _mediaQuerySize, height: _mediaQuerySize.height, width: _mediaQuerySize.width - 30)
+            ],
+          ),
+
+          Expanded(child: Container()),
+
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Container(
-                color: Color.fromRGBO(191, 155, 48, 1),
                 width: double.infinity,
-                height: _mediaQuerySize.height - (_mediaQuerySize.height - _mediaQuerySizeFixedHeight), // 1000 - (1000 - 900) = 1000 - 100 = 900
-              ),
-              Container(
-                color: Color.fromRGBO(51, 114, 134, 1),
-                width: double.infinity,
-                height: 230,
-              ),
-              Positioned(
-                child: Container(
-                  width: double.infinity,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(height: 15),
-
-                      _ProfileNameAndPicture(),
-
-                      SizedBox(height: 15),
-
-                      _ProfileCardActions()
-                    ]
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text('RESTAN', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontWeight: FontWeight.bold, fontSize: 14.0)),
+                            Text('(ACTIVAR EXTENSIÓN)', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontWeight: FontWeight.bold, fontSize: 8.0))
+                          ]
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 4),
+                          child: CircularPercentIndicator(
+                            radius: 12.0,
+                            animation: true,
+                            animationDuration: 1200,
+                            lineWidth: 4.0,
+                            percent: 0.6,
+                            center: Text('2', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0, color: Color.fromRGBO(51, 114, 134, 1))),
+                            circularStrokeCap: CircularStrokeCap.butt,
+                            backgroundColor: Colors.grey,
+                            progressColor: Color.fromRGBO(51, 114, 134, 1),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
                 ),
               ),
             ],
-          )
+          ),
         ],
       ),
     );
   }
 }
 class _ProfileNameAndPicture extends StatelessWidget {
-  const _ProfileNameAndPicture({
-    Key? key,
-  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
       child: Column(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(130),
-            child: Image(
-              image: AssetImage('assets/logouser.jpg'),
-              fit: BoxFit.fill,
-              height: 130 ,
-              width: 130 ,
+          CircleAvatar(
+            radius: 80,
+            backgroundColor: Color.fromRGBO(51, 114, 134, 1),
+            child: CircleAvatar(
+              radius: 75,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(130),
+                child: Image(
+                  image: AssetImage('assets/logouser.jpg'),
+                  fit: BoxFit.fill,
+                ),
+              )
             ),
           ),
-          SizedBox(height: 10),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15),
-            child: Text('Hola, Guillermo Andrés',
+          SizedBox(height: 23),
+          Text('HOLA, GUILLERMO ANDRÉS',
             overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 30.0,
-              ),
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: Color.fromRGBO(51, 114, 134, 1),
+              fontWeight: FontWeight.bold,
+              fontSize: 23.0,
             ),
           ),
         ],
@@ -108,144 +141,95 @@ class _ProfileNameAndPicture extends StatelessWidget {
   }
 }
 class _ProfileCardActions extends StatelessWidget {
+
+  final Size mediaQuerySize;
+  final double height;
+  final double width;
+
   const _ProfileCardActions({
-    Key? key,
+    Key? key, 
+    required this.mediaQuerySize,
+    required this.height,
+    required this.width,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final _mediaQuerySize = MediaQuery.of(context).size;
-    final _mediaQuerySizeFixedHeightCircles = ((_mediaQuerySize.height - MediaQuery.of(context).padding.top - kToolbarHeight) *0.135);
+
     return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 15),
-      child: Card(
-        elevation: 8.0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
-        ),
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 21),
-              child: Text(
-                "¿Qué quieres hacer?",
-                style: TextStyle(
-                  fontSize: 20.0,
-                  color: Color.fromRGBO(51, 114, 134, 1)
+      child: Column(
+        children: [
+          Text(
+            '¿QUÉ DESEA HACER?',
+            style: TextStyle(
+              fontSize: 15.0,
+              color: Color.fromRGBO(51, 114, 134, 1)
+            ),
+          ),
+          SizedBox(height: 30),
+          Container(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _GestureTapMenuActions(route: 'newCreditStepOne', icon: Icons.payments_rounded, width: (this.width / 3), text: 'SOLICITAR PRÉSTAMO'),
+                _GestureTapMenuActions(route: 'myCredits', icon: Icons.payment_rounded, width: (this.width / 3), text: 'PAGAR PRÉSTAMO'),
+                _GestureTapMenuActions(route: '', icon: Icons.insert_chart, width: (this.width / 3), text: 'VER PRÉSTAMOS'),
+              ],
+            ),
+          ),
+          SizedBox(height: 15)
+        ],
+      ),
+    );
+  }
+}
+
+class _GestureTapMenuActions extends StatelessWidget {
+
+  final String route;
+  final IconData icon;
+  final double width;
+  final String text;
+
+  const _GestureTapMenuActions({
+    Key? key, 
+    required this.route, 
+    required this.icon, 
+    required this.width, 
+    required this.text
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: (){
+        Navigator.pushNamed(context, this.route);
+      },
+      child: Column(
+        children: [
+          Container(
+            width: this.width,
+            child: Column(
+              children: [
+                Container(
+                  child: Icon(this.icon, color: Color.fromRGBO(51, 114, 134, 1), size: 55),
                 ),
-              ),
-            ),
-            SizedBox(height: 5),
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 25),
-              child: Table(
-                children: [
-                  TableRow(
-                    children: [
-                      GestureDetector(
-                        onTap: (){
-                          Navigator.pushNamed(context, 'newCreditStepOne');
-                        },
-                        child: Container(
-                          child: Column(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(_mediaQuerySizeFixedHeightCircles),
-                                child: Container(
-                                  child: Icon(Icons.add_circle, color: Colors.white, size: ((_mediaQuerySizeFixedHeightCircles) - 35)),
-                                  height: _mediaQuerySizeFixedHeightCircles,
-                                  width: _mediaQuerySizeFixedHeightCircles,
-                                  color: Color.fromRGBO(51, 114, 134, 0.9)
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                child: Text('Solicitar nuevo préstamo',
-                                  textAlign: TextAlign.center,
-                                  maxLines: 3,
-                                  style: TextStyle(
-                                    color: Color.fromRGBO(51, 114, 134, 1),
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(),
-                      GestureDetector(
-                        onTap: (){
-                          Navigator.pushNamed(context, 'myCredits');
-                        },
-                        child: Container(
-                          child: Column(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(_mediaQuerySizeFixedHeightCircles),
-                                child: Container(
-                                  child: Icon(Icons.monetization_on_rounded, color: Colors.white, size: ((_mediaQuerySizeFixedHeightCircles) - 35)),
-                                  height: _mediaQuerySizeFixedHeightCircles,
-                                  width: _mediaQuerySizeFixedHeightCircles,
-                                  color: Color.fromRGBO(51, 114, 134, 0.9)
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                child: Text('Mis préstamos',
-                                  textAlign: TextAlign.center,
-                                  maxLines: 3,
-                                  style: TextStyle(
-                                    color: Color.fromRGBO(51, 114, 134, 1),
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    ]
+                Container(
+                  child: Text(this.text,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 3,
+                    style: TextStyle(
+                      color: Color.fromRGBO(51, 114, 134, 1),
+                      fontSize: 12.0,
+                    ),
                   ),
-                  TableRow(
-                    children: [
-                      Container(),
-                      Container(
-                        child: Column(
-                          children: <Widget>[
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(_mediaQuerySizeFixedHeightCircles),
-                              child: Container(
-                                child: Icon(Icons.query_stats_rounded, color: Colors.white, size: ((_mediaQuerySizeFixedHeightCircles) - 35)),
-                                height: _mediaQuerySizeFixedHeightCircles,
-                                width: _mediaQuerySizeFixedHeightCircles,
-                                color: Color.fromRGBO(51, 114, 134, 0.9)
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              child: Text('Estadísticas generales',
-                                textAlign: TextAlign.center,
-                                maxLines: 3,
-                                style: TextStyle(
-                                  color: Color.fromRGBO(51, 114, 134, 1),
-                                  fontSize: 16.0,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(),
-                    ]
-                  )
-                ],
-              ),
+                ),
+              ],
             ),
-            SizedBox(height: 15)
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

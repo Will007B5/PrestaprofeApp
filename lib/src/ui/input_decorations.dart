@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
+
+import 'package:prestaprofe/src/providers/providers.dart';
 
 
 class InputDecorations {
@@ -10,9 +13,11 @@ class InputDecorations {
     required String hintText,
     required String labelText,
     IconData? prefixIcon,
-    IconData? suffixIcon
+    IconData? suffixIcon,
+    BuildContext? context
   }){ 
-    final _circularBorderRadius = BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20));
+    final _circularBorderRadius = BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8), bottomLeft: Radius.circular(8), bottomRight: Radius.circular(8));
+    
     return InputDecoration(
       border: UnderlineInputBorder(borderRadius: _circularBorderRadius),
       fillColor: Colors.white,
@@ -36,11 +41,32 @@ class InputDecorations {
         color: Colors.grey
       ),
       errorStyle: TextStyle(
-        color: Colors.red[900],
+        fontWeight: FontWeight.bold,
+        color: Colors.red[900]!.withOpacity(0.70),
         fontSize: 16
       ),
+      errorBorder: UnderlineInputBorder(
+        borderRadius: _circularBorderRadius,
+        borderSide: BorderSide(
+          color: Colors.red[900]!.withOpacity(0.70)
+        ),
+      ),
+      focusedErrorBorder: UnderlineInputBorder(
+        borderRadius: _circularBorderRadius,
+        borderSide: BorderSide(
+          color: Colors.red[900]!.withOpacity(0.70)
+        ),
+      ),
       prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Color.fromRGBO(51, 114, 134, 1)) : null,
-      suffixIcon: suffixIcon != null ? Icon(suffixIcon, color: Color.fromRGBO(51, 114, 134, 1)) : null
+      suffixIcon: (suffixIcon != null  && context != null)? 
+                  IconButton(
+                    onPressed: (){
+                      final loginForm = Provider.of<LoginFormProvider>(context, listen: false);
+                      loginForm.obscurePasswordField = !loginForm.obscurePasswordField;
+                    }, 
+                    icon: Icon(suffixIcon, color: Color.fromRGBO(51, 114, 134, 1))
+                  ) : 
+                  null,
     );
   }
 
@@ -49,8 +75,8 @@ class InputDecorations {
     required String labelText,
     IconData? prefixIcon
   }){ 
-    final _circularBorderRadius = BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20), bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20));
     return InputDecoration(
+      isDense: true,
       filled: true,
       fillColor: Colors.white,
       floatingLabelStyle: TextStyle(
@@ -58,21 +84,7 @@ class InputDecorations {
         fontWeight: FontWeight.bold,
         fontSize: 18
       ),
-      border: OutlineInputBorder(borderRadius: _circularBorderRadius),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: _circularBorderRadius,
-        borderSide: BorderSide(
-          color: Color.fromRGBO(51, 114, 134, 1),
-          width: 2
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: _circularBorderRadius,
-        borderSide: BorderSide(
-          color: Color.fromRGBO(51, 114, 134, 1),
-          width: 2
-        )
-      ),
+      border: InputBorder.none,
       hintText: hintText,
       labelText: labelText,
       labelStyle: TextStyle(
