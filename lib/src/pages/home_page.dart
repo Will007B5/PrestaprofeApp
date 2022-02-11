@@ -9,8 +9,6 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final _authService = Provider.of<AuthService>(context, listen: false);
-
     return Scaffold(
       appBar: AppBarHome(), //Widget en carpeta Widgets 
       body: Container(
@@ -39,6 +37,11 @@ class HomePage extends StatelessWidget {
 
     final _mediaQuerySize = MediaQuery.of(context).size;
 
+    final _authService = Provider.of<AuthService>(context);
+
+    final width = _mediaQuerySize.width - 30;
+    final height = _mediaQuerySize.height - 30;
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15),
       child: Column(
@@ -48,11 +51,11 @@ class HomePage extends StatelessWidget {
             children: [
               SizedBox(height: 15),
 
-              _ProfileNameAndPicture(),
+              _ProfileNameAndPicture(mediaQuerySize: _mediaQuerySize, height: height, width: width),
 
               SizedBox(height: 30),
 
-              _ProfileCardActions(mediaQuerySize: _mediaQuerySize, height: _mediaQuerySize.height, width: _mediaQuerySize.width - 30)
+              _ProfileCardActions(mediaQuerySize: _mediaQuerySize, height: height, width: width)
             ],
           ),
 
@@ -73,19 +76,19 @@ class HomePage extends StatelessWidget {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.end,
                           children: [
-                            Text('RESTAN', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontWeight: FontWeight.bold, fontSize: 14.0)),
-                            Text('(ACTIVAR EXTENSIÓN)', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontWeight: FontWeight.bold, fontSize: 8.0))
+                            Text('RESTAN', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontWeight: FontWeight.bold, fontSize: width * 0.04)),
+                            Text('(ACTIVAR EXTENSIÓN)', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontWeight: FontWeight.bold, fontSize: width * 0.025))
                           ]
                         ),
                         Padding(
                           padding: EdgeInsets.symmetric(horizontal: 4),
                           child: CircularPercentIndicator(
-                            radius: 12.0,
+                            radius: (height * width) * 0.000055,
                             animation: true,
                             animationDuration: 1200,
-                            lineWidth: 4.0,
+                            lineWidth: width * 0.009,
                             percent: 0.6,
-                            center: Text('2', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 10.0, color: Color.fromRGBO(51, 114, 134, 1))),
+                            center: Text('2', style: TextStyle(fontWeight: FontWeight.bold, fontSize: width * 0.035, color: Color.fromRGBO(51, 114, 134, 1))),
                             circularStrokeCap: CircularStrokeCap.butt,
                             backgroundColor: Colors.grey,
                             progressColor: Color.fromRGBO(51, 114, 134, 1),
@@ -105,16 +108,28 @@ class HomePage extends StatelessWidget {
 }
 class _ProfileNameAndPicture extends StatelessWidget {
 
+  final Size mediaQuerySize;
+  final double height;
+  final double width;
+
+  const _ProfileNameAndPicture({
+    Key? key, 
+    required this.mediaQuerySize,
+    required this.height,
+    required this.width,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    final _authService = Provider.of<AuthService>(context);
     return Container(
       child: Column(
         children: [
           CircleAvatar(
-            radius: 80,
+            radius: (this.height * this.width) * 0.00032,
             backgroundColor: Color.fromRGBO(51, 114, 134, 1),
             child: CircleAvatar(
-              radius: 75,
+              radius: (this.height * this.width) * 0.00030,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(130),
                 child: Image(
@@ -125,14 +140,14 @@ class _ProfileNameAndPicture extends StatelessWidget {
             ),
           ),
           SizedBox(height: 23),
-          Text('HOLA, GUILLERMO ANDRÉS',
+          Text('HOLA, ${_authService.currentClient.name}',
             overflow: TextOverflow.ellipsis,
             maxLines: 2,
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Color.fromRGBO(51, 114, 134, 1),
               fontWeight: FontWeight.bold,
-              fontSize: 23.0,
+              fontSize: this.width * 0.069,
             ),
           ),
         ],
@@ -162,7 +177,7 @@ class _ProfileCardActions extends StatelessWidget {
           Text(
             '¿QUÉ DESEA HACER?',
             style: TextStyle(
-              fontSize: 15.0,
+              fontSize: this.width * 0.05,
               color: Color.fromRGBO(51, 114, 134, 1)
             ),
           ),
@@ -172,9 +187,9 @@ class _ProfileCardActions extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _GestureTapMenuActions(route: 'newCreditStepOne', icon: Icons.payments_rounded, width: (this.width / 3), text: 'SOLICITAR PRÉSTAMO'),
-                _GestureTapMenuActions(route: 'myCredits', icon: Icons.payment_rounded, width: (this.width / 3), text: 'PAGAR PRÉSTAMO'),
-                _GestureTapMenuActions(route: '', icon: Icons.insert_chart, width: (this.width / 3), text: 'VER PRÉSTAMOS'),
+                _GestureTapMenuActions(route: 'newCreditStepOne', icon: Icons.payments_rounded, width: (this.width / 3), height: (this.height / 3), text: 'SOLICITAR PRÉSTAMO'),
+                _GestureTapMenuActions(route: 'myCredits', icon: Icons.payment_rounded, width: (this.width / 3), height: (this.height / 3), text: 'PAGAR PRÉSTAMO'),
+                _GestureTapMenuActions(route: '', icon: Icons.insert_chart, width: (this.width / 3), height: (this.height / 3), text: 'VER PRÉSTAMOS'),
               ],
             ),
           ),
@@ -190,6 +205,7 @@ class _GestureTapMenuActions extends StatelessWidget {
   final String route;
   final IconData icon;
   final double width;
+  final double height;
   final String text;
 
   const _GestureTapMenuActions({
@@ -197,11 +213,13 @@ class _GestureTapMenuActions extends StatelessWidget {
     required this.route, 
     required this.icon, 
     required this.width, 
+    required this.height,
     required this.text
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+
     return GestureDetector(
       onTap: (){
         Navigator.pushNamed(context, this.route);
@@ -213,7 +231,7 @@ class _GestureTapMenuActions extends StatelessWidget {
             child: Column(
               children: [
                 Container(
-                  child: Icon(this.icon, color: Color.fromRGBO(51, 114, 134, 1), size: 55),
+                  child: Icon(this.icon, color: Color.fromRGBO(51, 114, 134, 1), size: (this.height * this.width) * 0.0019),
                 ),
                 Container(
                   child: Text(this.text,
@@ -222,7 +240,7 @@ class _GestureTapMenuActions extends StatelessWidget {
                     maxLines: 3,
                     style: TextStyle(
                       color: Color.fromRGBO(51, 114, 134, 1),
-                      fontSize: 12.0,
+                      fontSize: this.width * 0.115,
                     ),
                   ),
                 ),

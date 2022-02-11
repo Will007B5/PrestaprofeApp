@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:prestaprofe/src/models/models.dart';
 
 import 'package:provider/provider.dart';
 
@@ -57,6 +58,8 @@ class LoginPage extends StatelessWidget {
   }
 
   Widget _constructLoginBody(Size _mediaQuerySize, BuildContext context) {
+    final _clientsService = Provider.of<ClientsService>(context);
+    final _registerFormProvider = Provider.of<RegisterFormProvider>(context);
     return Container(
       child: Column(
         children: [
@@ -97,6 +100,7 @@ class LoginPage extends StatelessWidget {
                           style: _textButtonsStyle,
                           child: Text('¿Aún no estás registrado?'),
                           onPressed: (){
+                            _clientsService.currentClient = _registerFormProvider.client;
                             Navigator.pushNamed(context, 'registerStepOne');
                           },
                       ),
@@ -122,6 +126,8 @@ class LoginPage extends StatelessWidget {
     Widget build(BuildContext context) {
       
       final loginForm = Provider.of<LoginFormProvider>(context);
+
+      final _clientsService = Provider.of<ClientsService>(context);
 
       return Container(
         padding: EdgeInsets.symmetric(horizontal: 25),
@@ -184,12 +190,13 @@ class LoginPage extends StatelessWidget {
                     final String? errorMessage = await authService.login(loginForm.email, loginForm.password);
 
                     if(errorMessage == null){
+                      _clientsService.currentClient = authService.currentClient;
                       //Inicia sesion
                       Navigator.pushReplacementNamed(context, 'home'); //pushReplacementNamed borra el stack de rutas para que ya no se pueda regresar
                     }
                     else{
                       //Manda errores
-                      NotificationsService.showSnackbar(errorMessage);
+                      NotificationsService.showSnackbar(errorMessage, 'error');
                       loginForm.isLoading = false;
                     }
                   },
