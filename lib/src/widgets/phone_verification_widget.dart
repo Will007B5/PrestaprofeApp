@@ -1,38 +1,33 @@
 import 'package:flutter/material.dart';
 
-import 'package:prestaprofe/src/ui/input_decorations.dart';
-import 'package:prestaprofe/src/utils/icons_string_util.dart';
-import 'package:prestaprofe/src/widgets/widgets.dart';
+import 'package:prestaprofe/src/services/clients_service.dart';
+import 'package:provider/provider.dart';
 
-class StepSix extends StatelessWidget {
+import 'package:prestaprofe/src/providers/providers.dart';
+
+class PhoneVerification extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
 
     final _mediaQuerySize = MediaQuery.of(context).size;
-    final _mediaQuerySizeFixedHeightCircles = ((_mediaQuerySize.height - MediaQuery.of(context).padding.top - kToolbarHeight) * 0.063);
+    final _height = _mediaQuerySize.height;
+    final _width = _mediaQuerySize.width;
 
-    return Scaffold(
-      appBar: AppBarRegister(textStep: 'VERIFICAR CELULAR', mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles),
-      body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 30),
-        height: double.infinity,
-        width: double.infinity,
-        color: Colors.white,
-        child: SingleChildScrollView(
-          child: _constructRegisterBody(context, _mediaQuerySize),
-        ),
-      ),
-    );
-  }
+    final _clientsService = Provider.of<ClientsService>(context);
 
-  Widget _constructRegisterBody(BuildContext context, Size _mediaQuerySize) {
     return Container(
-      width: double.infinity,
       child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SizedBox(height: _mediaQuerySize.height * 0.195),
-
+          Text('Por favor, verifique su teléfono',
+            style: TextStyle(
+              fontSize: _width * 0.043,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87
+            ),
+          ),
+          SizedBox(height: 20),
           Card(
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10)
@@ -58,24 +53,28 @@ class StepSix extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(height: 63),
-          Text('Enviar código',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Color.fromRGBO(51, 114, 134, 1),
+          SizedBox(height: 15),
+          GestureDetector(
+            onTap: () async {
+              final response = await _clientsService.sendSmsToClient(_clientsService.currentClient);
+            },
+            child: Text('Enviar código',
+              style: TextStyle(
+                fontSize: _width * 0.073,
+                fontWeight: FontWeight.bold,
+                color: Color.fromRGBO(51, 114, 134, 1),
+              ),
             ),
           ),
           SizedBox(height: 7),
           Text('¿Aún no recibes el código?',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: _width * 0.04,
               fontWeight: FontWeight.bold,
               color: Colors.black87
             ),
           ),
-
-        ],
+        ]
       ),
     );
   }
@@ -93,9 +92,9 @@ class StepSix extends StatelessWidget {
 
   _textFieldOTP(BuildContext context, {required bool first, required bool last}){
     return Container(
-      height: 85,
+      height: 90,
       child: AspectRatio(
-        aspectRatio: 0.7,
+        aspectRatio: 0.6,
         child: TextField(
           autofocus: true,
           onChanged: (value){

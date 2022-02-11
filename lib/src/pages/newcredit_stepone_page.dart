@@ -1,25 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:group_button/group_button.dart';
+import 'package:prestaprofe/src/providers/providers.dart';
 
-import 'package:percent_indicator/percent_indicator.dart';
 import 'package:prestaprofe/src/services/services.dart';
 import 'package:prestaprofe/src/widgets/widgets.dart';
+import 'package:provider/provider.dart';
 
 class NewCreditStepOne extends StatelessWidget {
-
-  int _selectedIndex = 0;
-
-  int _indexSliderLabel = 0;
-
-  List<String> _creditOptions = ['Dos quincenas de 2750', 'Cuatro quincenas de 1500'];
-  String _optSelectedCreditDate = 'Dos quincenas de 2750';
-
-  // void _onItemTapped(int index) {
-  //   setState(() {
-  //     _selectedIndex = index;
-  //   });
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -46,12 +33,17 @@ class NewCreditStepOne extends StatelessWidget {
   Widget _constructNewCreditBody(BuildContext context) {
 
     final _mediaQuerySize = MediaQuery.of(context).size;
+    final _newCreditFormProvider = Provider.of<NewCreditFormProvider>(context);
+    final _authService = Provider.of<AuthService>(context);
+    final _loansService = Provider.of<LoansService>(context);
+    _newCreditFormProvider.loan.userId = _authService.currentClient.id!;
     final _width = _mediaQuerySize.width - 30;
+    final _height = _mediaQuerySize.height - 30;
+    final _textWidth = _width;
+    final _objectSize = _height * _width;
 
-    final sliderLabels = ['3000', '5000', '7000'];
-    final double sliderMin = 0;
-    final double sliderMax = sliderLabels.length - 1.0;
-    final sliderDivisions = sliderLabels.length - 1;
+    final double sliderMin = 500.0;
+    final double sliderMax = 2000.0;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15),
@@ -62,8 +54,8 @@ class NewCreditStepOne extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Icon(Icons.payments_rounded, size: 60, color: Color.fromRGBO(51, 114, 134, 1)),
-                  Text('SOLICITAR PRÉSTAMO', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: 16.0, fontWeight: FontWeight.bold)),
+                  Icon(Icons.payments_rounded, size: _objectSize * 0.00024, color: Color.fromRGBO(51, 114, 134, 1)),
+                  Text('SOLICITAR PRÉSTAMO', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.05, fontWeight: FontWeight.bold)),
                 ],
               ),
               SizedBox(height: 25),
@@ -72,11 +64,11 @@ class NewCreditStepOne extends StatelessWidget {
                 children: <Widget>[
                   Container(
                     width: _width * 0.4,
-                    child: Text('¿CUANTO DINERO NECESITA?', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: 14.0, fontWeight: FontWeight.bold))
+                    child: Text('¿CUANTO DINERO NECESITA?', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.04, fontWeight: FontWeight.bold))
                   ),
                   Container(
                     width: _width * 0.6,
-                    child: Text('\$2,000.00', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1),fontSize: 20.0, fontWeight: FontWeight.bold), textAlign: TextAlign.end)
+                    child: Text('\$${_newCreditFormProvider.amountSliderRange}', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.063, fontWeight: FontWeight.bold), textAlign: TextAlign.end)
                   ),
                 ],
               ),
@@ -92,15 +84,12 @@ class NewCreditStepOne extends StatelessWidget {
                   inactiveTickMarkColor: Colors.green[300]
                 ),
                 child: Slider(
-                  value: _indexSliderLabel.toDouble(),
+                  value: _newCreditFormProvider.amountSliderRange,
                   min: sliderMin,
                   max: sliderMax,
-                  divisions: sliderDivisions,
+                  divisions: (sliderMax - 500.0) ~/ 500.0,
                   onChanged: (value){
-                    // setState(() {
-                    //   _indexSliderLabel = value.toInt();
-                    //   print(_indexSliderLabel);
-                    // });
+                    _newCreditFormProvider.amountSliderRange = value;
                   },
                 ),
               ),
@@ -111,14 +100,14 @@ class NewCreditStepOne extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('ELIJA LA FORMA DE PAGO', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: 16.0, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                Text('ELIJA LA FORMA DE PAGO', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.04, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
                 SizedBox(height: 10),
                 Table(
                   children: [
                     TableRow(
                       children: [
-                        Text('PAGO QUINCENAL', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: 13.0, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
-                        Text('PAGO MENSUAL', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: 13.0, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                        Text('PAGO QUINCENAL', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.04, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                        Text('PAGO MENSUAL', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.04, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
                       ]
                     )
                   ],
@@ -139,7 +128,29 @@ class NewCreditStepOne extends StatelessWidget {
                       spreadRadius: 0.1
                     )
                   ],
-                  onSelected: (index, isSelected) => print('$index button is selected'),
+                  onSelected: (index, isSelected) {
+                    //0 = 15 dias; biweekly
+                    //1 = 30 días; monthly
+                    //2 = 45 días; biweekly
+                    //3 = 60 días; monthly
+                    print('$index button is selected');
+                    if(index == 0){
+                      _newCreditFormProvider.loan.paymentSchema = 'biweekly';
+                      _newCreditFormProvider.changeAmount('15 dias', 'biweekly');
+                    }
+                    else if(index == 1){
+                      _newCreditFormProvider.loan.paymentSchema = 'monthly';
+                      _newCreditFormProvider.changeAmount('30 dias', 'monthly');
+                    }
+                    else if(index == 2){
+                      _newCreditFormProvider.loan.paymentSchema = 'biweekly';
+                      _newCreditFormProvider.changeAmount('45 dias', 'biweekly');
+                    }
+                    else if(index == 3){
+                      _newCreditFormProvider.loan.paymentSchema = 'monthly';
+                      _newCreditFormProvider.changeAmount('60 dias', 'monthly');
+                    }
+                  },
                   buttons: ['15 DÍAS', '30 DÍAS', '45 DÍAS', '60 DÍAS'],
                 ),
                 SizedBox(height: 30),
@@ -150,23 +161,11 @@ class NewCreditStepOne extends StatelessWidget {
                         children: [
                           Container(
                             margin: EdgeInsets.only(bottom: 8),
-                            child: Text('TASA DE INTERÉS QUINCENAL DEL 6.5% (+ IVA) (\$145.75 x 3 QUINCENAS)', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1),fontSize: 10.0))
+                            //child: Text('TASA DE INTERÉS QUINCENAL DEL 6.5% (+ IVA) (\$145.75 x 3 QUINCENAS)', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.027))
                           ),
                           Container(
                             margin: EdgeInsets.only(bottom: 8),
-                            child: Text('\$431.25', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1),fontSize: 10.0), textAlign: TextAlign.end)
-                          ),
-                        ]
-                      ),
-                      TableRow(
-                        children: [
-                          Container(
-                            margin: EdgeInsets.only(bottom: 8),
-                            child: Text('3 PAGOS QUINCENALES DE', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1),fontSize: 10.0))
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 8),
-                            child: Text('\$1,000.08', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1),fontSize: 10.0), textAlign: TextAlign.end)
+                            //child: Text('\$431.25', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.027), textAlign: TextAlign.end)
                           ),
                         ]
                       ),
@@ -174,11 +173,23 @@ class NewCreditStepOne extends StatelessWidget {
                         children: [
                           Container(
                             margin: EdgeInsets.only(bottom: 8),
-                            child: Text('TOTAL A PAGAR', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: 16.0, fontWeight: FontWeight.bold))
+                            //child: Text('3 PAGOS QUINCENALES DE', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.027))
                           ),
                           Container(
                             margin: EdgeInsets.only(bottom: 8),
-                            child: Text('\$3,000.25', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: 16.0, fontWeight: FontWeight.bold), textAlign: TextAlign.end)
+                            //child: Text('\$1,000.08', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.027), textAlign: TextAlign.end)
+                          ),
+                        ]
+                      ),
+                      TableRow(
+                        children: [
+                          Container(
+                            margin: EdgeInsets.only(bottom: 8),
+                            child: Text('TOTAL A PAGAR', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.045, fontWeight: FontWeight.bold))
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(bottom: 8),
+                            child: Text('\$${_newCreditFormProvider.totalAmountPrestamo}', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.045, fontWeight: FontWeight.bold), textAlign: TextAlign.end)
                           ),
                         ]
                       ),
@@ -204,8 +215,9 @@ class NewCreditStepOne extends StatelessWidget {
                       color: Colors.white
                     )
                   ),
-                  onPressed: (){
-                    //Navigator.pushNamed(context, 'registerStepTwo');
+                  onPressed: () async{
+                    await _loansService.createLoans(_newCreditFormProvider.loan);
+                    Navigator.pushNamed(context, 'home');
                   },
                 ),
               ),
@@ -214,17 +226,6 @@ class NewCreditStepOne extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  List<DropdownMenuItem<String>> getCreditDateOptionsDropdown(){
-    List<DropdownMenuItem<String>> list = [];
-    _creditOptions.forEach((gender) {
-      list.add(DropdownMenuItem(
-        child: Text(gender),
-        value: gender,
-      ));
-    });
-    return list;
   }
 
 }

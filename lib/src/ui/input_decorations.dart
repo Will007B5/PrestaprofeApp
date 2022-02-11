@@ -57,6 +57,7 @@ class InputDecorations {
           color: Colors.red[900]!.withOpacity(0.70)
         ),
       ),
+      errorMaxLines: 2,
       prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Color.fromRGBO(51, 114, 134, 1)) : null,
       suffixIcon: (suffixIcon != null  && context != null)? 
                   IconButton(
@@ -73,25 +74,92 @@ class InputDecorations {
   static InputDecoration registerInputDecoration({
     required String hintText,
     required String labelText,
+    required double height,
+    required double textWidth,
     IconData? prefixIcon
   }){ 
+    final _circularBorderRadius = BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8), bottomLeft: Radius.circular(8), bottomRight: Radius.circular(8));
+    
     return InputDecoration(
+      border: UnderlineInputBorder(borderRadius: _circularBorderRadius),
       isDense: true,
       filled: true,
-      fillColor: Colors.white,
-      floatingLabelStyle: TextStyle(
-        color: Color.fromRGBO(51, 114, 134, 1),
-        fontWeight: FontWeight.bold,
-        fontSize: 18
+      fillColor: Colors.grey[300],
+      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 3.5),
+      enabledBorder: UnderlineInputBorder(
+        borderRadius: _circularBorderRadius,
+        borderSide: BorderSide(
+          color: Color.fromRGBO(51, 114, 134, 1)
+        ),
       ),
-      border: InputBorder.none,
+      focusedBorder: UnderlineInputBorder(
+        borderRadius: _circularBorderRadius,
+        borderSide: BorderSide(
+          color: Color.fromRGBO(51, 114, 134, 1),
+          width: 2
+        )
+      ),
       hintText: hintText,
       labelText: labelText,
       labelStyle: TextStyle(
-        color: Colors.grey
+        color: Color.fromRGBO(51, 114, 134, 1),
+        fontSize: textWidth * 0.04
       ),
-      prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Color.fromRGBO(51, 114, 134, 1)) : null
+      floatingLabelStyle: TextStyle(
+        color: Color.fromRGBO(51, 114, 134, 1),
+        fontWeight: FontWeight.bold,
+        fontSize: textWidth * 0.04
+      ),
+      errorStyle: TextStyle(
+        fontWeight: FontWeight.bold,
+        color: Colors.red[900]!.withOpacity(0.70),
+        fontSize: textWidth * 0.03
+      ),
+      errorBorder: UnderlineInputBorder(
+        borderRadius: _circularBorderRadius,
+        borderSide: BorderSide(
+          color: Colors.red[900]!.withOpacity(0.70)
+        ),
+      ),
+      focusedErrorBorder: UnderlineInputBorder(
+        borderRadius: _circularBorderRadius,
+        borderSide: BorderSide(
+          color: Colors.red[900]!.withOpacity(0.70)
+        ),
+      ),
+      errorMaxLines: 2,
+      //prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Color.fromRGBO(51, 114, 134, 1)) : null,
     );
   }
+
+  // static InputDecoration registerInputDecoration({
+  //   required String hintText,
+  //   required String labelText,
+  //   required double height,
+  //   required double textWidth,
+  //   IconData? prefixIcon
+  // }){ 
+  //   return InputDecoration(
+  //     focusedErrorBorder: InputBorder.none,
+  //     errorBorder: InputBorder.none,
+  //     isDense: true,
+  //     filled: true,
+  //     fillColor: Colors.white,
+  //     //constraints: BoxConstraints.expand(height: 44),
+  //     floatingLabelStyle: TextStyle(
+  //       color: Color.fromRGBO(51, 114, 134, 1),
+  //       fontWeight: FontWeight.bold,
+  //       fontSize: textWidth * 0.04
+  //     ),
+  //     border: InputBorder.none,
+  //     hintText: hintText,
+  //     labelText: labelText,
+  //     labelStyle: TextStyle(
+  //       color: Colors.grey,
+  //       fontSize: textWidth * 0.04
+  //     ),
+  //     //prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Color.fromRGBO(51, 114, 134, 1)) : null
+  //   );
+  // }
 
 }
