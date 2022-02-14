@@ -26,4 +26,10 @@ class StateModel {
         "name": name,
         "code": code,
     };
+
+    StateModel copyState() => StateModel(
+        id: this.id,
+        name: this.name,
+        code: this.code,
+    );
 }

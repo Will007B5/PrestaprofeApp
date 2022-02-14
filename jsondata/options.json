@@ -9,28 +9,23 @@
             },
             {
                 "route": "registerStepTwo",
-                "icon": "camera_alt",
+                "icon": "file_present_rounded",
                 "childRoutes": [
                     {   "route": "",
-                        "icon": "camera_alt", 
-                        "text": "Frente de tu identificación INE"
+                        "icon": "file_present_rounded", 
+                        "text": "Identificación INE"
                     },
                     {
                         "route": "",
-                        "icon": "camera_alt", 
-                        "text": "Reverso de tu identificación INE"
-                    },
-                    {
-                        "route": "",
-                        "icon": "camera_alt", 
-                        "text": "Selfie con identificación oficial en mano"
+                        "icon": "file_present_rounded", 
+                        "text": "Selfie con INE en mano"
                     },
                     {   "route": "",
-                        "icon": "camera_alt", 
+                        "icon": "file_present_rounded", 
                         "text": "Comprobante de domicilio"
                     },
                     {   "route": "",
-                        "icon": "camera_alt", 
+                        "icon": "file_present_rounded", 
                         "text": "Talon de cheque"
                     }
                 ],

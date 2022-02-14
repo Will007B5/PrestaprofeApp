@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:prestaprofe/src/models/client_model.dart';
+
 class CityModel {
     CityModel({
         required this.id,
@@ -30,4 +32,11 @@ class CityModel {
         "zip_code": zipCode,
         "municipality_id": municipalityId,
     };
+
+    CityModel copyCity() => CityModel(
+        id: this.id,
+        name: this.name,
+        zipCode: this.zipCode,
+        municipalityId: this.municipalityId,
+    );
 }

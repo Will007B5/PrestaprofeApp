@@ -9,7 +9,8 @@ class CheckAuthPage extends StatelessWidget {
   Widget build(BuildContext context) {
 
     final authService = Provider.of<AuthService>(context, listen: false); //Listen en false por que este widget no se necesita redibujar
-
+    final clientService = Provider.of<ClientsService>(context);
+    
     return Scaffold(
       body: Center(
         //Un future builder para construir los widgtes dependiendo de la respuesta de los futures
@@ -33,12 +34,15 @@ class CheckAuthPage extends StatelessWidget {
             }
             else{
               //Este future microtask ejecuta codigo tan pronto la construccion de este widget termine
-              Future.microtask((){
-                //Navigator.of(context).pushReplacementNamed('home');
-                Navigator.pushReplacement(context, PageRouteBuilder(//Para crear animacion al redirigir a la pagina (transicion)
-                  pageBuilder: ( _ , __ , ___ ) => HomePage(),
-                  transitionDuration: Duration(seconds: 0)
-                ));
+              Future.microtask(() async {
+                final response = await authService.assignCurrentClient();
+                if(response == 200){
+                  //Navigator.of(context).pushReplacementNamed('home');
+                  Navigator.pushReplacement(context, PageRouteBuilder(//Para crear animacion al redirigir a la pagina (transicion)
+                    pageBuilder: ( _ , __ , ___ ) => HomePage(),
+                    transitionDuration: Duration(seconds: 0)
+                  ));
+                }
               });
             }
 

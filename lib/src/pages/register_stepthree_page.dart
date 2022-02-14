@@ -1,199 +1,213 @@
 import 'package:flutter/material.dart';
+import 'package:prestaprofe/src/providers/providers.dart';
+import 'package:prestaprofe/src/services/services.dart';
 
-import 'package:prestaprofe/src/providers/json_menuoptions_provider.dart';
-import 'package:prestaprofe/src/ui/input_decorations.dart';
-import 'package:prestaprofe/src/utils/icons_string_util.dart';
 import 'package:prestaprofe/src/widgets/widgets.dart';
+import 'package:provider/provider.dart';
 
-class StepThree extends StatelessWidget {
+class StepThree extends StatefulWidget {
+
+  @override
+  State<StepThree> createState() => _StepThreeState();
+}
+
+class _StepThreeState extends State<StepThree> {
   @override
   Widget build(BuildContext context) {
 
     final _mediaQuerySize = MediaQuery.of(context).size;
-    final _mediaQuerySizeFixedHeightCircles = ((_mediaQuerySize.height - MediaQuery.of(context).padding.top - kToolbarHeight) *0.067);
+    final _height = _mediaQuerySize.height;
+    final _width = _mediaQuerySize.width;
+    final _circleMeassure = _mediaQuerySize.height * _mediaQuerySize.width;
+    final _mediaQuerySizeFixedHeightCircles = (_circleMeassure * 0.000155);
+    final _textInfoWidth = _width * 0.055;
 
+    bool _isValidForm = false;
+    
     return Scaffold(
-      appBar: AppBarRegister(mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles),
+      appBar: AppBarRegister(textStep: 'ADJUNTAR ARCHIVOS', mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles, textWidth: _textInfoWidth),
       body: Container(
-        padding: EdgeInsets.symmetric(horizontal: 25),
         height: double.infinity,
         width: double.infinity,
-        color: Color.fromRGBO(191, 155, 48, 0.91),
-        child: SingleChildScrollView(
-          child: _constructRegisterBody(context, _mediaQuerySize),
-        ),
+        color: Colors.white,
+        child: CustomScrollView(
+          slivers: [
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _constructRegisterBody(context, _isValidForm, height: _height, width: _width),
+            )
+          ],
+        )
       ),
     );
   }
 
-  Widget _constructRegisterBody(BuildContext context, Size _mediaQuerySize) {
+  Widget _constructRegisterBody(BuildContext context, bool isValidForm, {double? height, double? width}) {
+
+    final _registerForm = Provider.of<RegisterFormProvider>(context);
+
     return Container(
-      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 30),
       child: Column(
         children: [
-          SizedBox(height: 10),
-          Text('Verificación',
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
+          Column(
+            children: [
+              _CardsFromJSON(),
+            ],
           ),
-          SizedBox(height: 10),
-          Text('Ingresa el código',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.black38
-            ),
-          ),
-          SizedBox(height: _mediaQuerySize.height * 0.115),
-          Container(
-            decoration: BoxDecoration(color: Color.fromRGBO(255, 255, 255, 0.88), borderRadius: BorderRadius.circular(12)),
-            padding: EdgeInsets.symmetric(horizontal: 25),
-            child: Column(
-              children: [
-                SizedBox(height: 35),
-                TextFormField(
-                  keyboardType: TextInputType.number,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold
+          Expanded(child: Container()),
+          Column(
+            children: [
+              Container(
+                width: double.infinity,
+                child: MaterialButton(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  disabledColor: Colors.grey,
+                  color: Color.fromRGBO(51, 114, 134, 1),
+                  elevation: 0,
+                  child: Text(
+                    'Continuar', 
+                    style: TextStyle(
+                      color: Colors.white
+                    )
                   ),
-                  decoration: InputDecoration(
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black12),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.black12),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    prefix: Padding(
-                      padding: EdgeInsets.symmetric(horizontal:8),
-                      child: Text('(+52)', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                    ),
-                    suffixIcon: Icon(Icons.check_circle, color:Colors.green, size: 32)
-                  ),
+                  // onPressed: isValidForm ? () {
+                  //   _registerForm.stepAppBarCount = 3;
+                  //   Navigator.pushNamed(context, 'registerStepFour');
+                  // } : null,
+                  onPressed: () {
+                    _registerForm.stepAppBarCount = 3;
+                    Navigator.pushNamed(context, 'registerStepFour');
+                  },
                 ),
-                SizedBox(height: 20),
-                Container(
-                  width: double.infinity,
-                  child: MaterialButton(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    disabledColor: Colors.grey,
-                    color: Color.fromRGBO(51, 114, 134, 1),
-                    elevation: 0,
-                    child: Text(
-                      'Registrar', 
-                      style: TextStyle(
-                        color: Colors.white
-                      )
-                    ),
-                    onPressed: (){
-                      Navigator.pushReplacementNamed(context, 'login');
-                    },
-                  ),
-                ),
-                SizedBox(height: 25),
-              ],
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(color: Color.fromRGBO(255, 255, 255, 0.88), borderRadius: BorderRadius.circular(12)),
-            padding: EdgeInsets.symmetric(horizontal: 25),
-            child: Column(
-              children: [
-                SizedBox(height: 35),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _textFieldOTP(context, first: true, last: false),
-                    _textFieldOTP(context, first: false, last: false),
-                    _textFieldOTP(context, first: false, last: false),
-                    _textFieldOTP(context, first: false, last: true)
-                  ],
-                ),
-                SizedBox(height: 20),
-                Container(
-                  width: double.infinity,
-                  child: MaterialButton(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                    disabledColor: Colors.grey,
-                    color: Color.fromRGBO(51, 114, 134, 1),
-                    elevation: 0,
-                    child: Text(
-                      'Verificar', 
-                      style: TextStyle(
-                        color: Colors.white
-                      )
-                    ),
-                    onPressed: (){
-                      Navigator.pushReplacementNamed(context, 'login');
-                    },
-                  ),
-                ),
-                SizedBox(height: 25),
-              ],
-            ),
-          ),
-          SizedBox(height: 21),
-          Text('¿Aún no recibes el código?',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Colors.black38
-            ),
-          ),
-           SizedBox(height: 15),
-          Text('Reenviar nuevo código',
-            style: TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.bold,
-              color: Color.fromRGBO(51, 114, 134, 1),
-            ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
+}
 
-  _textFieldOTP(BuildContext context, {required bool first, required bool last}){
-    return Container(
-      height: 85,
-      child: AspectRatio(
-        aspectRatio: 0.7,
-        child: TextField(
-          autofocus: true,
-          onChanged: (value){
-            if(value.length == 1 && last == false){
-              FocusScope.of(context).nextFocus();
-            }
-            if(value.length == 0 && first == false){
-              FocusScope.of(context).previousFocus();
-            }
-          },
-          cursorColor: Color.fromRGBO(51, 114, 134, 1),
-          showCursor: false,
-          readOnly: false,
-          textAlign: TextAlign.center,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
-          keyboardType: TextInputType.number,
-          maxLength: 1,
-          decoration: InputDecoration(
-            counter: Offstage(),
-            enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(width: 2, color: Colors.black12),
-              borderRadius: BorderRadius.circular(12)
+class _CardsFromJSON extends StatefulWidget {
+
+  @override
+  State<_CardsFromJSON> createState() => _CardsFromJSONState();
+}
+
+class _CardsFromJSONState extends State<_CardsFromJSON> {
+  
+  @override
+  Widget build(BuildContext context) {
+
+    final _registerForm = Provider.of<RegisterFormProvider>(context);
+
+    final _mediaQuerySize = MediaQuery.of(context).size;
+    final _height = _mediaQuerySize.height;
+    final _width = _mediaQuerySize.width;
+    final _iconSize = _height * _width;
+    final _textWidth = _width;
+    
+    final data = {
+      {
+        "icon": Icons.file_present_rounded, 
+        "text": "Frente identificación INE",
+        "type": "ine",
+        "asBackend": "ine"
+      },
+      {
+        "icon": Icons.file_present_rounded, 
+        "text": "Reverso identificación INE",
+        "type": "ineBack",
+        "asBackend": "ine_back"
+      },
+      {
+        "icon": Icons.file_present_rounded, 
+        "text": "Selfie con INE en mano",
+        "type": "selfie",
+        "asBackend": "selfie"
+      },
+      { 
+        "icon": Icons.file_present_rounded, 
+        "text": "Comprobante de domicilio",
+        "type": "proofAddress",
+        "asBackend": "proof_address"
+      },
+      {
+        "icon": Icons.file_present_rounded, 
+        "text": "Talon de cheque",
+        "type": "payStub",
+        "asBackend": "pay_stub"
+      }
+    };
+    final List<Widget> options = [];
+
+    options.add(SizedBox(height: 15));
+
+    if(data != null){
+      data.forEach((opt) {
+        final widgetTemp = Container(
+          padding: EdgeInsets.symmetric(vertical: 4),
+          height: _mediaQuerySize.height * 0.195,
+          child: GestureDetector(
+            onTap: () => Navigator.pushNamed(context, 'registerStepThreeFile', arguments: opt['type']).then((res) => _refreshPage(_registerForm)),
+            child: Card(
+              elevation: 15,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              child: Container(
+                decoration: _containerCardBoxDecoration(context, opt['asBackend']!.toString()),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ListTile(
+                      title: Text(opt['text']!.toString(), textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: _textWidth * 0.043)),
+                      trailing: Icon(opt['icon']! as IconData, size: _iconSize * 0.000215, color: _getColorCard(context, opt['asBackend']!.toString(), 'border')),
+                    )
+                  ],
+                ),
+              ),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(width: 3, color: Color.fromRGBO(51, 114, 134, 1)),
-              borderRadius: BorderRadius.circular(12)
-            )
           ),
-        ),
-      ),
+        );
+
+        options.add(widgetTemp);
+        
+      });
+    }
+    return Container(
+      width: double.infinity,
+      child: Column(
+        children: options
+      )
     );
   }
 
+  //No borrar este metodo. Es parte del comportamiento de un StatefullWidget
+  void _refreshPage(RegisterFormProvider registerForm){
+    if(mounted){
+      setState(() {
+
+      });
+    }
+  }
+
+  Color _getColorCard(BuildContext context, String backType, String objectType){
+    final _registerStepThreeForm = Provider.of<RegisterFormProvider>(context);
+    final _clientForm3 = _registerStepThreeForm.client;
+    if(_clientForm3.toMap()[backType] != '' && _clientForm3.toMap()[backType].toString() != 'null'){
+      return objectType == 'background' ? Color.fromRGBO(51, 114, 134, 1).withOpacity(0.25) : Color.fromRGBO(51, 114, 134, 1);
+    }
+    return objectType == 'background' ? Colors.red[900]!.withOpacity(0.13) : Colors.red[900]!;
+  }
+
+  BoxDecoration _containerCardBoxDecoration(BuildContext context, String backType) {
+    return BoxDecoration(
+      color: _getColorCard(context, backType, 'background'), 
+      borderRadius: BorderRadius.circular(10),
+      border: Border.all(
+        color: _getColorCard(context, backType, 'border'),
+        width: 3,
+      )
+    );
+  }
 }

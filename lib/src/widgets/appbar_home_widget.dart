@@ -15,13 +15,14 @@ class AppBarHome extends StatelessWidget with PreferredSizeWidget{
 
     return AppBar(
       automaticallyImplyLeading: true, //Quita del appbar la flecha para regresar a pagina anterior
-      title: Container(
-        width: 270,
-        child: Image(
-          image: AssetImage('assets/prestaprofehomelogowh.png'),
-          fit: BoxFit.contain
-        ),
-      ),
+      elevation: 0,
+      // title: Container(
+      //   width: 270,
+      //   child: Image(
+      //     image: AssetImage('assets/prestaprofehomelogowh.png'),
+      //     fit: BoxFit.contain
+      //   ),
+      // ),
       actions: [
         IconButton(
           icon: Icon(Icons.login_outlined),

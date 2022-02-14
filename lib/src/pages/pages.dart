@@ -1,10 +1,16 @@
 export 'package:prestaprofe/src/pages/check_auth_page.dart';
+export 'package:prestaprofe/src/pages/contacts_listview_widget.dart';
+export 'package:prestaprofe/src/pages/custom_camera.dart';
 export 'package:prestaprofe/src/pages/error_page.dart';
 export 'package:prestaprofe/src/pages/home_page.dart';
+export 'package:prestaprofe/src/pages/loading_page.dart';
+export 'package:prestaprofe/src/pages/login_page.dart';
 export 'package:prestaprofe/src/pages/login_page.dart';
 export 'package:prestaprofe/src/pages/mycredits_page.dart';
 export 'package:prestaprofe/src/pages/newcredit_stepone_page.dart';
-export 'package:prestaprofe/src/pages/newcredit_steptwo_page.dart';
+export 'package:prestaprofe/src/pages/register_debitclabe_page.dart';
+export 'package:prestaprofe/src/pages/register_stepfour_page.dart';
 export 'package:prestaprofe/src/pages/register_stepone_page.dart';
+export 'package:prestaprofe/src/pages/register_stepthree_file_page.dart';
 export 'package:prestaprofe/src/pages/register_stepthree_page.dart';
 export 'package:prestaprofe/src/pages/register_steptwo_page.dart';

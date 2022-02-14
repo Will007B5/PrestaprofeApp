@@ -6,13 +6,16 @@ Map<String, WidgetBuilder> getAppRoutes(){
   return <String, WidgetBuilder>{
     'checking'  : ( _ ) => CheckAuthPage(),
     'login'     :   (BuildContext context) => LoginPage(),
+    // 'customCamera'  :   (BuildContext context) => CustomCamera(),
     'registerStepOne'   : (BuildContext context) => StepOne(),
     'registerStepTwo'   :   (BuildContext context) => StepTwo(),
     'registerStepThree' : (BuildContext context) => StepThree(),
+    'registerStepThreeFile' : (BuildContext context) => StepThreeFile(),
+    'registerStepFour' : (BuildContext context) => StepFour(),
+    'registerDebitClabe' : (BuildContext context) => RegisterDebitClabe(),
     'home'              : (BuildContext context) => HomePage(),
-    'myCredits'         : (BuildContext context) => MyCredits(),
     'newCreditStepOne'         : (BuildContext context) => NewCreditStepOne(),
-    'newCreditStepTwo'         : (BuildContext context) => NewCreditStepTwo()
+    'myCredits'         : (BuildContext context) => MyCredits(),
   };    
 }
 
