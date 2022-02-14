@@ -57,7 +57,7 @@ class InputDecorations {
           color: Colors.red[900]!.withOpacity(0.70)
         ),
       ),
-      errorMaxLines: 2,
+      errorMaxLines: 3,
       prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Color.fromRGBO(51, 114, 134, 1)) : null,
       suffixIcon: (suffixIcon != null  && context != null)? 
                   IconButton(
@@ -127,7 +127,7 @@ class InputDecorations {
           color: Colors.red[900]!.withOpacity(0.70)
         ),
       ),
-      errorMaxLines: 2,
+      errorMaxLines: 3,
       //prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Color.fromRGBO(51, 114, 134, 1)) : null,
     );
   }
