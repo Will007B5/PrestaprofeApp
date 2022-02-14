@@ -172,7 +172,10 @@ class ClientsService extends ChangeNotifier {
   }
 
   Future<int> createClient (ClientModel client) async {
-    if(this._newIneFile == null || this._newSelfieFile == null || this._newIneBackFile == null || this._newProofAddressFile == null || this._newPayStubFile == null) return 400;
+    if(this._newIneFile == null || this._newSelfieFile == null || this._newIneBackFile == null || this._newProofAddressFile == null || this._newPayStubFile == null) {
+       NotificationsService.showSnackbar('Verifique el apartado ADJUNTAR ARCHIVOS e intente de nuevo', 'error');
+      return 400;
+    }
     
     this._isSaving = true;
     this.notifyListeners();
@@ -227,6 +230,7 @@ class ClientsService extends ChangeNotifier {
       this.notifyListeners();
       return 200;
     }
+    NotificationsService.showSnackbar('Algo salío mal. Verifique la información e intente de nuevo', 'error');
     return 400;
   }
 

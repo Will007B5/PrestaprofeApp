@@ -231,7 +231,7 @@ class _StepOneState extends State<StepOne> {
                               }
                             },
                             validator: (value) {
-                              return value!.length > 0 ? null : value.length < 5 ? 'Debe completar este campo' : 'Debe llenar este campo';
+                              return (value!.length == 5 && _bdService.isValidZipCode) ? null : 'Código postal no valido. Complete este campo';
                             },
                           ),
                         ),

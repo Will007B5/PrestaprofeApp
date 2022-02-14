@@ -21,9 +21,20 @@ class DBProvider extends ChangeNotifier{
 
   bool _isLoading = true;
 
+  bool _isValidZipCode = false;
+
   StateModel currentState;
   MunicipalityModel currentMunicipality;
   CityModel currentCity;
+
+  bool get isValidZipCode {
+    return _isValidZipCode;
+  }
+
+  set isValidZipCode(bool value) {
+    _isValidZipCode = value;
+    notifyListeners();
+  }
 
   final debouncer = Debouncer(
     duration: Duration(milliseconds: 500)
@@ -51,6 +62,7 @@ class DBProvider extends ChangeNotifier{
     await this.loadMunicipalities();
     await this.loadCities();
     this._isLoading = false;
+    this._isValidZipCode = true;
     notifyListeners();
     return 200;
   }
@@ -135,6 +147,7 @@ class DBProvider extends ChangeNotifier{
         this.currentCity.id = this.citiesList[0].id;
         this.currentCity.name = this.citiesList[0].name;
         this.currentCity.zipCode = this.citiesList[0].zipCode;
+        this._isValidZipCode = true;
         this.currentCity.municipalityId = this.municipalitiesList[0].id;
         notifyListeners();
         return 200;
@@ -158,6 +171,7 @@ class DBProvider extends ChangeNotifier{
       this.currentCity.id = this.citiesList[0].id;
       this.currentCity.name = this.citiesList[0].name;
       this.currentCity.zipCode = this.citiesList[0].zipCode;
+      this._isValidZipCode = true;
       this.currentCity.municipalityId = this.municipalitiesList[0].id;
       notifyListeners();
       return 200;
@@ -170,6 +184,8 @@ class DBProvider extends ChangeNotifier{
   void chargeZipCodeFromCityDropdow(int cityId) {
     final index = this.citiesList.indexWhere((city) => city.id == cityId);
     this.currentCity = this.citiesList[index];
+    this._isValidZipCode = true;
+    notifyListeners();
   }
 
   Future<int> chargePresetsFromZipCode(String zipCode) async {
@@ -177,6 +193,8 @@ class DBProvider extends ChangeNotifier{
     final res = await db!.query('cities', where: 'zip_code = ?', whereArgs: [zipCode], limit: 1);
     if(res.isNotEmpty){
       CityModel resCity = res.map((city) => CityModel.fromMap(city)).toList()[0];
+      this._isValidZipCode = true;
+      notifyListeners();
       final db2= await database;
       final res2 = await db2!.query('cities', where: 'municipality_id = ?', whereArgs: [resCity.municipalityId], orderBy: 'name ASC');
       if(res2.isNotEmpty){
@@ -216,7 +234,8 @@ class DBProvider extends ChangeNotifier{
       }
     }
     else{
-      print('no');
+      this._isValidZipCode = false;
+      notifyListeners();
       return 400;
     }    
   }

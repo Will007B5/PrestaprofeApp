@@ -22,6 +22,8 @@ class RegisterFormProvider extends ChangeNotifier {
 
   bool _isLoading = false;
 
+  bool _isThereInfoInAnyForm = false;
+
   int _stepAppBarCount = 0;
 
   bool get obscurePasswordFieldStepFour {

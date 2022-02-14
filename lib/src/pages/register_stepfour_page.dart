@@ -141,6 +141,7 @@ class StepFour extends StatelessWidget {
                       )
                     ),
                     onPressed: _clientsService.isSaving ? null : () async {
+                      FocusScope.of(context).unfocus(); //Linea para ocultar el teclado
                       if(!_clientsService.savedClient){
                         if(!_registerStepFourForm.isValidFormStepFour()) return;
                         final response = await _clientsService.createClient(_clientsService.currentClient);
@@ -149,7 +150,6 @@ class StepFour extends StatelessWidget {
                           _clientsService.savedClient = true;
                         }
                         if(response == 400){
-                          NotificationsService.showSnackbar('Algo salío mal. Verifique la información e intente de nuevo', 'error');
                           _clientsService.isSaving = false;
                         }
                       }

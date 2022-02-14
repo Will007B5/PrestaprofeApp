@@ -202,6 +202,7 @@ class StepTwo extends StatelessWidget {
                   )
                 ),
                 onPressed: (){
+                  FocusScope.of(context).unfocus(); //Linea para ocultar el teclado
                   if(!_registerStepTwoForm.isValidFormStepTwo()) {
                     _registerStepTwoForm.stepAppBarCount = 1;
                     return;
