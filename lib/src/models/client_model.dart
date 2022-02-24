@@ -4,29 +4,29 @@ class ClientModel {
         this.id,
         required this.name,
         required this.lastName,
-        required this.birthDate,
-        required this.gender,
-        required this.civilStatus,
-        required this.curp,
-        required this.address,
-        required this.salaryId,
-        required this.phone,
-        required this.email,
+        this.birthDate,
+        this.gender,
+        this.civilStatus,
+        this.curp,
+        this.address,
+        this.salaryId,
+        this.phone,
+        this.email,
         this.password,
         this.institutionId,
-        required this.rfc,
-        required this.firstReferencePersonName,
-        required this.firstReferencePersonPhone,
-        required this.secondReferencePersonName,
-        required this.secondReferencePersonPhone,
+        this.rfc,
+        this.firstReferencePersonName,
+        this.firstReferencePersonPhone,
+        this.secondReferencePersonName,
+        this.secondReferencePersonPhone,
         this.active,
-        required this.cityId,
-        required this.jobId,
-        required this.ine,
-        required this.ineBack,
-        required this.payStub,
-        required this.selfie,
-        required this.proofAddress,
+        this.cityId,
+        this.jobId,
+        this.ine,
+        this.ineBack,
+        this.payStub,
+        this.selfie,
+        this.proofAddress,
         this.type,
         this.isPhoneVerified,
         this.isAdmonVerified,
@@ -37,29 +37,29 @@ class ClientModel {
     int? id;
     String name;
     String lastName;
-    DateTime birthDate;
-    String gender;
-    String civilStatus;
-    String curp;
-    String address;
-    int salaryId;
-    String phone;
-    String email;
+    DateTime? birthDate;
+    String? gender;
+    String? civilStatus;
+    String? curp;
+    String? address;
+    int? salaryId;
+    String? phone;
+    String? email;
     String? password;
     int? institutionId;
-    String rfc;
-    String firstReferencePersonName;
-    String firstReferencePersonPhone;
-    String secondReferencePersonName;
-    String secondReferencePersonPhone;
+    String? rfc;
+    String? firstReferencePersonName;
+    String? firstReferencePersonPhone;
+    String? secondReferencePersonName;
+    String? secondReferencePersonPhone;
     int? active;
-    int cityId;
-    int jobId;
-    String ine;
-    String ineBack;
-    String payStub;
-    String selfie;
-    String proofAddress;
+    int? cityId;
+    int? jobId;
+    String? ine;
+    String? ineBack;
+    String? payStub;
+    String? selfie;
+    String? proofAddress;
     String? type;
     int? isPhoneVerified;
     String? isAdmonVerified;
@@ -74,32 +74,32 @@ class ClientModel {
         id: json["id"] ?? null,
         name: json["name"],
         lastName: json["last_name"],
-        birthDate: DateTime.parse(json["birth_date"]),
-        gender: json["gender"],
-        civilStatus: json["civil_status"],
-        curp: json["curp"],
-        address: json["address"],
-        salaryId: json["salary_id"],
-        phone: json["phone"],
-        email: json["email"],
+        birthDate: json["birth_date"] == null ? null : DateTime.parse(json["birth_date"]),
+        gender: json["gender"] ?? null,
+        civilStatus: json["civil_status"] ?? null,
+        curp: json["curp"] ?? null,
+        address: json["address"] ?? null,
+        salaryId: json["salary_id"] ?? null,
+        phone: json["phone"] ?? null,
+        email: json["email"] ?? null,
         password: json["password"] ?? null,
         institutionId: json["institution_id"] ?? null,
-        rfc: json["rfc"],
-        firstReferencePersonName: json["first_reference_person_name"],
-        firstReferencePersonPhone: json["first_reference_person_phone"],
-        secondReferencePersonName: json["second_reference_person_name"],
-        secondReferencePersonPhone: json["second_reference_person_phone"],
-        active: json["id"] ?? 0,
-        cityId: json["city_id"],
-        jobId: json["job_id"],
-        ine: json["ine"] == null ? '' : json["ine"],
-        ineBack: json["ine_back"] == null ? '' : json["ine_back"],
-        payStub: json["pay_stub"],
-        selfie: json["selfie"],
-        proofAddress: json["proof_address"],
+        rfc: json["rfc"] ?? null,
+        firstReferencePersonName: json["first_reference_person_name"] ?? null,
+        firstReferencePersonPhone: json["first_reference_person_phone"] ?? null,
+        secondReferencePersonName: json["second_reference_person_name"] ?? null,
+        secondReferencePersonPhone: json["second_reference_person_phone"] ?? null,
+        active: json["active"] ?? null,
+        cityId: json["city_id"] ?? null,
+        jobId: json["job_id"] ?? null,
+        ine: json["ine"] ?? null,
+        ineBack: json["ine_back"] ?? null,
+        payStub: json["pay_stub"] ?? null,
+        selfie: json["selfie"] ?? null,
+        proofAddress: json["proof_address"] ?? null,
         type: json["type"] ?? null,
-        isPhoneVerified: json["isPhoneVerified"] ?? 0,
-        isAdmonVerified: json["isAdmonVerified"] ?? '',
+        isPhoneVerified: json["isPhoneVerified"] ?? null,
+        isAdmonVerified: json["isAdmonVerified"] ?? null,
         // updatedAt: DateTime.parse(json["updated_at"]),
         // createdAt: DateTime.parse(json["created_at"])
     );
@@ -108,7 +108,7 @@ class ClientModel {
         "id": id,
         "name": name,
         "last_name": lastName,
-        "birth_date": "${birthDate.year.toString().padLeft(4, '0')}-${birthDate.month.toString().padLeft(2, '0')}-${birthDate.day.toString().padLeft(2, '0')}",
+        "birth_date": "${birthDate?.year.toString().padLeft(4, '0')}-${birthDate?.month.toString().padLeft(2, '0')}-${birthDate?.day.toString().padLeft(2, '0')}",
         "gender": gender,
         "civil_status": civilStatus,
         "curp": curp,
@@ -171,5 +171,32 @@ class ClientModel {
       isAdmonVerified: this.isAdmonVerified,
       updatedAt: this.updatedAt,
       createdAt: this.updatedAt
+    );
+
+    //Esto es para crear una copia limpia del cliente
+    static ClientModel cleanClient() => new ClientModel(
+      name: '',
+      lastName: '',
+      birthDate: DateTime.now(),
+      gender: 'Hombre',
+      civilStatus: 'Soltero/a',
+      curp: '',
+      address: '',
+      salaryId: 1,
+      phone: '',
+      email: '',
+      password: '',
+      rfc: '',
+      firstReferencePersonName: '',
+      firstReferencePersonPhone: '',
+      secondReferencePersonName: '',
+      secondReferencePersonPhone: '',
+      cityId: 1,
+      jobId: 1,
+      ine: '',
+      ineBack: '',
+      payStub: '',
+      selfie: '',
+      proofAddress: ''
     );
 }

@@ -2,37 +2,34 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:contacts_service/contacts_service.dart';
-import 'package:prestaprofe/src/models/client_model.dart';
 import 'package:provider/provider.dart';
 
+import 'package:prestaprofe/src/helpers/helpers.dart';
 import 'package:prestaprofe/src/pages/pages.dart';
 import 'package:prestaprofe/src/providers/providers.dart';
 import 'package:prestaprofe/src/services/services.dart';
 import 'package:prestaprofe/src/ui/input_decorations.dart';
 import 'package:prestaprofe/src/widgets/widgets.dart';
-import 'package:prestaprofe/src/helpers/helpers.dart';
 
 class StepTwo extends StatelessWidget {
 
-  late List _jobsList;
-  late List _salariesList;
+  late List _jobsList; //Varibale que mas se cargará con los jobs hasta que se utilice
+  late List _salariesList; //Varibale que mas se cargará con los salaries hasta que se utilice
 
-  TextEditingController _textfieldR1NameController = new TextEditingController();
-  TextEditingController _textfieldR1PhoneController = new TextEditingController();
-  TextEditingController _textfieldR2NameController = new TextEditingController();
-  TextEditingController _textfieldR2PhoneController = new TextEditingController();
-
-  bool _isLoadingContacts = false;
+  TextEditingController _textfieldR1NameController = new TextEditingController(); //Controlador que lleva la data del nombre de la referencia 1
+  TextEditingController _textfieldR1PhoneController = new TextEditingController(); //Controlador que lleva la data del telefono de la referencia 1
+  TextEditingController _textfieldR2NameController = new TextEditingController(); //Controlador que lleva la data del nombre de la referencia 2
+  TextEditingController _textfieldR2PhoneController = new TextEditingController(); //Controlador que lleva la data del telefono de la referencia 2
 
   @override
   Widget build(BuildContext context) {
 
-    final _mediaQuerySize = MediaQuery.of(context).size;
-    final _height = _mediaQuerySize.height;
-    final _width = _mediaQuerySize.width;
-    final _circleMeassure = _mediaQuerySize.height * _mediaQuerySize.width;
+    final _mediaQuerySize = MediaQuery.of(context).size; //MediaQuery con los detalles de medida de pantalla
+    final _height = _mediaQuerySize.height; //Alto de la pantalla
+    final _width = _mediaQuerySize.width; //Ancho de la pantalla
+    final _circleMeassure = _mediaQuerySize.height * _mediaQuerySize.width; //Medida de la circunferencia del paso ubicada en la barra de estado 
     final _mediaQuerySizeFixedHeightCircles = (_circleMeassure * 0.000155);
-    final _textInfoWidth = _width * 0.055;
+    final _textInfoWidth = _width * 0.055; //Medida de la fuente a utilizar en la barra de estado
 
     final _registerStepTwoForm = Provider.of<RegisterFormProvider>(context);
     final _jobsService = Provider.of<JobsService>(context);
@@ -40,181 +37,164 @@ class StepTwo extends StatelessWidget {
     final _salariesService = Provider.of<SalariesService>(context);
     _salariesList = _salariesService.salaries;
 
-    _textfieldR1NameController.text = _registerStepTwoForm.client.firstReferencePersonName;
-    _textfieldR1PhoneController.text = _registerStepTwoForm.client.firstReferencePersonPhone;
-    _textfieldR2NameController.text = _registerStepTwoForm.client.secondReferencePersonName;
-    _textfieldR2PhoneController.text = _registerStepTwoForm.client.secondReferencePersonPhone;
+    _textfieldR1NameController.text = _registerStepTwoForm.client.firstReferencePersonName!;
+    _textfieldR1PhoneController.text = _registerStepTwoForm.client.firstReferencePersonPhone!;
+    _textfieldR2NameController.text = _registerStepTwoForm.client.secondReferencePersonName!;
+    _textfieldR2PhoneController.text = _registerStepTwoForm.client.secondReferencePersonPhone!;
     
-    return Scaffold(
-      appBar: AppBarRegister(textStep: 'INFORMACIÓN LABORAL', mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles, textWidth: _textInfoWidth),
-      body: (!_jobsService.isLoading && !_salariesService.isLoading) ? Container(
-        height: double.infinity,
-        width: double.infinity,
-        color: Colors.white,
-        child: CustomScrollView(
-          slivers: [
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: _constructRegisterBody(context, height: _height, width: _width)
-            )
-          ],
+    return WillPopScope(
+      child: SafeArea(
+        top: false,
+        child: Scaffold(
+          appBar: AppBarRegister(textStep: 'INFORMACIÓN LABORAL', mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles, textWidth: _textInfoWidth),
+          body: (!_jobsService.isLoading && !_salariesService.isLoading) ? Container(
+            height: double.infinity,
+            width: double.infinity,
+            color: Colors.white,
+            child: CustomScrollView(
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _constructRegisterBody(context, height: _height, width: _width)
+                )
+              ],
+            ),
+          ) : LoadingPage(),
         ),
-      ) : LoadingPage(),
-      // floatingActionButton: (_registerStepTwoForm.isFormReferences1Active || _registerStepTwoForm.isFormReferences2Active) ? FloatingActionButton(
-      //   child: Icon(Icons.import_contacts_rounded, color: Colors.white),
-      //   backgroundColor: Color.fromRGBO(51, 114, 134, 1),
-      //   elevation: 0,
-      //   onPressed: () async {
-      //     final response = await PermissionsHelper.requestForPermission(permissionType: 'contacts');
-      //     if(response == 200){
-      //       List<Contact> contacts = await ContactsService.getContacts();  
-      //       print(contacts[0].phones![0].value);
-      //       if(!_registerStepTwoForm.isValidFormStepTwo()) return;
-      //     }
-      //   },
-      // ) : null
+      ),
+      onWillPop: () async {
+        //Al detectar el boton de retorno, decrementa la variable que controla el paso en el que esta la UI
+        _registerStepTwoForm.stepAppBarCount = 1;
+        return true;
+      },
     );
   }
 
+  //Este widget tiene la construccion de todo el cuerpo del body de UI
   Widget _constructRegisterBody(BuildContext context, {double? height, double? width}) {
 
     final _registerStepTwoForm = Provider.of<RegisterFormProvider>(context);
-
-    final _textWidth = width! * 0.035;
+    final _clientForm2 = _registerStepTwoForm.client; //Variable ClientModel propia del RegisterFormProvider
+    final _textWidth = width! * 0.035; //Medida de la fuente a utilizar en este body
 
     return Container(
         padding: EdgeInsets.symmetric(horizontal: 30),
         child: Form(
         key: _registerStepTwoForm.formKeyStepTwo,
-        // child: _registerStepTwoForm.isFormReferences1Active ?
-        //   _columnReferences1(context, 'REFERENCIA #1', height, width, _textWidth) : _registerStepTwoForm.isFormReferences2Active ? 
-        //   _columnReferences2(context, 'REFERENCIA #2', height, width, _textWidth) :
-        //   _columnMainStepTwo(height, width, _textWidth, context),
-        child: _columnMainStepTwo(height, width, _textWidth, context),
+        child: Column(
+          children: [
+            Column(
+              children: [
+                SizedBox(height: 15),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Expanded(
+                      child: DropdownButtonFormField(
+                        isDense: true,
+                        isExpanded: true,
+                        decoration: InputDecorations.registerInputDecoration(hintText: 'Seleccione su cargo', labelText: 'Cargo', prefixIcon: Icons.cases_rounded, height: height!, textWidth: width),
+                        icon: Container(
+                          child: Icon(                  
+                            Icons.arrow_drop_down,  
+                            color: Color.fromRGBO(51, 114, 134, 1),   
+                          ),
+                        ),
+                        value: _registerStepTwoForm.client.jobId,
+                        items: _getJobsOptionsDropdown(_textWidth),
+                        onChanged: (opt){
+                          _registerStepTwoForm.client.jobId = int.parse( opt.toString() );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Expanded(
+                      child: DropdownButtonFormField(
+                        isDense: true,
+                        isExpanded: true,
+                        decoration: InputDecorations.registerInputDecoration(hintText: 'Seleccione su rango salarial', labelText: 'Rango salarial mensual', prefixIcon: Icons.attach_money_rounded, height: height, textWidth: width),
+                        icon: Container(
+                          child: Icon(                  
+                            Icons.arrow_drop_down,  
+                            color: Color.fromRGBO(51, 114, 134, 1),   
+                          ),
+                        ),
+                        value: _registerStepTwoForm.client.salaryId,
+                        items: _getSalariesOptionsDropdown(_textWidth),
+                        onChanged: (opt){
+                          _registerStepTwoForm.client.salaryId = int.parse( opt.toString() );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  style: TextStyle(fontSize: _textWidth),
+                  decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'RFC', prefixIcon: Icons.account_circle_rounded, height: height, textWidth: width),
+                  autovalidateMode: AutovalidateMode.onUserInteraction,
+                  enabled: !_registerStepTwoForm.isLoading ? true : false,
+                  autocorrect: false,
+                  keyboardType: TextInputType.text,
+                  initialValue: _clientForm2.rfc,
+                  onChanged: (value) => _clientForm2.rfc = value,
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(18),
+                    FilteringTextInputFormatter.allow(RegexHelper.rfc)
+                  ],
+                  validator: (value) {
+                    return value!.length == 13 ? null : 'Debe introducir RFC válida';
+                  },
+                ),
+                SizedBox(height: 23),
+                Divider(
+                  color: Color.fromRGBO(51, 114, 134, 1),
+                  thickness: 1.4,
+                ),
+                SizedBox(height: 5),
+                Text('Con motivo de verificación, es necesario agregar la información de contacto de dos personas que puedan brindar alguna referencia sobre usted.', style: TextStyle(fontSize: _textWidth * 1.15), textAlign: TextAlign.justify),
+                SizedBox(height: 10),
+                _columnReferences1(context, 'REFERENCIA #1', height, width, _textWidth),
+                _columnReferences2(context, 'REFERENCIA #2', height, width, _textWidth),
+                SizedBox(height: 10)
+              ],
+            ),
+            Expanded(child: Container()),
+            Column(
+              children: [
+                Container(
+                  width: double.infinity,
+                  child: MaterialButton(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                    disabledColor: Colors.grey,
+                    color: Color.fromRGBO(51, 114, 134, 1),
+                    elevation: 0,
+                    child: Text(
+                      'Continuar', 
+                      style: TextStyle(
+                        color: Colors.white
+                      )
+                    ),
+                    onPressed: (){
+                      FocusScope.of(context).unfocus(); //Linea para ocultar el teclado
+                      if(!_registerStepTwoForm.isValidFormStepTwo()) {
+                        return;
+                      }
+                      _registerStepTwoForm.stepAppBarCount = 3;
+                      Navigator.pushNamed(context, 'registerStepThree');
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ]
+        ),
       )
-    );
-
-  }
-
-  Column _columnMainStepTwo(double? height, double width, double _textWidth, BuildContext context) {
-
-    final _registerStepTwoForm = Provider.of<RegisterFormProvider>(context);
-    final _clientForm2 = _registerStepTwoForm.client;
-
-    return Column(
-      children: [
-        Column(
-          children: [
-            SizedBox(height: 15),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  child: DropdownButtonFormField(
-                    isDense: true,
-                    isExpanded: true,
-                    decoration: InputDecorations.registerInputDecoration(hintText: 'Seleccione su cargo', labelText: 'Cargo', prefixIcon: Icons.cases_rounded, height: height!, textWidth: width),
-                    icon: Container(
-                      child: Icon(                  
-                        Icons.arrow_drop_down,  
-                        color: Color.fromRGBO(51, 114, 134, 1),   
-                      ),
-                    ),
-                    value: _registerStepTwoForm.client.jobId,
-                    items: getJobsOptionsDropdown(_textWidth),
-                    onChanged: (opt){
-                      _registerStepTwoForm.client.jobId = int.parse( opt.toString() );
-                    },
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Expanded(
-                  child: DropdownButtonFormField(
-                    isDense: true,
-                    isExpanded: true,
-                    decoration: InputDecorations.registerInputDecoration(hintText: 'Seleccione su rango salarial', labelText: 'Rango salarial mensual', prefixIcon: Icons.attach_money_rounded, height: height, textWidth: width),
-                    icon: Container(
-                      child: Icon(                  
-                        Icons.arrow_drop_down,  
-                        color: Color.fromRGBO(51, 114, 134, 1),   
-                      ),
-                    ),
-                    value: _registerStepTwoForm.client.salaryId,
-                    items: getSalariesOptionsDropdown(_textWidth),
-                    onChanged: (opt){
-                      _registerStepTwoForm.client.salaryId = int.parse( opt.toString() );
-                    },
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            TextFormField(
-              style: TextStyle(fontSize: _textWidth),
-              decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'RFC', prefixIcon: Icons.account_circle_rounded, height: height, textWidth: width),
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              enabled: !_registerStepTwoForm.isLoading ? true : false,
-              autocorrect: false,
-              keyboardType: TextInputType.text,
-              initialValue: _clientForm2.rfc,
-              onChanged: (value) => _clientForm2.rfc = value,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(18),
-                FilteringTextInputFormatter.allow(RegExp(r'^[0-9a-zA-z]{0,13}'))
-              ],
-              validator: (value) {
-                return value!.length == 13 ? null : 'Debe introducir RFC válida';
-              },
-            ),
-            SizedBox(height: 23),
-            Divider(
-              color: Color.fromRGBO(51, 114, 134, 1),
-              thickness: 1.4,
-            ),
-            SizedBox(height: 5),
-            Text('Con motivo de verificación, es necesario agregar la información de contacto de dos personas que puedan brindar alguna referencia sobre usted.', style: TextStyle(fontSize: _textWidth * 1.15), textAlign: TextAlign.justify),
-            SizedBox(height: 10),
-            // CardTableRegisterStepTwo(),
-            _columnReferences1(context, 'REFERENCIA #1', height, width, _textWidth),
-            _columnReferences2(context, 'REFERENCIA #2', height, width, _textWidth),
-            SizedBox(height: 10)
-          ],
-        ),
-        Expanded(child: Container()),
-        Column(
-          children: [
-            Container(
-              width: double.infinity,
-              child: MaterialButton(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                disabledColor: Colors.grey,
-                color: Color.fromRGBO(51, 114, 134, 1),
-                elevation: 0,
-                child: Text(
-                  'Continuar', 
-                  style: TextStyle(
-                    color: Colors.white
-                  )
-                ),
-                onPressed: (){
-                  FocusScope.of(context).unfocus(); //Linea para ocultar el teclado
-                  if(!_registerStepTwoForm.isValidFormStepTwo()) {
-                    _registerStepTwoForm.stepAppBarCount = 1;
-                    return;
-                  }
-                  _registerStepTwoForm.stepAppBarCount = 2;
-                  Navigator.pushNamed(context, 'registerStepThree');
-                },
-              ),
-            ),
-          ],
-        ),
-      ]
     );
   }
 
@@ -257,7 +237,7 @@ class StepTwo extends StatelessWidget {
                   },
                   inputFormatters: [
                       LengthLimitingTextInputFormatter(50),
-                      FilteringTextInputFormatter.allow(RegExp(r'^[a-zA-zÁÉÍÓÚÜáéíóúüÑñ. ]{0,50}'))
+                      FilteringTextInputFormatter.allow(RegexHelper.name)
                   ],
                   validator: (value) {
                     return value!.length > 0 ? null : 'Debe llenar este campo';
@@ -277,7 +257,7 @@ class StepTwo extends StatelessWidget {
                   },
                   inputFormatters: [
                       LengthLimitingTextInputFormatter(10),
-                      FilteringTextInputFormatter.allow(RegExp(r'^[0-9]{0,10}'))
+                      FilteringTextInputFormatter.allow(RegexHelper.phone)
                   ],
                   validator: (value) {
                     return value!.length > 9 ? null : 'Ingrese el número a 10 digitos';
@@ -292,30 +272,21 @@ class StepTwo extends StatelessWidget {
                     color: Color.fromRGBO(51, 114, 134, 1),
                     elevation: 0,
                     child: Text(
-                      !_isLoadingContacts ? 'Buscar contacto en agenda' : 'Cargando', 
+                      !_registerStepTwoRefsForm.isLoadingContact1 ? 'Buscar contacto en agenda' : 'Cargando', 
                       style: TextStyle(
                         color: Colors.white
                       ),
                       textAlign: TextAlign.center
                     ),
-                    onPressed: !_isLoadingContacts ? () async {
-                      final Contact contact = await fillContactFromDevice(context);
+                    onPressed: !(_registerStepTwoRefsForm.isLoadingContact1 || _registerStepTwoRefsForm.isLoadingContact2) ? () async {
+                      _registerStepTwoRefsForm.isLoadingContact1 = true;
+                      final Contact contact = await _fillContactFromDevice(context);
+                      _registerStepTwoRefsForm.isLoadingContact1 = false;
                       if(contact.displayName != null && contact.phones != null){
-                        String resultFilteredNumber = contact.phones![0].value!.replaceAll(RegExp("[-!\$%^&*()_+|~=`{}\\[\\]:;'<>?,.\\/\"]"), "").replaceAll(RegExp(r"\s\b|\b\s"), "");
-                        String finalPhoneNumber = '';
-                        if(resultFilteredNumber.startsWith('521')){
-                          finalPhoneNumber = resultFilteredNumber.substring(3);
-                        }
-                        else if(resultFilteredNumber.startsWith('52')){
-                          finalPhoneNumber = resultFilteredNumber.substring(2);
-                        }
-                        else{
-                          finalPhoneNumber = resultFilteredNumber;
-                        }
                         _clientRefsForm2.firstReferencePersonName = contact.displayName!;
-                        _clientRefsForm2.firstReferencePersonPhone = finalPhoneNumber;
-                        _textfieldR1NameController.text = _clientRefsForm2.firstReferencePersonName;
-                        _textfieldR1PhoneController.text = _clientRefsForm2.firstReferencePersonPhone;
+                        _clientRefsForm2.firstReferencePersonPhone = RegexHelper.makeValidPhone(phoneNumber: contact.phones![0].value!);
+                        _textfieldR1NameController.text = _clientRefsForm2.firstReferencePersonName!;
+                        _textfieldR1PhoneController.text = _clientRefsForm2.firstReferencePersonPhone!;
                       }
                     } : null,
                   ),
@@ -367,7 +338,7 @@ class StepTwo extends StatelessWidget {
                   },
                   inputFormatters: [
                       LengthLimitingTextInputFormatter(50),
-                      FilteringTextInputFormatter.allow(RegExp(r'^[a-zA-zÁÉÍÓÚÜáéíóúüÑñ. ]{0,50}'))
+                      FilteringTextInputFormatter.allow(RegexHelper.name)
                   ],
                   validator: (value) {
                     return value!.length > 0 ? null : 'Debe llenar este campo';
@@ -387,7 +358,7 @@ class StepTwo extends StatelessWidget {
                   },
                   inputFormatters: [
                       LengthLimitingTextInputFormatter(10),
-                      FilteringTextInputFormatter.allow(RegExp(r'^[0-9]{0,10}'))
+                      FilteringTextInputFormatter.allow(RegexHelper.phone)
                   ],
                   validator: (value) {
                     return value!.length > 9 ? null : 'Ingrese el número a 10 digitos';
@@ -402,30 +373,21 @@ class StepTwo extends StatelessWidget {
                     color: Color.fromRGBO(51, 114, 134, 1),
                     elevation: 0,
                     child: Text(
-                      !_isLoadingContacts ? 'Buscar contacto en agenda' : 'Cargando', 
+                      !_registerStepTwoRefsForm.isLoadingContact2 ? 'Buscar contacto en agenda' : 'Cargando', 
                       style: TextStyle(
                         color: Colors.white
                       ),
                       textAlign: TextAlign.center
                     ),
-                    onPressed: !_isLoadingContacts ? () async {
-                      final Contact contact = await fillContactFromDevice(context);
+                    onPressed: !(_registerStepTwoRefsForm.isLoadingContact1 || _registerStepTwoRefsForm.isLoadingContact2) ? () async {
+                      _registerStepTwoRefsForm.isLoadingContact2 = true;
+                      final Contact contact = await _fillContactFromDevice(context);
+                      _registerStepTwoRefsForm.isLoadingContact2 = false;
                       if(contact.displayName != null && contact.phones != null){
-                        String resultFilteredNumber = contact.phones![0].value!.replaceAll(RegExp("[-!\$%^&*()_+|~=`{}\\[\\]:;'<>?,.\\/\"]"), "").replaceAll(RegExp(r"\s\b|\b\s"), "");
-                        String finalPhoneNumber = '';
-                        if(resultFilteredNumber.startsWith('521')){
-                          finalPhoneNumber = resultFilteredNumber.substring(3);
-                        }
-                        else if(resultFilteredNumber.startsWith('52')){
-                          finalPhoneNumber = resultFilteredNumber.substring(2);
-                        }
-                        else{
-                          finalPhoneNumber = resultFilteredNumber;
-                        }
                         _clientRefsForm2.secondReferencePersonName = contact.displayName!;
-                        _clientRefsForm2.secondReferencePersonPhone = finalPhoneNumber;
-                        _textfieldR1NameController.text = _clientRefsForm2.secondReferencePersonName;
-                        _textfieldR1PhoneController.text = _clientRefsForm2.secondReferencePersonPhone;
+                        _clientRefsForm2.secondReferencePersonPhone = RegexHelper.makeValidPhone(phoneNumber: contact.phones![0].value!);
+                        _textfieldR2NameController.text = _clientRefsForm2.secondReferencePersonName!;
+                        _textfieldR2PhoneController.text = _clientRefsForm2.secondReferencePersonPhone!;
                       }
                     } : null,
                   ),
@@ -438,14 +400,14 @@ class StepTwo extends StatelessWidget {
     );
   }
 
-  Future<Contact> fillContactFromDevice(BuildContext context) async {
-    _isLoadingContacts = true;
+  Future<Contact> _fillContactFromDevice(BuildContext context) async {
+    final _mediaQuerySizeWidth = MediaQuery.of(context).size.width;
+    final _textInfoWidth = _mediaQuerySizeWidth * 0.055;
     final response = await PermissionsHelper.requestForPermission(permissionType: 'contacts');
-    _isLoadingContacts = false;
     if(response == 200){
-      List<Contact> contacts = await ContactsService.getContacts(); 
+      List<Contact> contacts = await ContactsService.getContacts(withThumbnails: false); 
       if(contacts.length > 0){
-        final responseContact = await Navigator.push(context, MaterialPageRoute(builder: (context) => ContactsListview(contactsList: contacts)));
+        final responseContact = await Navigator.push(context, MaterialPageRoute(builder: (context) => ContactsListview(contactsList: contacts, textWidth: _textInfoWidth)));
         if(responseContact != null){
           return responseContact as Contact;
         }
@@ -454,17 +416,8 @@ class StepTwo extends StatelessWidget {
     return new Contact();
   }
 
-  BoxDecoration _inputBorderBoxDecoration() {
-    return BoxDecoration(
-      borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-        color: Color.fromRGBO(51, 114, 134, 1),
-        width: 2.4,
-      ),
-    );
-  }
-
-  List<DropdownMenuItem<int>> getJobsOptionsDropdown(double textWidth){
+  //Creacion de opciones del dropdwon de jobs
+  List<DropdownMenuItem<int>> _getJobsOptionsDropdown(double textWidth){
     List<DropdownMenuItem<int>> list = [];
     _jobsList.forEach((job) {
       list.add(DropdownMenuItem(
@@ -475,7 +428,8 @@ class StepTwo extends StatelessWidget {
     return list;
   }
 
-  List<DropdownMenuItem<int>> getSalariesOptionsDropdown(double textWidth){
+  //Creacion de opciones del dropdwon de salaries
+  List<DropdownMenuItem<int>> _getSalariesOptionsDropdown(double textWidth){
     List<DropdownMenuItem<int>> list = [];
     _salariesList.forEach((salary) {
       list.add(DropdownMenuItem(

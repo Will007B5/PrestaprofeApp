@@ -22,9 +22,11 @@ class RegisterFormProvider extends ChangeNotifier {
 
   bool _isLoading = false;
 
-  bool _isThereInfoInAnyForm = false;
+  bool _isLoadingContact1 = false;
 
-  int _stepAppBarCount = 0;
+  bool _isLoadingContact2 = false;
+
+  int _stepAppBarCount = 1;
 
   bool get obscurePasswordFieldStepFour {
     return _obscurePasswordFieldStepFour;
@@ -41,6 +43,24 @@ class RegisterFormProvider extends ChangeNotifier {
 
   set isLoading (bool value) {
     _isLoading = value;
+    notifyListeners(); //Notifica que hay que redibujar
+  }
+
+  bool get isLoadingContact1 {
+    return _isLoadingContact1;
+  }
+
+  set isLoadingContact1 (bool value) {
+    _isLoadingContact1 = value;
+    notifyListeners(); //Notifica que hay que redibujar
+  }
+
+  bool get isLoadingContact2 {
+    return _isLoadingContact2;
+  }
+
+  set isLoadingContact2 (bool value) {
+    _isLoadingContact2 = value;
     notifyListeners(); //Notifica que hay que redibujar
   }
 

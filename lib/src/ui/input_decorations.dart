@@ -76,7 +76,9 @@ class InputDecorations {
     required String labelText,
     required double height,
     required double textWidth,
-    IconData? prefixIcon
+    IconData? prefixIcon,
+    IconData? suffixIcon,
+    BuildContext? context
   }){ 
     final _circularBorderRadius = BorderRadius.only(topLeft: Radius.circular(8), topRight: Radius.circular(8), bottomLeft: Radius.circular(8), bottomRight: Radius.circular(8));
     
@@ -129,6 +131,15 @@ class InputDecorations {
       ),
       errorMaxLines: 3,
       //prefixIcon: prefixIcon != null ? Icon(prefixIcon, color: Color.fromRGBO(51, 114, 134, 1)) : null,
+      suffixIcon: (suffixIcon != null  && context != null)? 
+                  IconButton(
+                    onPressed: (){
+                      final registerForm = Provider.of<RegisterFormProvider>(context, listen: false);
+                      registerForm.obscurePasswordFieldStepFour = !registerForm.obscurePasswordFieldStepFour;
+                    }, 
+                    icon: Icon(suffixIcon, color: Color.fromRGBO(51, 114, 134, 1))
+                  ) : 
+                  null,
     );
   }
 

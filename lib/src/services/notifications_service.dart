@@ -8,7 +8,7 @@ class NotificationsService {
     final snackbar = new SnackBar(
       backgroundColor: messageType == 'success' ? Colors.green[300] : Colors.red,
       dismissDirection: DismissDirection.up,
-      content: Text (message, style: TextStyle(color: Colors.white, fontSize: 13.5), maxLines: 3),
+      content: Text (message, style: TextStyle(color: Colors.white, fontSize: 13.5)),
     );
 
     messengerKey.currentState!.showSnackBar(snackbar); //No confundir este showSnackbar con el 'static showSnackbar' que es el nombre de este metodo
