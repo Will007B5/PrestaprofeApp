@@ -1,74 +1,85 @@
 import 'package:flutter/material.dart';
-import 'package:prestaprofe/src/models/models.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
+import 'package:prestaprofe/src/helpers/helpers.dart';
+import 'package:prestaprofe/src/models/client_model.dart';
 import 'package:prestaprofe/src/pages/pages.dart';
-import 'package:prestaprofe/src/services/services.dart';
 import 'package:prestaprofe/src/providers/providers.dart';
+import 'package:prestaprofe/src/services/services.dart';
 import 'package:prestaprofe/src/ui/input_decorations.dart';
 import 'package:prestaprofe/src/widgets/widgets.dart';
 
+//Esta clase es un StatefulWidget debido a que hay que setear el estado de esta UI al seleccionar los estados, municipios y colonias mediante el CP
 class StepOne extends StatefulWidget {
-
   @override
   State<StepOne> createState() => _StepOneState();
 }
-
 class _StepOneState extends State<StepOne> {
-  List<String> _gender = ['Hombre', 'Mujer'];
-
-  List<String> _civilState = ['Soltero/a', 'Casado/a', 'Divorciado/a', 'Separacion en proceso judicial', 'Viudo/a', 'Concubinato'];
-
-  TextEditingController _textfieldDateController = new TextEditingController();
-
-  TextEditingController _textfieldZipCode = new TextEditingController();
+  List<String> _gender = ['Hombre', 'Mujer']; //Lista de opciones con los generos
+  List<String> _civilState = ['Soltero/a', 'Casado/a', 'Divorciado/a', 'Separacion en proceso judicial', 'Viudo/a', 'Concubinato']; //Lista de opciones con el estado civil
+  TextEditingController _textfieldDateController = new TextEditingController(); //Controlador que lleva la data de la fecha
+  TextEditingController _textfieldZipCodeController = new TextEditingController(); //Controlador que lleva la data del codigo postal
 
   @override
   Widget build(BuildContext context) {
 
-    final _clientsService = Provider.of<ClientsService>(context);
+    final _clientsService = Provider.of<ClientsService>(context); 
     final _bdService = Provider.of<DBProvider>(context);
 
-    final _mediaQuerySize = MediaQuery.of(context).size;
-    final _height = _mediaQuerySize.height;
-    final _width = _mediaQuerySize.width;
-    final _circleMeassure = _mediaQuerySize.height * _mediaQuerySize.width;
+    final _mediaQuerySize = MediaQuery.of(context).size; //MediaQuery con los detalles de medida de pantalla
+    final _height = _mediaQuerySize.height; //Alto de la pantalla
+    final _width = _mediaQuerySize.width; //Ancho de la pantalla
+    final _circleMeassure = _mediaQuerySize.height * _mediaQuerySize.width; //Medida de la circunferencia del paso ubicada en la barra de estado 
     final _mediaQuerySizeFixedHeightCircles = (_circleMeassure * 0.000155);
-    final _textInfoWidth = _width * 0.055;
+    final _textInfoWidth = _width * 0.055; //Medida de la fuente a utilizar en la barra de estado
+
+    final _registerStepOneForm = Provider.of<RegisterFormProvider>(context);
     
-    return Scaffold(
-      appBar: AppBarRegister(textStep: 'INFORMACIÓN PERSONAL', mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles, textWidth: _textInfoWidth),
-      body: (!_clientsService.isLoading && !_bdService.isLoading) ? Container(
-        height: double.infinity,
-        width: double.infinity,
-        color: Colors.white,
-        child: CustomScrollView(
-          slivers: [
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: _constructRegisterBody(context, height: _height, width: _width)
+    return SafeArea(
+      top: false,
+      child: WillPopScope(
+        child: Scaffold(
+          appBar: AppBarRegister(textStep: 'INFORMACIÓN PERSONAL', mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles, textWidth: _textInfoWidth),
+          body: (!_clientsService.isLoading && !_bdService.isLoading) ? Container(
+            height: double.infinity,
+            width: double.infinity,
+            color: Colors.white,
+            child: CustomScrollView(
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _constructRegisterBody(context, height: _height, width: _width)
+                )
+              ],
             )
-          ],
-        )
-      ) : LoadingPage()
+          ) : LoadingPage()
+        ),
+        onWillPop: () async {
+          final returnToPage = await showReturningPreviousPage(context, '');
+          _registerStepOneForm.client = ClientModel.cleanClient(); //Limpia instancia cliente
+          _clientsService.cleanFileImages(); //Resetea variables de archivos multimedia del cliente
+          return returnToPage;
+        },
+      ),
     );
   }
 
+  //Este widget tiene la construccion de todo el cuerpo del body de UI
   Widget _constructRegisterBody(BuildContext context, {double? height, double? width}) {
 
-    final _textWidth = width! * 0.035;
+    final _textWidth = width! * 0.035; //Medida de la fuente a utilizar en este body
 
     final _registerStepOneForm = Provider.of<RegisterFormProvider>(context);
-    final _clientForm1 = _registerStepOneForm.client;
+    final _clientForm1 = _registerStepOneForm.client; //Variable ClientModel propia del RegisterFormProvider
     final _bdService = Provider.of<DBProvider>(context);
     _textfieldDateController.text = _clientForm1.birthDate.toString().substring(0,10);
 
-    final currentOffset = _textfieldZipCode.selection.base.offset; //Indica donde está el cursor
-    _textfieldZipCode.value = TextEditingValue( //Le agregamos al controller de codigo postal los datos del cursor y del valor incial
+    final _currentOffset = _textfieldZipCodeController.selection.base.offset; //Indica donde está el cursor
+    _textfieldZipCodeController.value = TextEditingValue( //Le agregamos al controller de codigo postal los datos del cursor y del valor incial
       text: _bdService.currentCity.zipCode,
       selection: TextSelection.fromPosition(
-        TextPosition(offset: currentOffset),
+        TextPosition(offset: _currentOffset),
       ),
     );
 
@@ -92,7 +103,7 @@ class _StepOneState extends State<StepOne> {
                   onChanged: (value) => _clientForm1.name = value,
                   inputFormatters: [
                       LengthLimitingTextInputFormatter(50),
-                      FilteringTextInputFormatter.allow(RegExp(r'^[a-zA-zÁÉÍÓÚÜáéíóúüÑñ. ]{0,50}'))
+                      FilteringTextInputFormatter.allow(RegexHelper.name) //RegexService es una clase creada en el proyecto para expresiones regulares y validaciones
                   ],
                   validator: (value) {
                     return value!.length > 0 ? null : 'Debe llenar este campo';
@@ -110,7 +121,7 @@ class _StepOneState extends State<StepOne> {
                   onChanged: (value) => _clientForm1.lastName = value,
                   inputFormatters: [
                       LengthLimitingTextInputFormatter(50),
-                      FilteringTextInputFormatter.allow(RegExp(r'^[a-zA-zÁÉÍÓÚÜáéíóúüÑñ. ]{0,50}'))
+                      FilteringTextInputFormatter.allow(RegexHelper.name)
                   ],
                   validator: (value) {
                     return value!.length > 0 ? null : 'Debe llenar este campo';
@@ -123,7 +134,6 @@ class _StepOneState extends State<StepOne> {
                   enableInteractiveSelection: false,
                   enabled: !_registerStepOneForm.isLoading ? true : false,
                   decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'Fecha de nacimiento', prefixIcon: Icons.calendar_today_rounded, height: height, textWidth: width),
-                  // initialValue: _textfieldDateController.text, //Poner initial value
                   onTap: (){
                     //Para quitar el focus del textfield
                     FocusScope.of(context).requestFocus(new FocusNode());
@@ -146,7 +156,7 @@ class _StepOneState extends State<StepOne> {
                           ),
                         ),
                         value: _clientForm1.gender,
-                        items: getGenderOptionsDropdown(_textWidth),
+                        items: _getGenderOptionsDropdown(_textWidth),
                         onChanged: (opt){
                           _clientForm1.gender = opt.toString();
                         },
@@ -170,7 +180,7 @@ class _StepOneState extends State<StepOne> {
                           ),
                         ),
                         value: _clientForm1.civilStatus,
-                        items: getCivilOptionsDropdown(_textWidth),
+                        items: _getCivilOptionsDropdown(_textWidth),
                         onChanged: (opt){
                           _clientForm1.civilStatus = opt.toString();
                         },
@@ -190,7 +200,7 @@ class _StepOneState extends State<StepOne> {
                   onChanged: (value) => _clientForm1.address = value,
                   inputFormatters: [ 
                       LengthLimitingTextInputFormatter(50),
-                      FilteringTextInputFormatter.allow(RegExp(r'^[0-9a-zA-zÁÉÍÓÚÜáéíóúüÑñ#.,/-/ ]{0,50}')),
+                      FilteringTextInputFormatter.allow(RegexHelper.address),
                   ],
                   validator: (value) {
                     return value!.length > 0 ? null : 'Debe llenar este campo';
@@ -205,7 +215,7 @@ class _StepOneState extends State<StepOne> {
                           margin: EdgeInsets.only(right: 10),
                           child: TextFormField(
                             style: TextStyle(fontSize: _textWidth),
-                            controller: _textfieldZipCode,
+                            controller: _textfieldZipCodeController,
                             decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'C. Postal', prefixIcon: Icons.home_rounded, height: height, textWidth: width),
                             autovalidateMode: AutovalidateMode.onUserInteraction,
                             enabled: !_registerStepOneForm.isLoading ? true : false,
@@ -213,13 +223,13 @@ class _StepOneState extends State<StepOne> {
                             keyboardType: TextInputType.number,
                             inputFormatters: [
                               LengthLimitingTextInputFormatter(9),
-                              FilteringTextInputFormatter.allow(RegExp(r'^[0-9]{0,5}'))
+                              FilteringTextInputFormatter.allow(RegexHelper.zipCode)
                             ],
                             onChanged: (value) async {
                               _bdService.currentCity.zipCode = value;
                               if(value.length == 5){
-                                final response = await _bdService.getSuggestionsByQuery(value); //Llama a la accion debouncer de busqueda de
-                                Future.delayed(Duration(milliseconds: 801)).then((_){
+                                final response = await _bdService.getSuggestionsByQuery(value); //Llama a la accion debouncer de busqueda de codigo postal
+                                Future.delayed(Duration(milliseconds: 801)).then((_){ //Se requiere ejecutar esta accion despues de 801 milisegundos para actulizar correctamente la UI mediante este setState
                                   if(response == 200){
                                     setState(() {
                                       _registerStepOneForm.formKeyDDCity.currentState!.reset();
@@ -251,11 +261,10 @@ class _StepOneState extends State<StepOne> {
                                   ),
                                 ),
                                 value: _bdService.currentCity.id,
-                                items: getCitiesOptionsDropdown(context, _textWidth),
+                                items: _getCitiesOptionsDropdown(context, _textWidth),
                                 onChanged: (opt){
-                                  print(opt.toString());
-                                  _bdService.chargeZipCodeFromCityDropdow(int.parse(opt.toString()));
-                                  _textfieldZipCode.text = _bdService.currentCity.zipCode;
+                                  _bdService.chargeZipCodeFromCityDropdow(int.parse(opt.toString())); //Llama metodo para cambiar codigo postal
+                                  _textfieldZipCodeController.text = _bdService.currentCity.zipCode;
                                   _clientForm1.cityId = _bdService.currentCity.id;
                                 },
                               ),
@@ -285,10 +294,10 @@ class _StepOneState extends State<StepOne> {
                                     ),
                                   ),
                                   value: _bdService.currentMunicipality.id,
-                                  items: getMunicipalitiesOptionsDropdown(context, _textWidth),
+                                  items: _getMunicipalitiesOptionsDropdown(context, _textWidth),
                                   onChanged: (opt) async {
-                                    await _bdService.chargePresetsFromMunicipalityDropdown(int.parse(opt.toString()));
-                                    _textfieldZipCode.text = _bdService.currentCity.zipCode;
+                                    await _bdService.chargePresetsFromMunicipalityDropdown(int.parse(opt.toString())); //Llama metodo para cambiar codigo postal
+                                    _textfieldZipCodeController.text = _bdService.currentCity.zipCode;
                                     _clientForm1.cityId = _bdService.currentCity.id;
                                   },
                                 ),
@@ -319,10 +328,10 @@ class _StepOneState extends State<StepOne> {
                                     ),
                                   ),
                                   value: _bdService.currentState.id,
-                                  items: getStatesOptionsDropdown(context, _textWidth),
+                                  items: _getStatesOptionsDropdown(context, _textWidth),
                                   onChanged: (opt) async{
-                                    await _bdService.chargePresetsFromStateDropdown(int.parse(opt.toString()));
-                                    _textfieldZipCode.text = _bdService.currentCity.zipCode;
+                                    await _bdService.chargePresetsFromStateDropdown(int.parse(opt.toString())); //Llama metodo para cambiar codigo postal
+                                    _textfieldZipCodeController.text = _bdService.currentCity.zipCode;
                                     _clientForm1.cityId = _bdService.currentCity.id;
                                   },
                                 ),
@@ -344,10 +353,11 @@ class _StepOneState extends State<StepOne> {
                     autocorrect: false,
                     keyboardType: TextInputType.text,
                     initialValue: _clientForm1.curp,
-                    onChanged: (value) => _clientForm1.curp = value,
+                    onChanged: (value) => _clientForm1.curp = value.toUpperCase(),
+                    textCapitalization: TextCapitalization.characters,
                     inputFormatters: [
                       LengthLimitingTextInputFormatter(18),
-                      FilteringTextInputFormatter.allow(RegExp(r'^[0-9a-zA-z]{0,18}'))
+                      FilteringTextInputFormatter.allow(RegexHelper.curp)
                     ],
                     validator: (value) {
                       return value!.length == 18 ? null : 'Debe introducir CURP válida';
@@ -374,14 +384,11 @@ class _StepOneState extends State<StepOne> {
                     ),
                     onPressed: _registerStepOneForm.isLoading ? null : (){
                       FocusScope.of(context).unfocus(); //Linea para ocultar el teclado
-                      //Hay varias asignaciones de cityId...buscarlas y despues corregirlas
                       _clientForm1.cityId = _bdService.currentCity.id;
-                      print('${_bdService.currentCity.id} - ${_clientForm1.cityId}');
                       if(!_registerStepOneForm.isValidFormStepOne()) {
-                        _registerStepOneForm.stepAppBarCount = 0;
                         return;
                       }
-                      _registerStepOneForm.stepAppBarCount = 1;
+                      _registerStepOneForm.stepAppBarCount = 2;
                       Navigator.pushNamed(context, 'registerStepTwo');
                     },
                   ),
@@ -394,17 +401,43 @@ class _StepOneState extends State<StepOne> {
     );
   }
 
-  BoxDecoration _inputBorderBoxDecoration() {
-    return BoxDecoration(
-      borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-        color: Color.fromRGBO(51, 114, 134, 1),
-        width: 2.4,
+  Future<bool> showReturningPreviousPage(BuildContext context, String inRgisterOrLogedIn) async {
+    bool _isTueOrFalse = false;
+    await showDialog(
+      context: context,
+      builder: (context) => WillPopScope(
+        child: AlertDialog(
+          title: Text('¿Desea cancelar el registro?'),
+          content: Text('La información agregada se perderá'),
+          actions: [
+            TextButton(
+              child: Text('No'),
+              onPressed: (){
+                _isTueOrFalse = false;
+                Navigator.pop(context);
+              },
+            ),
+            TextButton(
+              child: Text('Si'),
+              onPressed: (){
+                _isTueOrFalse = true;
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+        onWillPop: () async {
+          return false;
+        },
       ),
+      barrierDismissible: false
     );
+    print(_isTueOrFalse);
+    return _isTueOrFalse;
   }
 
-  _selectDate(BuildContext context) async{
+  //Metodo que permite llenar el controlador de fecha con la data de la nueva fecha
+  void _selectDate(BuildContext context) async{
     final _registerStepOneForm = Provider.of<RegisterFormProvider>(context, listen: false);
     final _clientForm1 = _registerStepOneForm.client;
     DateTime? picked = await showDatePicker(
@@ -418,11 +451,11 @@ class _StepOneState extends State<StepOne> {
     if(picked != null){
       _textfieldDateController.text = picked.toString().substring(0,10);
       _clientForm1.birthDate = DateTime.utc(int.parse(_textfieldDateController.text.toString().substring(0,4)), int.parse(_textfieldDateController.text.toString().substring(5,7)), int.parse(_textfieldDateController.text.toString().substring(8,10)));
-      print(_clientForm1.birthDate.toString());
     }
   }
 
-  List<DropdownMenuItem<String>> getGenderOptionsDropdown(double textWidth){
+  //Creacion de opciones del dropdwon de genero
+  List<DropdownMenuItem<String>> _getGenderOptionsDropdown(double textWidth){
     List<DropdownMenuItem<String>> list = [];
     _gender.forEach((gender) {
       list.add(DropdownMenuItem(
@@ -432,8 +465,8 @@ class _StepOneState extends State<StepOne> {
     });
     return list;
   }
-
-  List<DropdownMenuItem<String>> getCivilOptionsDropdown(double textWidth){
+  //Creacion de opciones del dropdwon de estado civil
+  List<DropdownMenuItem<String>> _getCivilOptionsDropdown(double textWidth){
     List<DropdownMenuItem<String>> list = [];
     _civilState.forEach((civil) {
       list.add(DropdownMenuItem(
@@ -444,7 +477,8 @@ class _StepOneState extends State<StepOne> {
     return list;
   }
 
-  List<DropdownMenuItem<int>> getStatesOptionsDropdown(BuildContext context, double textWidth){
+  //Creacion de opciones del dropdwon de estados
+  List<DropdownMenuItem<int>> _getStatesOptionsDropdown(BuildContext context, double textWidth){
     final _bdService = Provider.of<DBProvider>(context);
     List<DropdownMenuItem<int>> list = [];
     _bdService.statesList.forEach((state) {
@@ -453,13 +487,13 @@ class _StepOneState extends State<StepOne> {
         value: state.id,
       ));
     });
-    setState(() {
-      
-    });
+    //Se llama setState debido a que hay cierta dependencia entre los componentes de seleccion de municipios y ciudades en esta UI y tambien deben de cambiar
+    setState(() {});
     return list;
   }
 
-  List<DropdownMenuItem<int>> getMunicipalitiesOptionsDropdown(BuildContext context, double textWidth){
+  //Creacion de opciones del dropdwon de municipios
+  List<DropdownMenuItem<int>> _getMunicipalitiesOptionsDropdown(BuildContext context, double textWidth){
     final _bdService = Provider.of<DBProvider>(context);
     List<DropdownMenuItem<int>> list = [];
     _bdService.municipalitiesList.forEach((municipality) {
@@ -468,14 +502,13 @@ class _StepOneState extends State<StepOne> {
         value: municipality.id,
       ));
     });
-    setState(() {
-      
-    });
+    //Se llama setState debido a que hay cierta dependencia entre los componentes de seleccion de estados y ciudades en esta UI y tambien deben de cambiar
+    setState(() {});
     return list;
   }
 
-  List<DropdownMenuItem<int>> getCitiesOptionsDropdown(BuildContext context, double textWidth){
-    final _registerStepOneForm = Provider.of<RegisterFormProvider>(context);
+  //Creacion de opciones del dropdwon de ciudades
+  List<DropdownMenuItem<int>> _getCitiesOptionsDropdown(BuildContext context, double textWidth){
     final _bdService = Provider.of<DBProvider>(context);
     List<DropdownMenuItem<int>> list = [];
     _bdService.citiesList.forEach((city){
@@ -484,9 +517,8 @@ class _StepOneState extends State<StepOne> {
         value: city.id,
       ));
     });
-    setState(() {
-      
-    });
+    //Se llama setState debido a que hay cierta dependencia entre los componentes de seleccion de estados y municipios en esta UI y tambien deben de cambiar
+    setState(() {});
     return list;
   }
 }

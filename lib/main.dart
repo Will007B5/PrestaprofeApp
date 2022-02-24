@@ -21,6 +21,7 @@ class AppState extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => CustomCameraProvider(), lazy: false),
+        ChangeNotifierProvider(create: (_) => CardFormProvider(new CardModel(userId: 0)), lazy: false),
         ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => UiProvider()),
         ChangeNotifierProvider(create: (_) => NewCreditFormProvider(
@@ -36,33 +37,7 @@ class AppState extends StatelessWidget {
           new MunicipalityModel(id: 1, name: 'Aguascalientes', code: '001', stateId: 1),
           new CityModel(id: 1, name: 'Zona Centro', zipCode: '20000', municipalityId: 1)
         )),
-        ChangeNotifierProvider(create: (_) => RegisterFormProvider(
-          new ClientModel(
-            name: '', 
-            lastName: '', 
-            birthDate: DateTime.now(), 
-            gender: 'Hombre', 
-            civilStatus: 'Soltero/a', 
-            curp: '', 
-            address: '', 
-            salaryId: 1, 
-            phone: '', 
-            email: '',
-            password: '', 
-            rfc: '', 
-            firstReferencePersonName: '', 
-            firstReferencePersonPhone: '', 
-            secondReferencePersonName: '', 
-            secondReferencePersonPhone: '', 
-            cityId: 1,
-            jobId: 1, 
-            ine: '', 
-            ineBack: '', 
-            payStub: '', 
-            selfie: '', 
-            proofAddress: ''
-          )
-        )),
+        ChangeNotifierProvider(create: (_) => RegisterFormProvider(ClientModel.cleanClient())),
         ChangeNotifierProvider(create: (_) => ClientsService(), lazy: false), //lazy false para que pueda correr al momento de ejecutar la app
         ChangeNotifierProvider(create: (_) => JobsService(), lazy: false),
         ChangeNotifierProvider(create: (_) => SalariesService() , lazy: false),

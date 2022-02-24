@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:prestaprofe/src/services/clients_service.dart';
-import 'package:prestaprofe/src/services/jobs_service.dart';
+import 'package:provider/provider.dart';
+
+import 'package:prestaprofe/src/helpers/helpers.dart';
 import 'package:prestaprofe/src/services/services.dart';
 import 'package:prestaprofe/src/widgets/widgets.dart';
-import 'package:provider/provider.dart';
 
 class MyCredits extends StatelessWidget {
   
@@ -123,8 +123,8 @@ class MyCredits extends StatelessWidget {
                     // else{
                     //   completeDate = dia.toString() + '0' + mes.toString() + an.toString().substring(2,4);
                     // }
-                    print(Reference35Generator.makeReference(positions: _authService.currentClient.id.toString()+_authService.currentClient.curp.substring(0,4)));
-                    final reference = Reference35Generator.makeReference(positions: _authService.currentClient.id.toString()+_authService.currentClient.curp.substring(0,4));
+                    print(Reference35Generator.makeReference(positions: _authService.currentClient.id.toString()+_authService.currentClient.curp!.substring(0,4)));
+                    final reference = Reference35Generator.makeReference(positions: _authService.currentClient.id.toString()+_authService.currentClient.curp!.substring(0,4));
                     await _loansService.updateReference(reference, _loansService.loans.last);
                     //Navigator.of(context).pushNamedAndRemoveUntil('home', (Route<dynamic> route) => false);
                   },

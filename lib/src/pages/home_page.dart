@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:provider/provider.dart';
+
+import 'package:prestaprofe/src/models/models.dart';
 import 'package:prestaprofe/src/services/services.dart';
 import 'package:prestaprofe/src/widgets/widgets.dart';
 
@@ -36,8 +38,6 @@ class HomePage extends StatelessWidget {
     //kBottomNavigationBarHeight = constante de Flutter que indica el tamaño del BottomNavigationBar
 
     final _mediaQuerySize = MediaQuery.of(context).size;
-
-    final _authService = Provider.of<AuthService>(context);
 
     final width = _mediaQuerySize.width - 30;
     final height = _mediaQuerySize.height - 30;
@@ -140,7 +140,7 @@ class _ProfileNameAndPicture extends StatelessWidget {
             ),
           ),
           SizedBox(height: 23),
-          Text('HOLA, ${_authService.currentClient.name}',
+          Text('HOLA, ${_authService.currentClient.name.toUpperCase()}',
             overflow: TextOverflow.ellipsis,
             maxLines: 2,
             textAlign: TextAlign.center,
@@ -171,6 +171,9 @@ class _ProfileCardActions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    final _authService = Provider.of<AuthService>(context);
+    final _cardsService = Provider.of<CardsService>(context);
+
     return Container(
       child: Column(
         children: [
@@ -187,7 +190,7 @@ class _ProfileCardActions extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _GestureTapMenuActions(route: 'newCreditStepOne', icon: Icons.payments_rounded, width: (this.width / 3), height: (this.height / 3), text: 'SOLICITAR PRÉSTAMO'),
+                _GestureTapMenuActions(route: _checkRoutesToNewLoans(_cardsService.filterUserCards(_authService.currentClient.id!)), icon: Icons.payments_rounded, width: (this.width / 3), height: (this.height / 3), text: 'SOLICITAR PRÉSTAMO'),
                 _GestureTapMenuActions(route: 'myCredits', icon: Icons.payment_rounded, width: (this.width / 3), height: (this.height / 3), text: 'PAGAR PRÉSTAMO'),
                 _GestureTapMenuActions(route: '', icon: Icons.insert_chart, width: (this.width / 3), height: (this.height / 3), text: 'VER PRÉSTAMOS'),
               ],
@@ -198,8 +201,16 @@ class _ProfileCardActions extends StatelessWidget {
       ),
     );
   }
+
+  String _checkRoutesToNewLoans(List<CardModel> userCards){
+    if(userCards.length > 0) {
+      return 'newCreditStepOne';
+    }
+    return 'registerDebitClabe';
+  }
 }
 
+//Widget de gesto que recibe ciertos parametros para construir opciones del home
 class _GestureTapMenuActions extends StatelessWidget {
 
   final String route;

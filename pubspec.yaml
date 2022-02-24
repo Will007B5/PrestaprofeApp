@@ -41,7 +41,7 @@ dependencies:
   file_picker: ^4.3.3
   contacts_service: ^0.6.3
   # camera: ^0.9.4+11
-  # image_picker: ^0.8.4+8
+  image_picker: ^0.8.4+8
   native_pdf_renderer: ^4.0.1
   percent_indicator: ^4.0.0
   group_button: ^4.2.1

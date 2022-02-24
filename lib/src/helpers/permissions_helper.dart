@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:permission_handler/permission_handler.dart';
+
 import 'package:prestaprofe/src/services/services.dart';
 
 class PermissionsHelper {

@@ -5,11 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:prestaprofe/src/models/card_model.dart';
 
 import 'package:prestaprofe/src/models/models.dart';
-
-// verificar los permisos a internet. 
-// Línea <uses-permission android:name="android.permission.INTERNET" /> en el archivo AndroidManifest.xml (de la carpeta main), 
-// justo encima de <Application>.
-// Luego ejecutar el comando flutter clean en la raíz del proyecto, y volver a generar el apk para probar.
+import 'package:prestaprofe/src/services/services.dart';
 
 class CardsService extends ChangeNotifier {
 
@@ -26,6 +22,17 @@ class CardsService extends ChangeNotifier {
   }
 
   final List<CardModel> cards = [];
+
+  bool _isSaving = false;
+
+  bool get isSaving {
+    return _isSaving;
+  }
+
+  set isSaving (bool value) {
+    _isSaving = value;
+    notifyListeners();
+  }
 
   bool isLoading = true;
 
@@ -57,6 +64,43 @@ class CardsService extends ChangeNotifier {
     print(this.cards);
     
     return this.cards;
+  }
+
+  List<CardModel> filterUserCards(int userId){
+    return this.cards.where((card) => card.userId == userId).toList();
+  }
+
+  Future<int> registerCardClabe(CardModel card) async {
+    this._isSaving = true;
+    this.notifyListeners();
+
+    final url = Uri.https(_baseUrl, '/api/cards');
+
+    final headers = await this._setHeaders(authenticatedUser: false);
+
+    final resp = await http.post(url, headers: headers, body: card.toJson());
+
+    if (resp.statusCode >= 200 && resp.statusCode < 299) {
+
+      this.cards.add(CardModel.fromJson(resp.body));
+
+      this._isSaving = false;
+      this.notifyListeners();
+      return 200;
+    }
+
+    this._isSaving = false;
+    this.notifyListeners();
+    String textErrors = 'ERROR\n\n';
+
+    ErrorModel.fromJson(resp.body).toMapErrorsText().forEach((key, value) {
+      if(value.length > 0){
+        textErrors+='${key}: ${value[0]}';
+      }
+    });
+
+    NotificationsService.showSnackbar('${textErrors}', 'error');
+    return 400;
   }
 
 }

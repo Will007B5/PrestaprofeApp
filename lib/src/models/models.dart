@@ -1,5 +1,7 @@
+export 'package:prestaprofe/src/models/card_model.dart';
 export 'package:prestaprofe/src/models/city_model.dart';
 export 'package:prestaprofe/src/models/client_model.dart';
+export 'package:prestaprofe/src/models/error_model.dart';
 export 'package:prestaprofe/src/models/job_model.dart';
 export 'package:prestaprofe/src/models/loan_model.dart';
 export 'package:prestaprofe/src/models/municipality_model.dart';
