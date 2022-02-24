@@ -34,13 +34,12 @@ class ClientsService extends ChangeNotifier {
   }
 
   final List<ClientModel> clients = [];
-  late ClientModel currentClient; //late; hasta que se va a utilizar tiene un valor (todos los objetos pasan por referencia)
+  late ClientModel
+      currentClient; //late; hasta que se va a utilizar tiene un valor (todos los objetos pasan por referencia)
   final double _kilobyteConstant = 0.001;
   final double _megabyteConstant = 0.000001;
 
-  final debouncer = Debouncer(
-    duration: Duration(milliseconds: 800)
-  );
+  final debouncer = Debouncer(duration: Duration(milliseconds: 800));
 
   String _localReceivedOtp = '';
   bool _isLoading = true;
@@ -87,7 +86,8 @@ class ClientsService extends ChangeNotifier {
     this._isLoading = true;
     notifyListeners();
 
-    final url = Uri.https(_baseUrl, '/api/getClients'); //Enviamos el cuerpo y los parametros
+    final url = Uri.https(
+        _baseUrl, '/api/getClients'); //Enviamos el cuerpo y los parametros
 
     final headers = await this._setHeaders(authenticatedUser: false);
 
@@ -134,12 +134,12 @@ class ClientsService extends ChangeNotifier {
   }
 
   void cleanFileImages() {
-    this._newIneFile = null; 
-    this._newIneBackFile = null; 
-    this._newSelfieFile = null; 
-    this._newProofAddressFile = null; 
-    this._newPayStubFile = null; 
-  } 
+    this._newIneFile = null;
+    this._newIneBackFile = null;
+    this._newSelfieFile = null;
+    this._newProofAddressFile = null;
+    this._newPayStubFile = null;
+  }
 
   void updateImagesPreview(String imageType, String path) async {
     //Este método solo actualiza la imagen de manera local para ser visualizada. No la sube a ningun lugar externo
@@ -199,7 +199,8 @@ class ClientsService extends ChangeNotifier {
     final packageUpload = http.MultipartRequest('POST', url);
     packageUpload.fields['name'] = client.name.trim();
     packageUpload.fields['last_name'] = client.lastName.trim();
-    packageUpload.fields['birth_date'] = client.birthDate.toString().substring(0, 10);
+    packageUpload.fields['birth_date'] =
+        client.birthDate.toString().substring(0, 10);
     packageUpload.fields['gender'] = client.gender!;
     packageUpload.fields['civil_status'] = client.civilStatus!;
     packageUpload.fields['curp'] = client.curp!.trim();
@@ -212,7 +213,7 @@ class ClientsService extends ChangeNotifier {
 
     final streamIneFile = new http.ByteStream(this._newIneFile!.openRead());
     streamIneFile.cast();
-    final lengthIneFile = await this._newIneFile!.length();
+    final lengthIneFile = await this._newIneFile!.lengthSync();
     final multipartIneFile = new http.MultipartFile(
         'ine', streamIneFile, lengthIneFile,
         filename: fileextension.basename(this._newIneFile!.path));
@@ -221,7 +222,7 @@ class ClientsService extends ChangeNotifier {
     final streamIneBackFile =
         new http.ByteStream(this._newIneBackFile!.openRead());
     streamIneBackFile.cast();
-    final lengthIneBackFile = await this._newIneBackFile!.length();
+    final lengthIneBackFile = await this._newIneBackFile!.lengthSync();
     final multipartIneBackFile = new http.MultipartFile(
         'ine_back', streamIneBackFile, lengthIneBackFile,
         filename: fileextension.basename(this._newIneBackFile!.path));
@@ -230,7 +231,7 @@ class ClientsService extends ChangeNotifier {
     final streamPayStubFile =
         new http.ByteStream(this._newPayStubFile!.openRead());
     streamPayStubFile.cast();
-    final lengthPayStubFile = await this._newPayStubFile!.length();
+    final lengthPayStubFile = await this._newPayStubFile!.lengthSync();
     final multipartPayStubFile = new http.MultipartFile(
         'pay_stub', streamPayStubFile, lengthPayStubFile,
         filename: fileextension.basename(this._newPayStubFile!.path));
@@ -239,7 +240,7 @@ class ClientsService extends ChangeNotifier {
     final streamSelfieFile =
         new http.ByteStream(this._newSelfieFile!.openRead());
     streamSelfieFile.cast();
-    final lengthSelfieFile = await this._newSelfieFile!.length();
+    final lengthSelfieFile = await this._newSelfieFile!.lengthSync();
     final multipartSelfieFile = new http.MultipartFile(
         'selfie', streamSelfieFile, lengthSelfieFile,
         filename: fileextension.basename(this._newSelfieFile!.path));
@@ -248,16 +249,21 @@ class ClientsService extends ChangeNotifier {
     final streamProofAddressFile =
         new http.ByteStream(this._newProofAddressFile!.openRead());
     streamProofAddressFile.cast();
-    final lengthProofAddressFile = await this._newProofAddressFile!.length();
+    final lengthProofAddressFile =
+        await this._newProofAddressFile!.lengthSync();
     final multipartProofAddressFile = new http.MultipartFile(
         'proof_address', streamProofAddressFile, lengthProofAddressFile,
         filename: fileextension.basename(this._newProofAddressFile!.path));
     packageUpload.files.add(multipartProofAddressFile);
 
-    packageUpload.fields['first_reference_person_name'] = client.firstReferencePersonName!.trim();
-    packageUpload.fields['first_reference_person_phone'] = client.firstReferencePersonPhone!;
-    packageUpload.fields['second_reference_person_name'] = client.secondReferencePersonName!.trim();
-    packageUpload.fields['second_reference_person_phone'] = client.secondReferencePersonPhone!;
+    packageUpload.fields['first_reference_person_name'] =
+        client.firstReferencePersonName!.trim();
+    packageUpload.fields['first_reference_person_phone'] =
+        client.firstReferencePersonPhone!;
+    packageUpload.fields['second_reference_person_name'] =
+        client.secondReferencePersonName!.trim();
+    packageUpload.fields['second_reference_person_phone'] =
+        client.secondReferencePersonPhone!;
     packageUpload.fields['city_id'] = client.cityId.toString();
     packageUpload.fields['job_id'] = client.jobId.toString();
     final headers = await this._setHeaders(authenticatedUser: false);
@@ -274,7 +280,8 @@ class ClientsService extends ChangeNotifier {
 
       this.clients.add(client);
 
-      NotificationsService.showSnackbar('¡Ha sido registrado correctamente!', 'success');
+      NotificationsService.showSnackbar(
+          '¡Ha sido registrado correctamente!', 'success');
 
       print(client.id.toString());
 
@@ -286,26 +293,26 @@ class ClientsService extends ChangeNotifier {
     String textErrors = 'REVISE ESTOS CAMPOS E INTENTE DE NUEVO\n\n';
 
     ErrorModel.fromJson(resp.body).toMapErrorsText().forEach((key, value) {
-      if(value.length > 0){
-        textErrors+='${key}, ';
+      if (value.length > 0) {
+        textErrors += '${key}, ';
       }
     });
 
     this._isSaving = false;
     this.notifyListeners();
 
-    NotificationsService.showSnackbar('${textErrors.substring(0, textErrors.length - 2)}', 'error');
+    NotificationsService.showSnackbar(
+        '${textErrors.substring(0, textErrors.length - 2)}', 'error');
     return 400;
   }
 
   Future<int> sendSmsToClient(ClientModel client) async {
-
-    if(client.id != null && client.phone?.length == 10){
-
+    if (client.id != null && client.phone?.length == 10) {
       this._isSaving = true;
       this.notifyListeners();
 
-      final url = Uri.https(_baseUrl, '/api/get-verification-code/${client.phone}');
+      final url =
+          Uri.https(_baseUrl, '/api/get-verification-code/${client.phone}');
 
       final headers = await this._setHeaders(authenticatedUser: false);
 
@@ -313,7 +320,7 @@ class ClientsService extends ChangeNotifier {
 
       final Map<String, dynamic> decodedResp = json.decode(resp.body);
 
-      if(decodedResp.containsKey('verification_code')){
+      if (decodedResp.containsKey('verification_code')) {
         _localReceivedOtp = decodedResp['verification_code'];
         print('CODIGO: ${_localReceivedOtp}');
       }
@@ -321,22 +328,23 @@ class ClientsService extends ChangeNotifier {
       this._isSaving = false;
       this.notifyListeners();
 
-      NotificationsService.showSnackbar('El mensaje SMS llegará en cualquier momento', 'success');
+      NotificationsService.showSnackbar(
+          'El mensaje SMS llegará en cualquier momento', 'success');
       return 200;
     }
-    
+
     return 400;
   }
 
-  Future<int> verifyClient(ClientModel client, BuildContext context, String otpCode) async {
-
-    if(client.id != null){
-
+  Future<int> verifyClient(
+      ClientModel client, BuildContext context, String otpCode) async {
+    if (client.id != null) {
       this._isSaving = true;
       this.notifyListeners();
 
-      if(otpCode != '' && otpCode == _localReceivedOtp){
-        final url = Uri.https(_baseUrl, '/api/change-verification-phone-status/${client.id}');
+      if (otpCode != '' && otpCode == _localReceivedOtp) {
+        final url = Uri.https(
+            _baseUrl, '/api/change-verification-phone-status/${client.id}');
 
         final headers = await this._setHeaders(authenticatedUser: false);
 
@@ -347,8 +355,10 @@ class ClientsService extends ChangeNotifier {
         _localReceivedOtp = '';
         this.notifyListeners();
 
-        NotificationsService.showSnackbar('El telefóno se verificó con éxito. ', 'success');
-        Navigator.of(context).pushNamedAndRemoveUntil('login', (Route<dynamic> route) => false);
+        NotificationsService.showSnackbar(
+            'El telefóno se verificó con éxito. ', 'success');
+        Navigator.of(context)
+            .pushNamedAndRemoveUntil('login', (Route<dynamic> route) => false);
 
         return 200;
       }
@@ -356,23 +366,22 @@ class ClientsService extends ChangeNotifier {
       this._isSaving = false;
       this._isValidOtp = false;
       this.notifyListeners();
-
     }
     return 400;
   }
 
   //Intenta verificar al cliente cuando se deja de escribir por un tiempo
-  Future<int> debouncerWaitOtpCode(List<String> query, BuildContext context, ClientModel client) async{
+  Future<int> debouncerWaitOtpCode(
+      List<String> query, BuildContext context, ClientModel client) async {
     debouncer.value = ['', '', '', ''];
     debouncer.onValue = (value) async {
-      
-      if(!query.any((otpNum) => otpNum == '')){
+      if (!query.any((otpNum) => otpNum == '')) {
         print('YA HAY DEBOUNCE: ${query}');
         final joinedOtpQuery = query.join("");
         print('Joined OTP: ${joinedOtpQuery}');
-        final results = await this.verifyClient(client, context, joinedOtpQuery);
+        final results =
+            await this.verifyClient(client, context, joinedOtpQuery);
       }
-      
     };
 
     final timer = Timer.periodic(Duration(milliseconds: 600), (_) {
