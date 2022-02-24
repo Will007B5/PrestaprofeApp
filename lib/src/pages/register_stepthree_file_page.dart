@@ -1,28 +1,24 @@
-import 'dart:convert';
-import 'dart:io';
-
-// import 'package:camera/camera.dart';
-// import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:prestaprofe/src/pages/pages.dart';
-
-import 'package:provider/provider.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 
 import 'package:prestaprofe/src/helpers/helpers.dart';
-import 'package:prestaprofe/src/widgets/widgets.dart';
-import 'package:prestaprofe/src/providers/providers.dart';
 import 'package:prestaprofe/src/services/clients_service.dart';
+import 'package:prestaprofe/src/widgets/widgets.dart';
 
 class StepThreeFile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
 
+    //Variable que permite obtener los argumentos que se le pasaron a este componente al momento de llamarlo por medio de su ruta
     final _routeArgumentsTypeImage = ModalRoute.of(context)!.settings.arguments as String;
 
     return SafeArea(
+      top: false,
       child: Scaffold(
+        appBar: AppBar(elevation: 0),
         body: Container(
           color: Colors.white,
           height: double.infinity,
@@ -61,8 +57,6 @@ class _CardOptions extends StatelessWidget {
 
   final String routeArgumentsTypeImage;
 
-  // final ImagePicker _imagePicker = ImagePicker();
-
   _CardOptions({
     Key? key, 
     required this.routeArgumentsTypeImage
@@ -70,11 +64,13 @@ class _CardOptions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
     final _mediaQuerySize = MediaQuery.of(context).size;
     final _height = _mediaQuerySize.height;
     final _width = _mediaQuerySize.width;
     final _textWidth = _width * 0.04;
     final _iconSize = (_height * _width) * 0.000084;
+
     final options = {
       {
         "icon": Icons.camera_alt_rounded, 
@@ -92,54 +88,53 @@ class _CardOptions extends StatelessWidget {
         "action": "file"
       }
     };
+
     final List<Widget> listOptions = [];
-    if(options != null){
-      options.forEach((opt) {
-        final widgetTemp = GestureDetector(
-          onTap: () async{
-            await _makeActionFromSelectedOption(context, this.routeArgumentsTypeImage, opt['action'].toString());
-          },
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 10),
-            child: Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-              color: Color.fromRGBO(255, 255, 255, 0.94),
-              child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Color.fromRGBO(51, 114, 134, 1),
-                    width: 2,
-                  ),
-                  borderRadius: BorderRadius.circular(10)
+
+    options.forEach((opt) {
+      final widgetTemp = GestureDetector(
+        onTap: () async{
+          await _makeActionFromSelectedOption(context, this.routeArgumentsTypeImage, opt['action'].toString());
+        },
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 10),
+          child: Card(
+            elevation: 5,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            color: Color.fromRGBO(255, 255, 255, 0.94),
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: Color.fromRGBO(51, 114, 134, 1),
+                  width: 2,
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    ListTile(
-                      visualDensity: VisualDensity.compact,
-                      dense: true,
-                      title: Text(opt['text'].toString(), textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: _textWidth)),
-                      subtitle: Icon(opt['icon'] as IconData, color: Color.fromRGBO(51, 114, 134, 1), size: _iconSize),
-                    )
-                  ],
-                ),
+                borderRadius: BorderRadius.circular(10)
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ListTile(
+                    visualDensity: VisualDensity.compact,
+                    dense: true,
+                    title: Text(opt['text'].toString(), textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: _textWidth)),
+                    subtitle: Icon(opt['icon'] as IconData, color: Color.fromRGBO(51, 114, 134, 1), size: _iconSize),
+                  )
+                ],
               ),
             ),
           ),
-        );
-        if(this.routeArgumentsTypeImage != 'selfie'){
-          if(opt['action'].toString() != 'camera'){
-            listOptions.add(widgetTemp);
-          }
+        ),
+      );
+      if(this.routeArgumentsTypeImage != 'selfie'){
+        listOptions.add(widgetTemp);
+      }
+      else if(this.routeArgumentsTypeImage == 'selfie'){
+        if(opt['action'].toString() == 'camera'){
+          listOptions.add(widgetTemp);
         }
-        else if(this.routeArgumentsTypeImage == 'selfie'){
-          if(opt['action'].toString() == 'gallery'){
-            listOptions.add(widgetTemp);
-          }
-        }
-      });
-    }
+      }
+    });
+
     return Container(
       width: double.infinity,
       child: Column(
@@ -148,10 +143,11 @@ class _CardOptions extends StatelessWidget {
     );
   }
 
-  _makeActionFromSelectedOption(BuildContext context, String routeArgumentsTypeImage, String action) async {
+  //Metodo que manipula multimedia de acuerdo a la opcion seleccionada
+  Future<void> _makeActionFromSelectedOption(BuildContext context, String routeArgumentsTypeImage, String action) async {
+    final ImagePicker _imagePicker = ImagePicker();
     final _clientsService = Provider.of<ClientsService>(context, listen: false);
     final response = await PermissionsHelper.requestForPermission(permissionType: 'camera');
-    //await FilePicker.platform.clearTemporaryFiles();
     if(response == 200){
       if(action == 'gallery'){
         try {
@@ -165,37 +161,23 @@ class _CardOptions extends StatelessWidget {
           _clientsService.updateImagesPreview(routeArgumentsTypeImage, pickedFile.files.single.path!);
         } catch (e) {
         }
-        // try {
-        //   final XFile? pickedFile = await _imagePicker.pickImage(
-        //     source: ImageSource.gallery,
-        //     imageQuality: 90
-        //   );
-        //   await _imagePicker.retrieveLostData();
-        //   if(pickedFile == null){
-        //     return;
-        //   }
-
-        //   print('Hay que hacer que imagen se vea ${pickedFile.path}');
-        //   _clientsService.updateImagesPreview(routeArgumentsTypeImage, pickedFile.path);
-        // } catch (e) {
-        // }
       }
       else if(action == 'camera'){
-        // try {
-        //   final XFile? pickedFile = await ImagePicker().pickImage(
-        //     source: ImageSource.camera,
-        //     imageQuality: 90
-        //   );
-        //   await _imagePicker.retrieveLostData();
-        //   if(pickedFile == null){
-        //     return;
-        //   }
+        try {
+          final XFile? pickedFile = await ImagePicker().pickImage(
+            source: ImageSource.camera,
+            imageQuality: 70
+          );
+          await _imagePicker.retrieveLostData();
+          if(pickedFile == null){
+            return;
+          }
 
-        //   print('Hay que hacer que imagen se vea ${pickedFile.path}');
-        //   _clientsService.updateImagesPreview(routeArgumentsTypeImage, pickedFile.path);
-        // } catch (e) {
-        //   print(e);
-        // }
+          print('Hay que hacer que imagen se vea ${pickedFile.path}');
+          _clientsService.updateImagesPreview(routeArgumentsTypeImage, pickedFile.path);
+        } catch (e) {
+          print(e);
+        }
       }
       else if(action == 'file'){
         try {

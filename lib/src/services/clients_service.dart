@@ -1,16 +1,18 @@
+import 'dart:async';
 import 'dart:convert';
-import 'package:async/async.dart';
 import 'dart:io';
 import 'dart:math';
+import 'package:async/async.dart';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as fileextension;
+import 'package:provider/provider.dart';
 
+import 'package:prestaprofe/src/helpers/helpers.dart';
 import 'package:prestaprofe/src/models/models.dart';
 import 'package:prestaprofe/src/providers/providers.dart';
 import 'package:prestaprofe/src/services/services.dart';
-import 'package:provider/provider.dart';
 
 // verificar los permisos a internet.
 // Línea <uses-permission android:name="android.permission.INTERNET" /> en el archivo AndroidManifest.xml (de la carpeta main),
@@ -32,15 +34,18 @@ class ClientsService extends ChangeNotifier {
   }
 
   final List<ClientModel> clients = [];
-  late ClientModel
-      currentClient; //late; hasta que se va a utilizar tiene un valor (todos los objetos pasan por referencia)
-
+  late ClientModel currentClient; //late; hasta que se va a utilizar tiene un valor (todos los objetos pasan por referencia)
   final double _kilobyteConstant = 0.001;
   final double _megabyteConstant = 0.000001;
 
+  final debouncer = Debouncer(
+    duration: Duration(milliseconds: 800)
+  );
+
+  String _localReceivedOtp = '';
   bool _isLoading = true;
   bool _isSaving = false;
-  bool _savedClient = false;
+  bool _isValidOtp = true;
   File? _newIneFile; //Puede ser pdf o imagen
   File? _newIneBackFile; //Puede ser pdf o imagen
   File? _newSelfieFile; //Puede ser pdf o imagen
@@ -60,6 +65,15 @@ class ClientsService extends ChangeNotifier {
     notifyListeners(); //Notifica que hay que redibujar
   }
 
+  bool get isValidOtp {
+    return _isValidOtp;
+  }
+
+  set isValidOtp(bool value) {
+    _isValidOtp = value;
+    notifyListeners(); //Notifica que hay que redibujar
+  }
+
   bool get isLoading {
     return _isLoading;
   }
@@ -69,21 +83,11 @@ class ClientsService extends ChangeNotifier {
     notifyListeners(); //Notifica que hay que redibujar
   }
 
-  bool get savedClient {
-    return _savedClient;
-  }
-
-  set savedClient(bool value) {
-    _savedClient = value;
-    notifyListeners(); //Notifica que hay que redibujar
-  }
-
   Future<List<ClientModel>> loadClients() async {
     this._isLoading = true;
     notifyListeners();
 
-    final url =
-        Uri.https(_baseUrl, '/api/users'); //Enviamos el cuerpo y los parametros
+    final url = Uri.https(_baseUrl, '/api/getClients'); //Enviamos el cuerpo y los parametros
 
     final headers = await this._setHeaders(authenticatedUser: false);
 
@@ -129,11 +133,19 @@ class ClientsService extends ChangeNotifier {
     return result;
   }
 
+  void cleanFileImages() {
+    this._newIneFile = null; 
+    this._newIneBackFile = null; 
+    this._newSelfieFile = null; 
+    this._newProofAddressFile = null; 
+    this._newPayStubFile = null; 
+  } 
+
   void updateImagesPreview(String imageType, String path) async {
     //Este método solo actualiza la imagen de manera local para ser visualizada. No la sube a ningun lugar externo
     final fileSizeInMegabytes = await getFileSizeInMegabytes(path);
     print('Megabytes - ${fileSizeInMegabytes.toString()}');
-    if (fileSizeInMegabytes < 5.0) {
+    if (fileSizeInMegabytes < 4.95) {
       if (imageType == 'ine') {
         this.currentClient.ine = path;
         this._newIneFile = File.fromUri(Uri(path: path));
@@ -187,17 +199,16 @@ class ClientsService extends ChangeNotifier {
     final packageUpload = http.MultipartRequest('POST', url);
     packageUpload.fields['name'] = client.name.trim();
     packageUpload.fields['last_name'] = client.lastName.trim();
-    packageUpload.fields['birth_date'] =
-        client.birthDate.toString().substring(0, 10);
-    packageUpload.fields['gender'] = client.gender;
-    packageUpload.fields['civil_status'] = client.civilStatus;
-    packageUpload.fields['curp'] = client.curp.trim();
-    packageUpload.fields['address'] = client.address.trim();
+    packageUpload.fields['birth_date'] = client.birthDate.toString().substring(0, 10);
+    packageUpload.fields['gender'] = client.gender!;
+    packageUpload.fields['civil_status'] = client.civilStatus!;
+    packageUpload.fields['curp'] = client.curp!.trim();
+    packageUpload.fields['address'] = client.address!.trim();
     packageUpload.fields['salary_id'] = client.salaryId.toString();
-    packageUpload.fields['phone'] = client.phone;
-    packageUpload.fields['email'] = client.email;
+    packageUpload.fields['phone'] = client.phone!;
+    packageUpload.fields['email'] = client.email!;
     packageUpload.fields['password'] = client.password as String;
-    packageUpload.fields['rfc'] = client.rfc.trim();
+    packageUpload.fields['rfc'] = client.rfc!.trim();
 
     final streamIneFile = new http.ByteStream(this._newIneFile!.openRead());
     streamIneFile.cast();
@@ -243,14 +254,10 @@ class ClientsService extends ChangeNotifier {
         filename: fileextension.basename(this._newProofAddressFile!.path));
     packageUpload.files.add(multipartProofAddressFile);
 
-    packageUpload.fields['first_reference_person_name'] =
-        client.firstReferencePersonName.trim();
-    packageUpload.fields['first_reference_person_phone'] =
-        client.firstReferencePersonPhone;
-    packageUpload.fields['second_reference_person_name'] =
-        client.secondReferencePersonName.trim();
-    packageUpload.fields['second_reference_person_phone'] =
-        client.secondReferencePersonPhone;
+    packageUpload.fields['first_reference_person_name'] = client.firstReferencePersonName!.trim();
+    packageUpload.fields['first_reference_person_phone'] = client.firstReferencePersonPhone!;
+    packageUpload.fields['second_reference_person_name'] = client.secondReferencePersonName!.trim();
+    packageUpload.fields['second_reference_person_phone'] = client.secondReferencePersonPhone!;
     packageUpload.fields['city_id'] = client.cityId.toString();
     packageUpload.fields['job_id'] = client.jobId.toString();
     final headers = await this._setHeaders(authenticatedUser: false);
@@ -267,48 +274,112 @@ class ClientsService extends ChangeNotifier {
 
       this.clients.add(client);
 
+      NotificationsService.showSnackbar('¡Ha sido registrado correctamente!', 'success');
+
       print(client.id.toString());
 
       this._isSaving = false;
       this.notifyListeners();
       return 200;
     }
-    NotificationsService.showSnackbar(
-        'Algo salío mal. Verifique la información e intente de nuevo', 'error');
+
+    String textErrors = 'REVISE ESTOS CAMPOS E INTENTE DE NUEVO\n\n';
+
+    ErrorModel.fromJson(resp.body).toMapErrorsText().forEach((key, value) {
+      if(value.length > 0){
+        textErrors+='${key}, ';
+      }
+    });
+
+    this._isSaving = false;
+    this.notifyListeners();
+
+    NotificationsService.showSnackbar('${textErrors.substring(0, textErrors.length - 2)}', 'error');
     return 400;
   }
 
   Future<int> sendSmsToClient(ClientModel client) async {
-    this._isSaving = true;
-    this.notifyListeners();
 
-    final url =
-        Uri.https(_baseUrl, '/api/get-verification-code/${client.phone}');
+    if(client.id != null && client.phone?.length == 10){
 
-    final headers = await this._setHeaders(authenticatedUser: false);
+      this._isSaving = true;
+      this.notifyListeners();
 
-    final resp = await http.get(url, headers: headers);
+      final url = Uri.https(_baseUrl, '/api/get-verification-code/${client.phone}');
 
-    this._isSaving = false;
-    this.notifyListeners();
+      final headers = await this._setHeaders(authenticatedUser: false);
 
-    return 200;
+      final resp = await http.get(url, headers: headers);
+
+      final Map<String, dynamic> decodedResp = json.decode(resp.body);
+
+      if(decodedResp.containsKey('verification_code')){
+        _localReceivedOtp = decodedResp['verification_code'];
+        print('CODIGO: ${_localReceivedOtp}');
+      }
+
+      this._isSaving = false;
+      this.notifyListeners();
+
+      NotificationsService.showSnackbar('El mensaje SMS llegará en cualquier momento', 'success');
+      return 200;
+    }
+    
+    return 400;
   }
 
-  Future<int> verifyCliet(ClientModel client) async {
-    this._isSaving = true;
-    this.notifyListeners();
+  Future<int> verifyClient(ClientModel client, BuildContext context, String otpCode) async {
 
-    final url = Uri.https(
-        _baseUrl, '/api/change-verification-phone-status/${client.id}');
+    if(client.id != null){
 
-    final headers = await this._setHeaders(authenticatedUser: false);
+      this._isSaving = true;
+      this.notifyListeners();
 
-    final resp = await http.get(url, headers: headers);
+      if(otpCode != '' && otpCode == _localReceivedOtp){
+        final url = Uri.https(_baseUrl, '/api/change-verification-phone-status/${client.id}');
 
-    this._isSaving = false;
-    this.notifyListeners();
+        final headers = await this._setHeaders(authenticatedUser: false);
 
+        final resp = await http.get(url, headers: headers);
+
+        this._isSaving = false;
+        this._isValidOtp = true;
+        _localReceivedOtp = '';
+        this.notifyListeners();
+
+        NotificationsService.showSnackbar('El telefóno se verificó con éxito. ', 'success');
+        Navigator.of(context).pushNamedAndRemoveUntil('login', (Route<dynamic> route) => false);
+
+        return 200;
+      }
+
+      this._isSaving = false;
+      this._isValidOtp = false;
+      this.notifyListeners();
+
+    }
+    return 400;
+  }
+
+  //Intenta verificar al cliente cuando se deja de escribir por un tiempo
+  Future<int> debouncerWaitOtpCode(List<String> query, BuildContext context, ClientModel client) async{
+    debouncer.value = ['', '', '', ''];
+    debouncer.onValue = (value) async {
+      
+      if(!query.any((otpNum) => otpNum == '')){
+        print('YA HAY DEBOUNCE: ${query}');
+        final joinedOtpQuery = query.join("");
+        print('Joined OTP: ${joinedOtpQuery}');
+        final results = await this.verifyClient(client, context, joinedOtpQuery);
+      }
+      
+    };
+
+    final timer = Timer.periodic(Duration(milliseconds: 600), (_) {
+      debouncer.value = query;
+    });
+
+    Future.delayed(Duration(milliseconds: 601)).then((_) => timer.cancel());
     return 200;
   }
 }

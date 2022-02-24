@@ -1,44 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:prestaprofe/src/services/clients_service.dart';
-import 'package:prestaprofe/src/services/services.dart';
 import 'package:provider/provider.dart';
 
+import 'package:prestaprofe/src/helpers/helpers.dart';
+import 'package:prestaprofe/src/models/models.dart';
+import 'package:prestaprofe/src/pages/pages.dart';
 import 'package:prestaprofe/src/providers/providers.dart';
-
+import 'package:prestaprofe/src/services/clients_service.dart';
+import 'package:prestaprofe/src/services/services.dart';
 import 'package:prestaprofe/src/ui/input_decorations.dart';
 import 'package:prestaprofe/src/widgets/widgets.dart';
 
 class StepFour extends StatelessWidget {
 
+  TextEditingController _textfieldConfirmPasswordController = new TextEditingController(); //Controlador que lleva la data de la confirmacion de contraseña
+
   @override
   Widget build(BuildContext context) {
 
-    final _mediaQuerySize = MediaQuery.of(context).size;
-    final _height = _mediaQuerySize.height;
-    final _width = _mediaQuerySize.width;
-    final _circleMeassure = _mediaQuerySize.height * _mediaQuerySize.width;
+    final _mediaQuerySize = MediaQuery.of(context).size; //MediaQuery con los detalles de medida de pantalla
+    final _height = _mediaQuerySize.height; //Alto de la pantalla
+    final _width = _mediaQuerySize.width; //Ancho de la pantalla
+    final _circleMeassure = _mediaQuerySize.height * _mediaQuerySize.width; //Medida de la circunferencia del paso ubicada en la barra de estado 
     final _mediaQuerySizeFixedHeightCircles = (_circleMeassure * 0.000155);
-    final _textInfoWidth = _width * 0.055;
+    final _textInfoWidth = _width * 0.055; //Medida de la fuente a utilizar en la barra de estado
+
+    final _registerStepFourForm = Provider.of<RegisterFormProvider>(context);
+    final _clientsService = Provider.of<ClientsService>(context);
     
-    return Scaffold(
-      appBar: AppBarRegister(textStep: 'INFORMACIÓN DE SESIÓN', mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles, textWidth: _textInfoWidth),
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        color: Colors.white,
-        child: CustomScrollView(
-          slivers: [
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: _constructRegisterBody(context, height: _height, width: _width),
-            )
-          ],
+    return WillPopScope(
+      child: SafeArea(
+        top: false,
+        child: Scaffold(
+          appBar: AppBarRegister(textStep: 'INFORMACIÓN DE SESIÓN', mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles, textWidth: _textInfoWidth),
+          body: (!_clientsService.isSaving) ? Container(
+            height: double.infinity,
+            width: double.infinity,
+            color: Colors.white,
+            child: CustomScrollView(
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: _constructRegisterBody(context, height: _height, width: _width),
+                )
+              ],
+            ),
+          ) : LoadingPage()
         ),
-      )
+      ),
+      onWillPop: () async {
+        _registerStepFourForm.stepAppBarCount = 3;
+        return true;
+      },
     );
   }
 
+  //Este widget tiene la construccion de todo el cuerpo del body de UI
   Widget _constructRegisterBody(BuildContext context, {double? height, double? width}) {
 
     final _textWidth = width! * 0.035;
@@ -53,7 +70,7 @@ class StepFour extends StatelessWidget {
         key: _registerStepFourForm.formKeyStepFour,
         child: Column(
           children: [
-            !_clientsService.savedClient ? Column(
+            Column(
               children: [
                 SizedBox(height: 15),
                 TextFormField(
@@ -69,15 +86,13 @@ class StepFour extends StatelessWidget {
                       LengthLimitingTextInputFormatter(50),
                   ],
                   validator: (value) {
-                    String pattern = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-                    RegExp regExp  = new RegExp(pattern);
-                    return regExp.hasMatch(value ?? '') ? null : 'Ingrese un correo válido';
+                    return RegexHelper.email.hasMatch(value ?? '') ? null : 'Ingrese un correo válido';
                   },
                 ),
                 SizedBox(height: 10),
                 TextFormField(
                   style: TextStyle(fontSize: _textWidth),
-                  decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'Contraseña', prefixIcon: Icons.account_circle_rounded, height: height, textWidth: width),
+                  decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'Contraseña', prefixIcon: Icons.account_circle_rounded, suffixIcon: _registerStepFourForm.obscurePasswordFieldStepFour ? Icons.visibility_off : Icons.visibility, context: context, height: height, textWidth: width),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   enabled: !_registerStepFourForm.isLoading ? true : false,
                   enableSuggestions: false,
@@ -99,6 +114,27 @@ class StepFour extends StatelessWidget {
                 SizedBox(height: 10),
                 TextFormField(
                   style: TextStyle(fontSize: _textWidth),
+                  decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'Repita la contraseña', prefixIcon: Icons.account_circle_rounded, suffixIcon: _registerStepFourForm.obscurePasswordFieldStepFour ? Icons.visibility_off : Icons.visibility, context: context, height: height, textWidth: width),
+                  autovalidateMode: AutovalidateMode.always,
+                  enabled: !_registerStepFourForm.isLoading ? true : false,
+                  enableSuggestions: false,
+                  autocorrect: false,
+                  obscureText: !_registerStepFourForm.obscurePasswordFieldStepFour,
+                  keyboardType: TextInputType.text,
+                  controller: _textfieldConfirmPasswordController,
+                  inputFormatters: [
+                      LengthLimitingTextInputFormatter(25),
+                  ],
+                  validator: (value) {
+                    if(_textfieldConfirmPasswordController.text == _clientForm4.password && _textfieldConfirmPasswordController.text.length > 8){
+                      return null;
+                    }
+                    return 'Las contraseñas no coinciden';
+                  },
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  style: TextStyle(fontSize: _textWidth),
                   decoration: InputDecorations.registerInputDecoration(hintText: '', labelText: 'Teléfono', prefixIcon: Icons.phone, height: height, textWidth: width),
                   autovalidateMode: AutovalidateMode.onUserInteraction,
                   enabled: !_registerStepFourForm.isLoading ? true : false,
@@ -107,7 +143,7 @@ class StepFour extends StatelessWidget {
                   initialValue: _clientForm4.phone,
                   inputFormatters: [
                       LengthLimitingTextInputFormatter(10),
-                      FilteringTextInputFormatter.allow(RegExp(r'^[0-9]{0,10}'))
+                      FilteringTextInputFormatter.allow(RegexHelper.phone)
                   ],
                   onChanged: (value) => _clientForm4.phone = value,
                   validator: (value) {
@@ -115,14 +151,7 @@ class StepFour extends StatelessWidget {
                   },
                 ),
               ],
-            ) : Container(),
-            _clientsService.savedClient ? 
-            Column(
-              children: [
-                SizedBox(height: 10),
-                PhoneVerification(),
-              ],
-            ) : Container(),
+            ),
             Expanded(child: Container()),
             Column(
               children: [
@@ -142,24 +171,14 @@ class StepFour extends StatelessWidget {
                     ),
                     onPressed: _clientsService.isSaving ? null : () async {
                       FocusScope.of(context).unfocus(); //Linea para ocultar el teclado
-                      if(!_clientsService.savedClient){
-                        if(!_registerStepFourForm.isValidFormStepFour()) return;
-                        final response = await _clientsService.createClient(_clientsService.currentClient);
-                        if(response == 200){
-                          _clientsService.isSaving = false;
-                          _clientsService.savedClient = true;
-                        }
-                        if(response == 400){
-                          _clientsService.isSaving = false;
-                        }
-                      }
-                      else{
-                        _clientsService.isSaving = true;
-                        final response = await _clientsService.verifyCliet(_clientsService.currentClient);
-                        _clientsService.isSaving = false;
-                        if(response == 200){
-                          Navigator.of(context).pushNamedAndRemoveUntil('login', (Route<dynamic> route) => false);
-                        }
+                      if(!_registerStepFourForm.isValidFormStepFour()) return;
+                      final response = await _clientsService.createClient(_clientsService.currentClient);
+                      if(response == 200){
+                        //Navigator; Remueve todo el stack de rutas y hace push a la nueva ruta de verificacion
+                        //Esto para que en caso de que desde esa nueva ruta quiera retornar para atras, lo mandará directamente al login
+                        _registerStepFourForm.client = ClientModel.cleanClient(); //Limpia instancia cliente
+                        _clientsService.cleanFileImages(); //Resetea variables de archivos multimedia del cliente
+                        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => PhoneVerification(currentClient: _clientsService.currentClient, inRgisterOrLogedIn: 'register',)), ModalRoute.withName('login'));
                       }
                     },
                   ),

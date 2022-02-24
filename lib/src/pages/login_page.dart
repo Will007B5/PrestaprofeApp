@@ -1,10 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/widgets.dart';
-import 'package:prestaprofe/src/models/models.dart';
-
 import 'package:provider/provider.dart';
 
+import 'package:prestaprofe/src/helpers/helpers.dart';
+import 'package:prestaprofe/src/models/models.dart';
 import 'package:prestaprofe/src/providers/providers.dart';
 import 'package:prestaprofe/src/services/services.dart';
 import 'package:prestaprofe/src/ui/input_decorations.dart';
@@ -21,37 +21,27 @@ class LoginPage extends StatelessWidget {
     ))
   );
 
-  // static BoxDecoration _containerGradientDecoration = BoxDecoration(
-  //   gradient: LinearGradient(
-  //     begin: Alignment.topCenter,
-  //     end: Alignment.bottomCenter,
-  //     //Puntos de quiebre de gradiente (son dos por los dos colores)
-  //     stops: [0.3, 0.5],
-  //     colors: [
-  //       Color.fromRGBO(177,145,134,1),
-  //       Color.fromRGBO(51, 114, 134, 0.7)
-  //     ]
-  //   )
-  // );
-
   @override
   Widget build(BuildContext context) {
 
     final _mediaQuerySize = MediaQuery.of(context).size;
 
-    return Scaffold(
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        color: Color.fromRGBO(51, 114, 134, 1),
-        // color: Colors.white,
-        child: CustomScrollView(
-          slivers: [
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: _constructLoginBody(_mediaQuerySize, context)
-            )
-          ],
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        body: Container(
+          height: double.infinity,
+          width: double.infinity,
+          color: Color.fromRGBO(51, 114, 134, 1),
+          // color: Colors.white,
+          child: CustomScrollView(
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: _constructLoginBody(_mediaQuerySize, context)
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -143,9 +133,7 @@ class LoginPage extends StatelessWidget {
                 decoration: InputDecorations.authInputDecoration(hintText: 'ejemplo@dominio.com', labelText: 'Correo electrónico', prefixIcon: Icons.alternate_email_sharp), //Utilizando metodo estatico de clase InputDecorations creada por mi (lib/src/ui/input_decorations.dart),
                 onChanged: (value) => loginForm.email = value,
                 validator: (value) {
-                  String pattern = r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-                  RegExp regExp  = new RegExp(pattern);
-                  return regExp.hasMatch(value ?? '') ? null : 'Ingrese un correo válido';
+                  return RegexHelper.email.hasMatch(value ?? '') ? null : 'Ingrese un correo válido';
                 },
               ),
               SizedBox(height: 10),

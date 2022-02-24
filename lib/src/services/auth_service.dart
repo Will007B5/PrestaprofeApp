@@ -58,6 +58,8 @@ class AuthService extends ChangeNotifier {
 
     //Actualizar el paquete para escribir en la storage
     if(decodedResp.containsKey('token')){
+      //Borrar ultima sesión
+      await deleteAllStorage();
       //Guardar token en secure storage
       print(decodedResp['user']);
       await _storage.write(key: 'token', value: decodedResp['token']);
@@ -74,7 +76,6 @@ class AuthService extends ChangeNotifier {
 
   Future logout() async {
     //Verificar bien el cierre de sesión
-    // await storage.deleteAll(); //Borra todo el espacio designado de storage en la app
 
     final url = Uri.https(_baseUrl, '/api/logout'); //Enviamos el cuerpo y los parametros
 
@@ -82,9 +83,15 @@ class AuthService extends ChangeNotifier {
 
     final resp = await http.post(url, headers: headers);
 
-    await _storage.delete(key: 'token');
-    await _storage.delete(key: 'client');
+    await deleteAllStorage();
+
+    // await _storage.delete(key: 'token');
+    // await _storage.delete(key: 'client');
     return;
+  }
+
+  Future<void> deleteAllStorage() async {
+    await _storage.deleteAll(); //Borra todo el espacio designado de storage en la app
   }
 
   Future<String> readToken() async {
@@ -95,6 +102,9 @@ class AuthService extends ChangeNotifier {
     final client = await _storage.read(key: 'client');
     if(client != null){
       this.currentClient = ClientModel.fromMap(json.decode(client));
+      this.currentClient.toMap().forEach((key, value) {
+        print('${key} - ${value}');
+      });
       return 200;
     }
     else{

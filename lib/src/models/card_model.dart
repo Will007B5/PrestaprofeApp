@@ -12,10 +12,10 @@ class CardModel {
 
     int? id;
     String? cardNumber;
-    DateTime? expiredDate;
+    String? expiredDate;
     int? active;
     int userId;
-    int? clabe;
+    String? clabe;
 
     factory CardModel.fromJson(String str) => CardModel.fromMap(json.decode(str));
 
