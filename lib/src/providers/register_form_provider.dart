@@ -73,6 +73,10 @@ class RegisterFormProvider extends ChangeNotifier {
     notifyListeners(); //Notifica que hay que redibujar
   }
 
+  void refreshListeners(){
+    notifyListeners();
+  }
+
   bool isValidFormStepOne(){
     return formKeyStepOne.currentState?.validate() ?? false;
   }

@@ -74,6 +74,7 @@ class StepTwo extends StatelessWidget {
   Widget _constructRegisterBody(BuildContext context, {double? height, double? width}) {
 
     final _registerStepTwoForm = Provider.of<RegisterFormProvider>(context);
+    final _clientsService = Provider.of<ClientsService>(context);
     final _clientForm2 = _registerStepTwoForm.client; //Variable ClientModel propia del RegisterFormProvider
     final _textWidth = width! * 0.035; //Medida de la fuente a utilizar en este body
 
@@ -185,6 +186,8 @@ class StepTwo extends StatelessWidget {
                       if(!_registerStepTwoForm.isValidFormStepTwo()) {
                         return;
                       }
+                      _clientsService.currentStringJob = _jobsList.firstWhere((job) => job.id == _clientForm2.jobId).name;
+                      _clientsService.currentStringSalary = _salariesList.firstWhere((salary) => salary.id == _clientForm2.salaryId).range;
                       _registerStepTwoForm.stepAppBarCount = 3;
                       Navigator.pushNamed(context, 'registerStepThree');
                     },
@@ -279,6 +282,7 @@ class StepTwo extends StatelessWidget {
                       textAlign: TextAlign.center
                     ),
                     onPressed: !(_registerStepTwoRefsForm.isLoadingContact1 || _registerStepTwoRefsForm.isLoadingContact2) ? () async {
+                      FocusManager.instance.primaryFocus?.unfocus();
                       _registerStepTwoRefsForm.isLoadingContact1 = true;
                       final Contact contact = await _fillContactFromDevice(context);
                       _registerStepTwoRefsForm.isLoadingContact1 = false;
@@ -380,6 +384,7 @@ class StepTwo extends StatelessWidget {
                       textAlign: TextAlign.center
                     ),
                     onPressed: !(_registerStepTwoRefsForm.isLoadingContact1 || _registerStepTwoRefsForm.isLoadingContact2) ? () async {
+                      FocusManager.instance.primaryFocus?.unfocus();
                       _registerStepTwoRefsForm.isLoadingContact2 = true;
                       final Contact contact = await _fillContactFromDevice(context);
                       _registerStepTwoRefsForm.isLoadingContact2 = false;

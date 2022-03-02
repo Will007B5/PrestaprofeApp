@@ -257,5 +257,17 @@ class DBProvider extends ChangeNotifier{
     return 200;
   }
 
+  Future<List> getCurrentCompleteAddress(int cityId) async {
+
+    final db = await database;
+    final res = await db!.rawQuery('select c.name as city, m.name as municipality, s.name as state from cities as c INNER JOIN municipalities as m ON c.municipality_id = m.id INNER JOIN states as s where c.id = ${cityId} AND s.id = m.state_id');
+    if(res.isNotEmpty){
+      return res;
+    }
+    else{
+      return [];
+    }
+  }
+
 
 }

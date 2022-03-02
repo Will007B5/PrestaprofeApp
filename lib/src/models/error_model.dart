@@ -19,7 +19,9 @@ class ErrorModel {
         this.payStub,
         this.selfie,
         this.proofAddress,
-        this.expiredDate
+        this.expiredDate,
+        this.message,
+        this.passwordMessageAuth
     });
 
     List<String>? name;
@@ -40,6 +42,8 @@ class ErrorModel {
     List<String>? selfie;
     List<String>? proofAddress;
     List<String>? expiredDate;
+    String? message;
+    String? passwordMessageAuth;
 
     factory ErrorModel.fromJson(String str) => ErrorModel.fromMap(json.decode(str));
 
@@ -63,7 +67,9 @@ class ErrorModel {
         payStub: json["pay_stub"] != null ? List<String>.from(json["pay_stub"].map((x) => x)) : null,
         selfie: json["selfie"] != null ? List<String>.from(json["selfie"].map((x) => x)) : null,
         proofAddress: json["proof_address"] != null ? List<String>.from(json["proof_address"].map((x) => x)) : null,
-        expiredDate: json["expired_date"] != null ? List<String>.from(json["expired_date"].map((x) => x)) : null
+        expiredDate: json["expired_date"] != null ? List<String>.from(json["expired_date"].map((x) => x)) : null,
+        message: json["message"] != null ? json["message"] : null,
+        passwordMessageAuth: json["password"] != null ? json["password"] : null
     );
 
     Map<String, dynamic> toMap() => {
@@ -84,7 +90,9 @@ class ErrorModel {
         "pay_stub": List<dynamic>.from(payStub?.map((x) => x) ?? []),
         "selfie": List<dynamic>.from(selfie?.map((x) => x) ?? []),
         "proof_address": List<dynamic>.from(proofAddress?.map((x) => x) ?? []),
-        "expired_date": List<dynamic>.from(expiredDate?.map((x) => x) ?? [])
+        "expired_date": List<dynamic>.from(expiredDate?.map((x) => x) ?? []),
+        "message": message,
+        "password": passwordMessageAuth
     };
 
     Map<String, dynamic> toMapErrorsText() => {
@@ -105,6 +113,8 @@ class ErrorModel {
         "Talón de cheque": List<dynamic>.from(payStub?.map((x) => x) ?? []),
         "Selfie": List<dynamic>.from(selfie?.map((x) => x) ?? []),
         "Comprobante de domicilio": List<dynamic>.from(proofAddress?.map((x) => x) ?? []),
-        "Fecha de expiración": List<dynamic>.from(expiredDate?.map((x) => x) ?? [])
+        "Fecha de expiración": List<dynamic>.from(expiredDate?.map((x) => x) ?? []),
+        "Mensaje": message,
+        "Contraseña": passwordMessageAuth,
     };
 }

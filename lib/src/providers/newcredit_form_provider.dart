@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:prestaprofe/src/helpers/helpers.dart';
 import 'package:prestaprofe/src/models/models.dart';
 
 
@@ -13,83 +14,99 @@ class NewCreditFormProvider extends ChangeNotifier {
 
   NewCreditFormProvider(this.loan);
 
-  final _interesConst = 0.13; //13%
-  final _ivaConst = 0.16; //16%
   double _amountSliderRange = 500.0;
 
-  double _calculoInteresMensual = 0.0;
-  double _calculoIvaInteresMensual = 0.0;
-  double _interesMensualTotal = 0.0;
+  final double _sliderMinValue = 500.0;
 
-  double _calculoInteresQuincenal = 0.0;
-  double _calculoIvaInteresQuincenal = 0.0;
-  double _interesQuincenalTotal = 0.0;
+  double _sliderMaxValue = 0.0;
 
-  double _totalAmountPrestamo = 0.0;
+  int _paymentSchemaDaysDuration = 1; //1 quincena/mes
+  int _groupButtonSelectedButton = 0; //El 0 corresponde al primer cuadro de seleccion (1 quincena/15 dias)
 
+  void changeAmount({required String paymentSchema, required int paymentSchemaDaysDuration}){
+    //this.loan.amount = LoanInterestHelper.loanAmount(paymentSchema: paymentSchema, paymentSchemaDaysDuration: paymentSchemaDaysDuration, amountSliderRange: _amountSliderRange);
+    this.loan.amount = _amountSliderRange;
+    notifyListeners();
+  }
+
+  void initialAmount({required String paymentSchema, required int paymentSchemaDaysDuration}){
+    //this.loan.amount =  LoanInterestHelper.loanAmount(paymentSchema: paymentSchema, paymentSchemaDaysDuration: paymentSchemaDaysDuration, amountSliderRange: _amountSliderRange);
+    this.loan.amount = _amountSliderRange;
+  }
+
+  String changeInterestRateTextDescription({required String paymentSchema, required int paymentSchemaDaysDuration}){
+    return LoanInterestHelper.interestRateTextDescription(paymentSchema: paymentSchema, paymentSchemaDaysDuration: paymentSchemaDaysDuration, amountSliderRange: _amountSliderRange);
+  }
+
+  String changeAmountInterestRateTextDescription({required String paymentSchema, required int paymentSchemaDaysDuration}){
+    return LoanInterestHelper.amountInterestRateTextDescription(paymentSchema: paymentSchema, paymentSchemaDaysDuration: paymentSchemaDaysDuration, amountSliderRange: _amountSliderRange);
+  }
+
+  String changePaymentDurationInstructionsText({required String paymentSchema, required int paymentSchemaDaysDuration}){
+    return LoanInterestHelper.paymentDurationInstructionsText(paymentSchema: paymentSchema, paymentSchemaDaysDuration: paymentSchemaDaysDuration);
+  }
+
+  String totalLoanAmount({required String paymentSchema, required int paymentSchemaDaysDuration}){
+    double loanAmount = LoanInterestHelper.loanAmount(paymentSchema: paymentSchema, paymentSchemaDaysDuration: paymentSchemaDaysDuration, amountSliderRange: _amountSliderRange);
+    final double stringLoanAmount = loanAmount;
+    return stringLoanAmount.toStringAsFixed(2); 
+  }
+
+  String totalLoanAmountByPaymentSchemaDaysDuration({required String paymentSchema, required int paymentSchemaDaysDuration}){
+    double loanAmount = LoanInterestHelper.loanAmount(paymentSchema: paymentSchema, paymentSchemaDaysDuration: paymentSchemaDaysDuration, amountSliderRange: _amountSliderRange);
+    final double stringLoanAmount = loanAmount / paymentSchemaDaysDuration;
+    return stringLoanAmount.toStringAsFixed(2); 
+  }
+
+  double sliderMaxValueByRange(int range){
+    if(range == 1){
+      _sliderMaxValue = 2000.0;
+    }
+    else if(range == 2){
+      _sliderMaxValue = 20000.0;
+    }
+    return _sliderMaxValue;
+  }
 
   bool isValidFormNewCredit(){
     return formKeyNewCredit.currentState?.validate() ?? false;
+  }
+
+  void customResetNewCreditForm(){
+    _amountSliderRange = 500.0;
+    _paymentSchemaDaysDuration = 1;
+    _groupButtonSelectedButton = 0;
+    this.loan = LoanModel.cleanLoan();
+  }
+
+  double get sliderMinValue {
+    return _sliderMinValue;
+  }
+
+  int get paymentSchemaDaysDuration {
+    return _paymentSchemaDaysDuration;
+  }
+
+  set paymentSchemaDaysDuration(int value) {
+    _paymentSchemaDaysDuration = value;
+    notifyListeners();
+  }
+
+  int get groupButtonSelectedButton {
+    return _groupButtonSelectedButton;
+  }
+
+  set groupButtonSelectedButton(int value) {
+    _groupButtonSelectedButton = value;
+    notifyListeners();
   }
 
   double get amountSliderRange {
     return _amountSliderRange;
   }
 
-  double get totalAmountPrestamo {
-    return _totalAmountPrestamo;
-  }
-
   set amountSliderRange(double value) {
     _amountSliderRange = value;
-    notifyListeners();
-  }
-
-  void changeAmount(String days, String paymentSchema){
-    if(days == '15 dias'){
-
-      _calculoInteresQuincenal = (_amountSliderRange * _interesConst) / 2; //Calculo monto base interés quincenal
-
-      _calculoIvaInteresQuincenal = _calculoInteresQuincenal * _ivaConst;
-
-      _interesQuincenalTotal = _calculoInteresQuincenal + _calculoIvaInteresQuincenal;
-
-      _totalAmountPrestamo = _amountSliderRange + _interesQuincenalTotal;
-
-    }
-    else if(days == '30 dias'){
-      _calculoInteresMensual = _amountSliderRange * _interesConst; //Calculo monto base interés mensual
-
-      _calculoIvaInteresMensual = _calculoInteresMensual * _ivaConst; //Calculo Iva Interes Mensual
-
-      _interesMensualTotal = _calculoInteresMensual + _calculoIvaInteresMensual; //Calculo Interes Mensual Total
-
-
-      _totalAmountPrestamo = _amountSliderRange + _interesMensualTotal; //Suma de intereses al monto base; monto total a pagar
-    }
-    else if(days == '45 dias'){
-
-      _calculoInteresQuincenal = ((_amountSliderRange * _interesConst) / 2) * 3; //Calculo monto base interés quincenal
-
-      _calculoIvaInteresQuincenal = _calculoInteresQuincenal * _ivaConst;
-
-      _interesQuincenalTotal = _calculoInteresQuincenal + _calculoIvaInteresQuincenal;
-
-      _totalAmountPrestamo = _amountSliderRange + _interesQuincenalTotal;
-
-    }
-    else if(days == '60 dias'){
-      _calculoInteresMensual = (_amountSliderRange * _interesConst) * 2; //Calculo monto base interés mensual
-
-      _calculoIvaInteresMensual = _calculoInteresMensual * _ivaConst; //Calculo Iva Interes Mensual
-
-      _interesMensualTotal = _calculoInteresMensual + _calculoIvaInteresMensual; //Calculo Interes Mensual Total
-
-
-      _totalAmountPrestamo = _amountSliderRange + _interesMensualTotal; //Suma de intereses al monto base; monto total a pagar
-    }
-    this.loan.amount = _totalAmountPrestamo;
-    print(_totalAmountPrestamo);
     notifyListeners();
   }
 

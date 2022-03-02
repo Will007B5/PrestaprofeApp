@@ -58,5 +58,13 @@ class LoanModel {
         "card_id": cardId,
         "user_id": userId,
     };
+
+    //Esto es para crear una copia limpia del prestamo
+    static LoanModel cleanLoan() => new LoanModel(
+      amount: 0.0, 
+      paymentSchema: 'biweekly',
+      cardId: 1, 
+      userId: 1
+    );
 }
 
