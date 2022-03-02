@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:group_button/group_button.dart';
-import 'package:prestaprofe/src/providers/providers.dart';
+import 'package:prestaprofe/src/helpers/helpers.dart';
+import 'package:prestaprofe/src/pages/pages.dart';
+import 'package:provider/provider.dart';
 
+import 'package:prestaprofe/src/providers/providers.dart';
 import 'package:prestaprofe/src/services/services.dart';
 import 'package:prestaprofe/src/widgets/widgets.dart';
-import 'package:provider/provider.dart';
 
 class NewCreditStepOne extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
+    final _newCreditFormProvider = Provider.of<NewCreditFormProvider>(context, listen: false);
+    final _loansService = Provider.of<LoansService>(context);
+    _newCreditFormProvider.initialAmount(paymentSchema: _newCreditFormProvider.loan.paymentSchema, paymentSchemaDaysDuration: _newCreditFormProvider.paymentSchemaDaysDuration);
+    return !_loansService.isLoading ? Scaffold(
       appBar: AppBarHome(), //Widget en carpeta Widgets 
       body: Container(
         height: double.infinity,
@@ -27,23 +32,20 @@ class NewCreditStepOne extends StatelessWidget {
         )
       ),
       bottomNavigationBar: CustomBottomNavigation(), //Widget en carpeta Widgets 
-    );
+    ) : LoadingPage();
   }
 
   Widget _constructNewCreditBody(BuildContext context) {
 
-    final _mediaQuerySize = MediaQuery.of(context).size;
     final _newCreditFormProvider = Provider.of<NewCreditFormProvider>(context);
     final _authService = Provider.of<AuthService>(context);
     final _loansService = Provider.of<LoansService>(context);
-    _newCreditFormProvider.loan.userId = _authService.currentClient.id!;
+
+    final _mediaQuerySize = MediaQuery.of(context).size;
     final _width = _mediaQuerySize.width - 30;
     final _height = _mediaQuerySize.height - 30;
     final _textWidth = _width;
     final _objectSize = _height * _width;
-
-    final double sliderMin = 500.0;
-    final double sliderMax = 2000.0;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 15),
@@ -68,7 +70,7 @@ class NewCreditStepOne extends StatelessWidget {
                   ),
                   Container(
                     width: _width * 0.6,
-                    child: Text('\$${_newCreditFormProvider.amountSliderRange}', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.063, fontWeight: FontWeight.bold), textAlign: TextAlign.end)
+                    child: Text('\$${_newCreditFormProvider.amountSliderRange.toStringAsFixed(2)}', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.063, fontWeight: FontWeight.bold), textAlign: TextAlign.end)
                   ),
                 ],
               ),
@@ -85,11 +87,12 @@ class NewCreditStepOne extends StatelessWidget {
                 ),
                 child: Slider(
                   value: _newCreditFormProvider.amountSliderRange,
-                  min: sliderMin,
-                  max: sliderMax,
-                  divisions: (sliderMax - 500.0) ~/ 500.0,
+                  min: _newCreditFormProvider.sliderMinValue,
+                  max: _newCreditFormProvider.sliderMaxValueByRange(1), //Depende del rango del usuario (Rango 1 y Rango 2)
+                  divisions: (_newCreditFormProvider.sliderMaxValueByRange(1) - 500.0) ~/ 500.0,
                   onChanged: (value){
                     _newCreditFormProvider.amountSliderRange = value;
+                    _newCreditFormProvider.changeAmount(paymentSchema: _newCreditFormProvider.loan.paymentSchema, paymentSchemaDaysDuration: _newCreditFormProvider.paymentSchemaDaysDuration);
                   },
                 ),
               ),
@@ -115,6 +118,7 @@ class NewCreditStepOne extends StatelessWidget {
                 SizedBox(height: 5),
                 GroupButton(
                   isRadio: true,
+                  selectedButton: _newCreditFormProvider.groupButtonSelectedButton,
                   elevation: 2,
                   spacing: _width / 4,
                   borderRadius: BorderRadius.circular(10),
@@ -129,27 +133,28 @@ class NewCreditStepOne extends StatelessWidget {
                     )
                   ],
                   onSelected: (index, isSelected) {
-                    //0 = 15 dias; biweekly
-                    //1 = 30 días; monthly
-                    //2 = 45 días; biweekly
-                    //3 = 60 días; monthly
                     print('$index button is selected');
-                    if(index == 0){
+                    if(index == 0){ //0 = 15 dias; biweekly
                       _newCreditFormProvider.loan.paymentSchema = 'biweekly';
-                      _newCreditFormProvider.changeAmount('15 dias', 'biweekly');
+                      _newCreditFormProvider.paymentSchemaDaysDuration = 1;
+                      _newCreditFormProvider.groupButtonSelectedButton = index;
                     }
-                    else if(index == 1){
+                    else if(index == 1){ //1 = 30 días; monthly
                       _newCreditFormProvider.loan.paymentSchema = 'monthly';
-                      _newCreditFormProvider.changeAmount('30 dias', 'monthly');
+                      _newCreditFormProvider.paymentSchemaDaysDuration = 1;
+                      _newCreditFormProvider.groupButtonSelectedButton = index;
                     }
-                    else if(index == 2){
+                    else if(index == 2){ //2 = 45 días; biweekly
                       _newCreditFormProvider.loan.paymentSchema = 'biweekly';
-                      _newCreditFormProvider.changeAmount('45 dias', 'biweekly');
+                      _newCreditFormProvider.paymentSchemaDaysDuration = 3;
+                      _newCreditFormProvider.groupButtonSelectedButton = index;
                     }
-                    else if(index == 3){
+                    else if(index == 3){ //3 = 60 días; monthly
                       _newCreditFormProvider.loan.paymentSchema = 'monthly';
-                      _newCreditFormProvider.changeAmount('60 dias', 'monthly');
+                      _newCreditFormProvider.paymentSchemaDaysDuration = 2;
+                      _newCreditFormProvider.groupButtonSelectedButton = index;
                     }
+                    _newCreditFormProvider.changeAmount(paymentSchema: _newCreditFormProvider.loan.paymentSchema, paymentSchemaDaysDuration: _newCreditFormProvider.paymentSchemaDaysDuration);
                   },
                   buttons: ['15 DÍAS', '30 DÍAS', '45 DÍAS', '60 DÍAS'],
                 ),
@@ -161,11 +166,11 @@ class NewCreditStepOne extends StatelessWidget {
                         children: [
                           Container(
                             margin: EdgeInsets.only(bottom: 8),
-                            //child: Text('TASA DE INTERÉS QUINCENAL DEL 6.5% (+ IVA) (\$145.75 x 3 QUINCENAS)', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.027))
+                            child: Text('${_newCreditFormProvider.changeInterestRateTextDescription(paymentSchema: _newCreditFormProvider.loan.paymentSchema, paymentSchemaDaysDuration: _newCreditFormProvider.paymentSchemaDaysDuration)}', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.027))
                           ),
                           Container(
                             margin: EdgeInsets.only(bottom: 8),
-                            //child: Text('\$431.25', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.027), textAlign: TextAlign.end)
+                            child: Text('\$${_newCreditFormProvider.changeAmountInterestRateTextDescription(paymentSchema: _newCreditFormProvider.loan.paymentSchema, paymentSchemaDaysDuration: _newCreditFormProvider.paymentSchemaDaysDuration)}', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.027), textAlign: TextAlign.end)
                           ),
                         ]
                       ),
@@ -173,11 +178,11 @@ class NewCreditStepOne extends StatelessWidget {
                         children: [
                           Container(
                             margin: EdgeInsets.only(bottom: 8),
-                            //child: Text('3 PAGOS QUINCENALES DE', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.027))
+                            child: Text('${_newCreditFormProvider.changePaymentDurationInstructionsText(paymentSchema: _newCreditFormProvider.loan.paymentSchema, paymentSchemaDaysDuration: _newCreditFormProvider.paymentSchemaDaysDuration)}', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.027))
                           ),
                           Container(
                             margin: EdgeInsets.only(bottom: 8),
-                            //child: Text('\$1,000.08', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.027), textAlign: TextAlign.end)
+                            child: Text('\$${_newCreditFormProvider.totalLoanAmountByPaymentSchemaDaysDuration(paymentSchema: _newCreditFormProvider.loan.paymentSchema, paymentSchemaDaysDuration: _newCreditFormProvider.paymentSchemaDaysDuration)}', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.027), textAlign: TextAlign.end)
                           ),
                         ]
                       ),
@@ -189,7 +194,7 @@ class NewCreditStepOne extends StatelessWidget {
                           ),
                           Container(
                             margin: EdgeInsets.only(bottom: 8),
-                            child: Text('\$${_newCreditFormProvider.totalAmountPrestamo}', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.045, fontWeight: FontWeight.bold), textAlign: TextAlign.end)
+                            child: Text('\$${_newCreditFormProvider.totalLoanAmount(paymentSchema: _newCreditFormProvider.loan.paymentSchema, paymentSchemaDaysDuration: _newCreditFormProvider.paymentSchemaDaysDuration)}', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.045, fontWeight: FontWeight.bold), textAlign: TextAlign.end)
                           ),
                         ]
                       ),
@@ -210,15 +215,22 @@ class NewCreditStepOne extends StatelessWidget {
                   color: Color.fromRGBO(51, 114, 134, 1),
                   elevation: 0,
                   child: Text(
-                    'Continuar', 
+                    _loansService.isLoading ? 'Generando prestamo...' : 'Continuar', 
                     style: TextStyle(
                       color: Colors.white
                     )
                   ),
-                  onPressed: () async{
-                    await _loansService.createLoans(_newCreditFormProvider.loan);
-                    Navigator.pushNamed(context, 'home');
-                  },
+                  onPressed: (_newCreditFormProvider.loan.amount > 0 && !_loansService.isLoading) ? () async{
+                    //Al objeto de Loan se le manda en su amount el monto base (es decir el selector de rango)
+                    //Debido a que así lo requiere el backend
+                    print( _newCreditFormProvider.loan.amount); //Mandar el monto base
+                    final response = await _loansService.createLoans(_newCreditFormProvider.loan, idUser: _authService.currentClient.id!);
+                    if(response == 200){
+                      //Navigator.pushNamed(context, 'myCredits');
+                      Navigator.of(context).pushReplacementNamed('myCredits');
+                      _newCreditFormProvider.customResetNewCreditForm();
+                    }
+                  } : null,
                 ),
               ),
             ],

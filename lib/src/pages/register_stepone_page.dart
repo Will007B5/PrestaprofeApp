@@ -41,7 +41,7 @@ class _StepOneState extends State<StepOne> {
       child: WillPopScope(
         child: Scaffold(
           appBar: AppBarRegister(textStep: 'INFORMACIÓN PERSONAL', mediaQuerySizeFixedHeightCircles: _mediaQuerySizeFixedHeightCircles, textWidth: _textInfoWidth),
-          body: (!_clientsService.isLoading && !_bdService.isLoading) ? Container(
+          body: (!_bdService.isLoading) ? Container(
             height: double.infinity,
             width: double.infinity,
             color: Colors.white,
@@ -57,8 +57,10 @@ class _StepOneState extends State<StepOne> {
         ),
         onWillPop: () async {
           final returnToPage = await showReturningPreviousPage(context, '');
-          _registerStepOneForm.client = ClientModel.cleanClient(); //Limpia instancia cliente
-          _clientsService.cleanFileImages(); //Resetea variables de archivos multimedia del cliente
+          if(returnToPage){
+            _registerStepOneForm.client = ClientModel.cleanClient(); //Limpia instancia cliente
+            _clientsService.cleanFileImages(); //Resetea variables de archivos multimedia del cliente
+          }
           return returnToPage;
         },
       ),
@@ -71,6 +73,7 @@ class _StepOneState extends State<StepOne> {
     final _textWidth = width! * 0.035; //Medida de la fuente a utilizar en este body
 
     final _registerStepOneForm = Provider.of<RegisterFormProvider>(context);
+    final _clientService = Provider.of<ClientsService>(context);
     final _clientForm1 = _registerStepOneForm.client; //Variable ClientModel propia del RegisterFormProvider
     final _bdService = Provider.of<DBProvider>(context);
     _textfieldDateController.text = _clientForm1.birthDate.toString().substring(0,10);
@@ -382,11 +385,15 @@ class _StepOneState extends State<StepOne> {
                         color: Colors.white
                       )
                     ),
-                    onPressed: _registerStepOneForm.isLoading ? null : (){
+                    onPressed: _registerStepOneForm.isLoading ? null : () async {
                       FocusScope.of(context).unfocus(); //Linea para ocultar el teclado
                       _clientForm1.cityId = _bdService.currentCity.id;
                       if(!_registerStepOneForm.isValidFormStepOne()) {
                         return;
+                      }
+                      final response = await _bdService.getCurrentCompleteAddress(_clientForm1.cityId!);
+                      if(response.length > 0) {
+                        _clientService.currentStringCompleteAddress = '${response[0]['city']} ${response[0]['municipality']} ${response[0]['state']}';
                       }
                       _registerStepOneForm.stepAppBarCount = 2;
                       Navigator.pushNamed(context, 'registerStepTwo');
@@ -513,7 +520,7 @@ class _StepOneState extends State<StepOne> {
     List<DropdownMenuItem<int>> list = [];
     _bdService.citiesList.forEach((city){
       list.add(DropdownMenuItem(
-        child: FittedBox(fit: BoxFit.contain, child: Text(city.name, style: TextStyle(fontSize: textWidth))),
+        child: FittedBox(fit: BoxFit.contain, child: Text('${city.name} (C.P. ${city.zipCode})', style: TextStyle(fontSize: textWidth))),
         value: city.id,
       ));
     });

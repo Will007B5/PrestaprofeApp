@@ -5,3 +5,4 @@ export 'package:prestaprofe/src/services/jobs_service.dart';
 export 'package:prestaprofe/src/services/loans_service.dart';
 export 'package:prestaprofe/src/services/notifications_service.dart';
 export 'package:prestaprofe/src/services/salaries_service.dart';
+export 'package:prestaprofe/src/services/push_notification_service.dart';

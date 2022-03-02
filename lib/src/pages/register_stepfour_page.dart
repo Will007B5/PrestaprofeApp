@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -172,13 +174,18 @@ class StepFour extends StatelessWidget {
                     onPressed: _clientsService.isSaving ? null : () async {
                       FocusScope.of(context).unfocus(); //Linea para ocultar el teclado
                       if(!_registerStepFourForm.isValidFormStepFour()) return;
-                      final response = await _clientsService.createClient(_clientsService.currentClient);
-                      if(response == 200){
-                        //Navigator; Remueve todo el stack de rutas y hace push a la nueva ruta de verificacion
-                        //Esto para que en caso de que desde esa nueva ruta quiera retornar para atras, lo mandará directamente al login
-                        _registerStepFourForm.client = ClientModel.cleanClient(); //Limpia instancia cliente
-                        _clientsService.cleanFileImages(); //Resetea variables de archivos multimedia del cliente
-                        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => PhoneVerification(currentClient: _clientsService.currentClient, inRgisterOrLogedIn: 'register',)), ModalRoute.withName('login'));
+                      final responseConfirmDialog = await _showConfirmDialog(context, _clientForm4);
+                      if(responseConfirmDialog == 200){
+                        final responseIdNewClient = await _clientsService.createClient(_clientForm4);
+                        if(responseIdNewClient != null){
+                          _clientForm4.id = responseIdNewClient;
+                          //Navigator; Remueve todo el stack de rutas y hace push a la nueva ruta de verificacion
+                          //Esto para que en caso de que desde esa nueva ruta quiera retornar para atras, lo mandará directamente al login
+                          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => PhoneVerification(currentClient: _clientForm4, inRgisterOrLogedIn: 'register',)), ModalRoute.withName('login'));
+                          _registerStepFourForm.client = ClientModel.cleanClient(); //Limpia instancia cliente
+                          _clientsService.cleanFileImages(); //Resetea variables de archivos multimedia del cliente
+                          print('YAYAYAYAYAYTERMINDO');
+                        }
                       }
                     },
                   ),
@@ -200,6 +207,294 @@ class StepFour extends StatelessWidget {
       ),
     );
   }
+
+  Future<int> _showConfirmDialog(BuildContext context, ClientModel client) async {
+    final _clientService = Provider.of<ClientsService>(context, listen: false);
+    final _selected = await Navigator.of(context).push(new MaterialPageRoute<String>(
+      fullscreenDialog: true,
+      builder: (BuildContext context) {
+        return new Scaffold(
+          appBar: new AppBar(
+            elevation: 0,
+            automaticallyImplyLeading: false,
+            actions: [
+              IconButton(
+                icon: Icon(Icons.clear_rounded),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                }
+              ),
+            ],
+          ),
+          body: Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            color: Colors.white,
+            child: CustomScrollView(
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 25),
+                    child: Column(
+                      children: [
+                        Column(
+                          children: [
+                            SizedBox(height: 15),
+                            Text('¿Registrar con la información ingresada?', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.043, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+                            SizedBox(height: 20),
+                            Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10)
+                              ),
+                              elevation: 9,
+                              child: Padding(
+                                padding: const EdgeInsets.all(17.0),
+                                child: Table(
+                                  columnWidths: {
+                                    0: FlexColumnWidth(3),
+                                    1: FlexColumnWidth(4)
+                                  },     
+                                  children: [
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('Nombre', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${client.name}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('Apellidos', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${client.lastName}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('Fecha de nacimiento', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${client.birthDate.toString().substring(0,10)}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('Genero', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${client.gender}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('Estado civil', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${client.civilStatus}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('Domicilio', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${client.address}, ${_clientService.currentStringCompleteAddress}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('CURP', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${client.curp}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('Cargo', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${_clientService.currentStringJob}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('Rango salarial mensual', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${_clientService.currentStringSalary}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('RFC', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${client.rfc}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('Nombre Referencia #1', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${client.firstReferencePersonName}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('Teléfono Referencia #1', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${client.firstReferencePersonPhone}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('Nombre Referencia #2', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${client.secondReferencePersonName}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('Teléfono Referencia #2', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${client.secondReferencePersonPhone}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('Telefono', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${client.phone}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    ),
+                                    TableRow(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('Email', style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: 2),
+                                          child: Text('${client.email}', textAlign: TextAlign.end, style: TextStyle(fontSize: MediaQuery.of(context).size.width * 0.037)),
+                                        )
+                                      ]
+                                    )
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        Expanded(child: Container()),
+                        Column(
+                          children: [
+                            Container(
+                              width: double.infinity,
+                              child: MaterialButton(
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                disabledColor: Colors.grey,
+                                color: Color.fromRGBO(51, 114, 134, 1),
+                                elevation: 0,
+                                child: Text(
+                                  'REGISTRAR',
+                                  style: TextStyle(
+                                    color: Colors.white
+                                  )
+                                ),
+                                onPressed: () {
+                                  Navigator.of(context).pop('Registrar');
+                                },
+                              ),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
+          )
+        );
+      }
+    ));
+    if(_selected != null){
+      return 200;
+    }
+    else{
+      return 400;
+    }
+  }
+
 
 }
 

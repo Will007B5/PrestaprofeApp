@@ -12,9 +12,30 @@ import 'package:prestaprofe/src/routes/routes.dart';
 import 'package:prestaprofe/src/services/services.dart';
 
 
-void main() => runApp(AppState());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); //Metodo que asegura que despues de lo que se ejecuta en esta linea ya hay un context listo para usar
+  await PushNotificationService.initializeApp();
+  runApp(AppState());
+}
 
-class AppState extends StatelessWidget {
+class AppState extends StatefulWidget {
+
+  @override
+  State<AppState> createState() => _AppStateState();
+}
+
+class _AppStateState extends State<AppState> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    //Aqui ya hay accesso al context
+    //Getter messagesStream
+    PushNotificationService.messagesStream.listen((message) { 
+      print('PrestaprofeApp ${message}');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,14 +45,7 @@ class AppState extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => CardFormProvider(new CardModel(userId: 0)), lazy: false),
         ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => UiProvider()),
-        ChangeNotifierProvider(create: (_) => NewCreditFormProvider(
-          new LoanModel(
-            amount: 0.0, 
-            paymentSchema: 'monthly',
-            cardId: 1, 
-            userId: 1
-          )
-        )),
+        ChangeNotifierProvider(create: (_) => NewCreditFormProvider(LoanModel.cleanLoan())),
         ChangeNotifierProvider(create: (_) => DBProvider(
           new StateModel(id: 1, name: 'Aguascalientes', code: '01'),
           new MunicipalityModel(id: 1, name: 'Aguascalientes', code: '001', stateId: 1),

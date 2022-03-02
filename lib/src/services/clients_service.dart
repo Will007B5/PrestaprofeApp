@@ -42,6 +42,9 @@ class ClientsService extends ChangeNotifier {
   final debouncer = Debouncer(duration: Duration(milliseconds: 800));
 
   String _localReceivedOtp = '';
+  String _currentStringCompleteAddress = '';
+  String _currentStringJob = '';
+  String _currentStringSalary = '';
   bool _isLoading = true;
   bool _isSaving = false;
   bool _isValidOtp = true;
@@ -52,7 +55,34 @@ class ClientsService extends ChangeNotifier {
   File? _newPayStubFile; //Puede ser pdf o imagen
 
   ClientsService() {
-    this.loadClients();
+    //this.loadClients();
+  }
+
+  String get currentStringCompleteAddress {
+    return _currentStringCompleteAddress;
+  }
+
+  set currentStringCompleteAddress(String value) {
+    _currentStringCompleteAddress = value;
+    notifyListeners(); //Notifica que hay que redibujar
+  }
+
+  String get currentStringJob {
+    return _currentStringJob;
+  }
+
+  set currentStringJob(String value) {
+    _currentStringJob = value;
+    notifyListeners(); //Notifica que hay que redibujar
+  }
+
+  String get currentStringSalary {
+    return _currentStringSalary;
+  }
+
+  set currentStringSalary(String value) {
+    _currentStringSalary = value;
+    notifyListeners(); //Notifica que hay que redibujar
   }
 
   bool get isSaving {
@@ -97,7 +127,7 @@ class ClientsService extends ChangeNotifier {
 
     clientsMap.forEach((element) {
       final tempClient = ClientModel.fromMap(element);
-      this.clients.add(tempClient);
+      //this.clients.add(tempClient);
     });
 
     this._isLoading = false;
@@ -139,35 +169,42 @@ class ClientsService extends ChangeNotifier {
     this._newSelfieFile = null;
     this._newProofAddressFile = null;
     this._newPayStubFile = null;
+    this._currentStringCompleteAddress = '';
+    this._currentStringJob = '';
+    this._currentStringSalary = '';
   }
 
-  void updateImagesPreview(String imageType, String path) async {
+  Future<String?> updateImagesPreview(String imageType, String path) async {
     //Este método solo actualiza la imagen de manera local para ser visualizada. No la sube a ningun lugar externo
     final fileSizeInMegabytes = await getFileSizeInMegabytes(path);
+    String? returnedPath;
     print('Megabytes - ${fileSizeInMegabytes.toString()}');
     if (fileSizeInMegabytes < 4.95) {
       if (imageType == 'ine') {
-        this.currentClient.ine = path;
+        returnedPath = path;
         this._newIneFile = File.fromUri(Uri(path: path));
       }
-      if (imageType == 'ineBack') {
-        this.currentClient.ineBack = path;
+      else if (imageType == 'ineBack') {
+        returnedPath = path;
         this._newIneBackFile = File.fromUri(Uri(path: path));
       } else if (imageType == 'selfie') {
-        this.currentClient.selfie = path;
+        returnedPath = path;
         this._newSelfieFile = File.fromUri(Uri(path: path));
       } else if (imageType == 'proofAddress') {
-        this.currentClient.proofAddress = path;
+        returnedPath = path;
         this._newProofAddressFile = File.fromUri(Uri(path: path));
       } else if (imageType == 'payStub') {
-        this.currentClient.payStub = path;
+        returnedPath = path;
         this._newPayStubFile = File.fromUri(Uri(path: path));
       }
+      notifyListeners();
+      return returnedPath;
     } else {
       NotificationsService.showSnackbar(
           'No se puede subir un archivo superior a 5MB', 'error');
     }
     notifyListeners();
+    return returnedPath;
   }
 
   Future<String> updateClient(ClientModel client) async {
@@ -180,7 +217,7 @@ class ClientsService extends ChangeNotifier {
     return '';
   }
 
-  Future<int> createClient(ClientModel client) async {
+  Future<int?> createClient(ClientModel client) async {
     if (this._newIneFile == null ||
         this._newSelfieFile == null ||
         this._newIneBackFile == null ||
@@ -275,10 +312,10 @@ class ClientsService extends ChangeNotifier {
 
       print(decodedResp);
 
-      client.id = decodedResp['id'];
-      this.currentClient.id = client.id;
+      // client.id = decodedResp['id'];
+      // this.currentClient.id = client.id;
 
-      this.clients.add(client);
+      //this.clients.add(client);
 
       NotificationsService.showSnackbar(
           '¡Ha sido registrado correctamente!', 'success');
@@ -287,7 +324,7 @@ class ClientsService extends ChangeNotifier {
 
       this._isSaving = false;
       this.notifyListeners();
-      return 200;
+      return decodedResp['id'];
     }
 
     String textErrors = 'REVISE ESTOS CAMPOS E INTENTE DE NUEVO\n\n';
@@ -303,7 +340,7 @@ class ClientsService extends ChangeNotifier {
 
     NotificationsService.showSnackbar(
         '${textErrors.substring(0, textErrors.length - 2)}', 'error');
-    return 400;
+    return null;
   }
 
   Future<int> sendSmsToClient(ClientModel client) async {
@@ -356,7 +393,7 @@ class ClientsService extends ChangeNotifier {
         this.notifyListeners();
 
         NotificationsService.showSnackbar(
-            'El telefóno se verificó con éxito. ', 'success');
+            'El telefóno se verificó con éxito. Registro completado', 'success');
         Navigator.of(context)
             .pushNamedAndRemoveUntil('login', (Route<dynamic> route) => false);
 

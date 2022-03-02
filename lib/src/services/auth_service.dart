@@ -29,7 +29,7 @@ class AuthService extends ChangeNotifier {
       // 'Authorization' : 'Bearer $token'
     };
     if(authenticatedUser){
-      final String token = await this.readToken();
+      final String token = await AuthService.readToken();
       if(token != ''){
         header['Authorization'] = 'Bearer $token';
       }
@@ -61,15 +61,29 @@ class AuthService extends ChangeNotifier {
       //Borrar ultima sesión
       await deleteAllStorage();
       //Guardar token en secure storage
-      print(decodedResp['user']);
       await _storage.write(key: 'token', value: decodedResp['token']);
       await _storage.write(key: 'client', value: json.encode(decodedResp['user']));
       currentClient = ClientModel.fromMap(decodedResp['user']);
-      print(currentClient);
+      currentClient.toMap().forEach((key, value) {
+        print('${key} - ${value}');
+      });
       return null;
     }
-    else{
-      return 'Credenciales incorrectas';
+    else {
+      String textErrors = '';
+      if(decodedResp.containsKey('message')){
+        textErrors = decodedResp['message'];
+      }
+      else if(decodedResp.containsKey('password')){
+        textErrors = decodedResp['password'];
+      }
+      //print(ErrorModel.fromJson(resp.body));
+      // ErrorModel.fromJson(resp.body).toMapErrorsText().forEach((key, value) {
+      //   if (value.length > 0) {
+      //     textErrors += '${value}';
+      //   }
+      // });
+      return textErrors;
     }
 
   }
@@ -94,8 +108,8 @@ class AuthService extends ChangeNotifier {
     await _storage.deleteAll(); //Borra todo el espacio designado de storage en la app
   }
 
-  Future<String> readToken() async {
-    return await _storage.read(key: 'token') ?? '';
+  static Future<String> readToken() async {
+    return await AuthService()._storage.read(key: 'token') ?? '';
   }
 
   Future<int> assignCurrentClient() async{

@@ -126,10 +126,10 @@ class _ProfileNameAndPicture extends StatelessWidget {
       child: Column(
         children: [
           CircleAvatar(
-            radius: (this.height * this.width) * 0.00032,
+            radius: (this.height * this.width) * 0.00028,
             backgroundColor: Color.fromRGBO(51, 114, 134, 1),
             child: CircleAvatar(
-              radius: (this.height * this.width) * 0.00030,
+              radius: (this.height * this.width) * 0.00026,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(130),
                 child: Image(

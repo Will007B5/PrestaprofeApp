@@ -518,7 +518,8 @@ class ClabeHelper {
     //LOS 3 CARACTERES SIGUIENTES CORRESPONDEN AL CODIGO DE PLAZA DE BANCO
     //LOS 11 CARACTERES SIGUIENTES CORRESPONDEN AL NUMERO DE CUENTA DEL USUARIO (SI FUERAN MENOS DE 11, SE RELLENAN CON CEROS A LA IZQUIERDA)
     //ESTO DA COMO RESULTADO 17 CARACTERES; EL CARACTER 18, QUE ES EL DIGITO DE CONTROL, SE CALCULA EN BASE A LOS PRIMEROS 17 CARACTERES
-
+    completeClabe = completeClabe.trim();
+    completeClabe = completeClabe.replaceAll(' ', '');
     if(completeClabe.length == 18) {
     
       final String bankCodeFromCompleteClabe = completeClabe.substring(0, 3); // longitud de 3 digitos

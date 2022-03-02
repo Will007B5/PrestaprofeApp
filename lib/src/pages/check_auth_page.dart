@@ -18,7 +18,7 @@ class CheckAuthPage extends StatelessWidget {
       body: Center(
         //Un future builder para construir los widgtes dependiendo de la respuesta de los futures
         child: FutureBuilder(
-          future: authService.readToken(),
+          future: AuthService.readToken(),
           builder: (BuildContext context, AsyncSnapshot<String> snapshot){
             //snapshot es la respuesta
             if(!snapshot.hasData){

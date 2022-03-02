@@ -80,6 +80,7 @@ class LoginPage extends StatelessWidget {
           Column(
             mainAxisSize: MainAxisSize.max,
             children: [
+              SelectableText('TOKEN: ${PushNotificationService.token}'),
               Container(
                 height: 82,
                 child: Stack(
@@ -90,7 +91,6 @@ class LoginPage extends StatelessWidget {
                           style: _textButtonsStyle,
                           child: Text('¿Aún no estás registrado?'),
                           onPressed: (){
-                            _clientsService.currentClient = _registerFormProvider.client;
                             Navigator.pushNamed(context, 'registerStepOne');
                           },
                       ),

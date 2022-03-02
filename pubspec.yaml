@@ -46,10 +46,20 @@ dependencies:
   percent_indicator: ^4.0.0
   group_button: ^4.2.1
   dropdown_search: ^2.0.1
+  firebase_messaging: ^11.2.7
+  firebase_core: ^1.13.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  
+  flutter_launcher_icons:
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/prestaprofe-icon.png"
+  adaptive_icon_background: "assets/icon/prestaprofe-icon.png"
 
 
 # For information on the generic Dart part of this file, see the

@@ -50,16 +50,16 @@ class MyCredits extends StatelessWidget {
               SizedBox(height: 5),
               Icon(Icons.info, size: _objectSize * 0.00024, color: Colors.green[300]),
               SizedBox(height: 5),
-              Text('ACTUALMENTE CUENTAS CON EL SIGUIENTE PRÉSTAMO', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.042, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+              Text('ACTUALMENTE CUENTA CON EL SIGUIENTE PRÉSTAMO', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.042, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
               SizedBox(height: 50),
-              Text('\$${_loansService.loans.last.amount.toString()}', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.085, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+              Text('\$${_loansService.loans.last.amount.toStringAsFixed(2)}', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.085, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
               SizedBox(height: 50),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   Container(
                     width: _width * 0.4,
-                    child: Text('DEBES LIQUIDAR ANTES DE: ', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.044, fontWeight: FontWeight.bold))
+                    child: Text('DEBE LIQUIDAR ANTES DE: ', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontSize: _textWidth * 0.044, fontWeight: FontWeight.bold))
                   ),
                   Container(
                     width: _width * 0.6,
@@ -80,7 +80,7 @@ class MyCredits extends StatelessWidget {
                   ),
                   Container(
                     width: _width * 0.6,
-                    child: Text('${_loansService.loans.last.paymentReference != null ? _loansService.loans.last.paymentReference.toString() : ''}', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1),fontSize: _textWidth * 0.055, fontWeight: FontWeight.bold), textAlign: TextAlign.end)
+                    child: Text('${_loansService.loans.last.paymentReference ?? ''}', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1),fontSize: _textWidth * 0.055, fontWeight: FontWeight.bold), textAlign: TextAlign.end)
                   ),
                 ],
               ),
@@ -97,12 +97,12 @@ class MyCredits extends StatelessWidget {
                   color: Color.fromRGBO(51, 114, 134, 1),
                   elevation: 0,
                   child: Text(
-                    'Generar referencia', 
+                    _loansService.isLoading ? 'Generando referencia...' : 'Generar referencia', 
                     style: TextStyle(
                       color: Colors.white
                     )
                   ),
-                  onPressed: () async{
+                  onPressed: (!_loansService.isLoading && _loansService.loans.last.paymentReference == null) ? () async {
                     // print(_loansService.loans.last.amount);
                     // final r = double.parse(_loansService.loans.last.amount) * 100;
                     // String amountTrued = '';
@@ -127,7 +127,7 @@ class MyCredits extends StatelessWidget {
                     final reference = Reference35Generator.makeReference(positions: _authService.currentClient.id.toString()+_authService.currentClient.curp!.substring(0,4));
                     await _loansService.updateReference(reference, _loansService.loans.last);
                     //Navigator.of(context).pushNamedAndRemoveUntil('home', (Route<dynamic> route) => false);
-                  },
+                  } : null,
                 ),
               ),
             ],

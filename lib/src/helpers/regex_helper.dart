@@ -15,7 +15,7 @@ class RegexHelper {
   static RegExp monthTwoDigitsRule = RegExp(r'^(0[1-9]|1[012])$');
   final datetimeYearOnly = DateTime.now().year.toString();
   static RegExp yearTwoDigitsRule = RegExp(r'^(['+RegexHelper().datetimeYearOnly[2]+r'-9]['+RegexHelper().datetimeYearOnly[3]+r'-9])$'); //Con concatenacion de variables le decimos que solo tome a partir del año actual (empezando por 2022 o 22 o [RegexHelper().datetimeYearOnly[2] RegexHelper().datetimeYearOnly[3]])
-  static RegExp clabe = RegExp(r'^[0-9]{0,18}');
+  static RegExp clabe = RegExp(r'^[0-9]{0,21}');
 
   static String makeValidPhone({
     required String phoneNumber
