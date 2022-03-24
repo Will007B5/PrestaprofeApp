@@ -1,9 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:provider/provider.dart';
-// import 'package:camera/camera.dart';
-import 'package:flutter/foundation.dart';
-
 
 import 'package:prestaprofe/src/pages/pages.dart';
 import 'package:prestaprofe/src/models/models.dart';
@@ -12,7 +12,12 @@ import 'package:prestaprofe/src/routes/routes.dart';
 import 'package:prestaprofe/src/services/services.dart';
 
 
-void main() => runApp(AppState());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized(); //Metodo que asegura que despues de lo que se ejecuta en esta linea ya hay un context listo para usar
+  await DeviceInfoService.initializeDeviceInfo(); //Inicializa la información del dispositivo para estar globalmente consumible
+  await PushNotificationService.initializeApp();
+  runApp(AppState());
+}
 
 class AppState extends StatelessWidget {
 
@@ -20,36 +25,56 @@ class AppState extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => CustomCameraProvider(), lazy: false),
-        ChangeNotifierProvider(create: (_) => CardFormProvider(new CardModel(userId: 0)), lazy: false),
-        ChangeNotifierProvider(create: (_) => AuthService()),
         ChangeNotifierProvider(create: (_) => UiProvider()),
-        ChangeNotifierProvider(create: (_) => NewCreditFormProvider(
-          new LoanModel(
-            amount: 0.0, 
-            paymentSchema: 'monthly',
-            cardId: 1, 
-            userId: 1
-          )
-        )),
-        ChangeNotifierProvider(create: (_) => DBProvider(
-          new StateModel(id: 1, name: 'Aguascalientes', code: '01'),
-          new MunicipalityModel(id: 1, name: 'Aguascalientes', code: '001', stateId: 1),
-          new CityModel(id: 1, name: 'Zona Centro', zipCode: '20000', municipalityId: 1)
-        )),
+        ChangeNotifierProvider(create: (_) => AuthService()),
+        ChangeNotifierProvider(create: (_) => DBProvider(StateModel.cleanState(), MunicipalityModel.cleanMunicipality(), CityModel.cleanMunicipality())),
+        ChangeNotifierProvider(create: (_) => CardFormProvider(new CardModel(userId: 0)), lazy: false), //lazy false para que pueda correr al momento de ejecutar la app
+        ChangeNotifierProvider(create: (_) => NewCreditFormProvider(LoanModel.cleanLoan())),
         ChangeNotifierProvider(create: (_) => RegisterFormProvider(ClientModel.cleanClient())),
         ChangeNotifierProvider(create: (_) => ClientsService(), lazy: false), //lazy false para que pueda correr al momento de ejecutar la app
-        ChangeNotifierProvider(create: (_) => JobsService(), lazy: false),
-        ChangeNotifierProvider(create: (_) => SalariesService() , lazy: false),
-        ChangeNotifierProvider(create: (_) => CardsService() , lazy: false),
-        ChangeNotifierProvider(create: (_) => LoansService() , lazy: false),
+        ChangeNotifierProvider(create: (_) => JobsService(), lazy: false), //lazy false para que pueda correr al momento de ejecutar la app
+        ChangeNotifierProvider(create: (_) => SalariesService() , lazy: false), //lazy false para que pueda correr al momento de ejecutar la app
+        ChangeNotifierProvider(create: (_) => CardsService() , lazy: false), //lazy false para que pueda correr al momento de ejecutar la app
+        ChangeNotifierProvider(create: (_) => LoansService() , lazy: false), //lazy false para que pueda correr al momento de ejecutar la app
+        ChangeNotifierProvider(create: (_) => InternetService() , lazy: false), //lazy false para que pueda correr al momento de ejecutar la app
       ],
       child: MyApp()
     );
   }
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    //Aqui ya hay accesso al context
+    //Getter messagesStream
+    PushNotificationService.messagesStream.listen((message) { 
+      print('PrestaprofeApp ${message}');
+    });
+
+    final _internetService = Provider.of<InternetService>(context, listen: false);
+
+    //Clase custom InternetService que hace uso de clase InternetChecker
+    _internetService.onStatusChange();
+
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    final _internetService = Provider.of<InternetService>(context, listen: false);
+    _internetService.closeInternetStream(); 
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

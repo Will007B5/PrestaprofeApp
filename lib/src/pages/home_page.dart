@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:percent_indicator/percent_indicator.dart';
 import 'package:provider/provider.dart';
 
-import 'package:prestaprofe/src/models/models.dart';
+import 'package:prestaprofe/src/pages/pages.dart';
+import 'package:prestaprofe/src/providers/providers.dart';
 import 'package:prestaprofe/src/services/services.dart';
 import 'package:prestaprofe/src/widgets/widgets.dart';
 
@@ -11,255 +11,143 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    return Scaffold(
-      appBar: AppBarHome(), //Widget en carpeta Widgets 
-      body: Container(
-        height: double.infinity,
-        width: double.infinity,
-        color: Colors.white,
-        child: CustomScrollView(
-          slivers: [
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: _constructHomeBody(context),
-            )
-          ],
+    final _mediaQuerySize = MediaQuery.of(context).size; //MediaQuery con los detalles de medida de pantalla
+    final _height = _mediaQuerySize.height;
+    final _width = _mediaQuerySize.width;
+    final _textInfoWidth = _width * 0.055; //Medida de la fuente a utilizar en la barra de estado
+
+    String _textStep = '';
+
+    final _uiProvider = Provider.of<UiProvider>(context);
+    final _authService = Provider.of<AuthService>(context, listen: false);
+    final _currentIndex = _uiProvider.selectedMenuOpt;
+
+    final _internetService = Provider.of<InternetService>(context);
+
+    double _toolbarHeight = _internetService.hasInternet ? kToolbarHeight : (kToolbarHeight + 19);
+
+    switch(_currentIndex){
+      case 0: 
+        _textStep = '';
+        break;
+      case 1: 
+        _textStep = '';
+        break;
+      case 2: 
+        _textStep = 'AYUDA';
+        break;
+    }
+
+    return WillPopScope(
+      child: SafeArea(
+        child: Scaffold(
+          appBar: AppBarHome(textStep: _textStep, textWidth: _textInfoWidth, toolbarHeight: _toolbarHeight), //Widget en carpeta Widgets 
+          endDrawer: DrawermenuHome(),
+          body: Container(
+            height: double.infinity,
+            width: double.infinity,
+            color: Colors.white,
+            // child: CustomScrollView(
+            //   slivers: [
+            //     SliverFillRemaining(
+            //       hasScrollBody: false,
+            //       child: _constructHomeBody(context),
+            //     )
+            //   ],
+            // ),
+            child: _constructHomeBody(context),
+          ),
+          bottomNavigationBar: CustomHomeBottomNavigation(), //Widget en carpeta Widgets 
+          // persistentFooterButtons: [
+          //   Column(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     crossAxisAlignment: CrossAxisAlignment.center,
+          //     children: [
+          //       Container(
+          //         //color: Colors.red,
+          //         width: double.infinity,
+          //         child: Text('No hay Internet', textAlign: TextAlign.center),
+          //       )
+          //     ],
+          //   )
+          // ],
+          // persistentFooterButtons: [
+          //   Container( //Para tener el banner fixed al bottom
+          //     width: double.infinity,
+          //     height: _height / 11,
+          //     padding: const EdgeInsets.all(0), //<-- this 
+          //     color: Colors.white,
+          //     child: Image(
+          //       image: AssetImage('assets/banner.jpg'),
+          //       fit: BoxFit.fill
+          //     ),
+          //   )
+          // ]
         ),
       ),
-      bottomNavigationBar: CustomBottomNavigation(), //Widget en carpeta Widgets 
+      onWillPop: () async {
+        if(Navigator.canPop(context)) { //Verifica si hay rutas por sacar de la pila; esto es principalmente si se tiene abierto el menu drawer
+          Navigator.of(context).popUntil(ModalRoute.withName('home'));
+          return false;
+        }
+        final logoutAndReturnLogin = await showLogoutAndReturnLogin(context);
+        if(logoutAndReturnLogin){
+          _authService.logout();
+          Navigator.pushReplacementNamed(context, 'login');
+        }
+        return logoutAndReturnLogin;
+      },
     );
   }
 
+  //Widget que muestra la paginas seleccionables del bottom navigation
   Widget _constructHomeBody(BuildContext context) {
 
-    //_mediaQuerySize.height = tamaño general de la pantalla
-    //MediaQuery.of(context).padding.top = tamaño del status bar
-    //kToolbarHeight = constante de Flutter que indica el tamaño del appbar
-    //kBottomNavigationBarHeight = constante de Flutter que indica el tamaño del BottomNavigationBar
+    final _uiProvider = Provider.of<UiProvider>(context);
+    final _currentIndex = _uiProvider.selectedMenuOpt;
 
-    final _mediaQuerySize = MediaQuery.of(context).size;
-
-    final width = _mediaQuerySize.width - 30;
-    final height = _mediaQuerySize.height - 30;
-
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Column(
-            children: [
-              SizedBox(height: 15),
-
-              _ProfileNameAndPicture(mediaQuerySize: _mediaQuerySize, height: height, width: width),
-
-              SizedBox(height: 30),
-
-              _ProfileCardActions(mediaQuerySize: _mediaQuerySize, height: height, width: width)
-            ],
-          ),
-
-          Expanded(child: Container()),
-
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Container(
-                width: double.infinity,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text('RESTAN', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontWeight: FontWeight.bold, fontSize: width * 0.04)),
-                            Text('(ACTIVAR EXTENSIÓN)', style: TextStyle(color: Color.fromRGBO(51, 114, 134, 1), fontWeight: FontWeight.bold, fontSize: width * 0.025))
-                          ]
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 4),
-                          child: CircularPercentIndicator(
-                            radius: (height * width) * 0.000055,
-                            animation: true,
-                            animationDuration: 1200,
-                            lineWidth: width * 0.009,
-                            percent: 0.6,
-                            center: Text('2', style: TextStyle(fontWeight: FontWeight.bold, fontSize: width * 0.035, color: Color.fromRGBO(51, 114, 134, 1))),
-                            circularStrokeCap: CircularStrokeCap.butt,
-                            backgroundColor: Colors.grey,
-                            progressColor: Color.fromRGBO(51, 114, 134, 1),
-                          ),
-                        )
-                      ],
-                    )
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-class _ProfileNameAndPicture extends StatelessWidget {
-
-  final Size mediaQuerySize;
-  final double height;
-  final double width;
-
-  const _ProfileNameAndPicture({
-    Key? key, 
-    required this.mediaQuerySize,
-    required this.height,
-    required this.width,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final _authService = Provider.of<AuthService>(context);
-    return Container(
-      child: Column(
-        children: [
-          CircleAvatar(
-            radius: (this.height * this.width) * 0.00032,
-            backgroundColor: Color.fromRGBO(51, 114, 134, 1),
-            child: CircleAvatar(
-              radius: (this.height * this.width) * 0.00030,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(130),
-                child: Image(
-                  image: AssetImage('assets/logouser.jpg'),
-                  fit: BoxFit.fill,
-                ),
-              )
-            ),
-          ),
-          SizedBox(height: 23),
-          Text('HOLA, ${_authService.currentClient.name.toUpperCase()}',
-            overflow: TextOverflow.ellipsis,
-            maxLines: 2,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Color.fromRGBO(51, 114, 134, 1),
-              fontWeight: FontWeight.bold,
-              fontSize: this.width * 0.069,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-class _ProfileCardActions extends StatelessWidget {
-
-  final Size mediaQuerySize;
-  final double height;
-  final double width;
-
-  const _ProfileCardActions({
-    Key? key, 
-    required this.mediaQuerySize,
-    required this.height,
-    required this.width,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-
-    final _authService = Provider.of<AuthService>(context);
-    final _cardsService = Provider.of<CardsService>(context);
-
-    return Container(
-      child: Column(
-        children: [
-          Text(
-            '¿QUÉ DESEA HACER?',
-            style: TextStyle(
-              fontSize: this.width * 0.05,
-              color: Color.fromRGBO(51, 114, 134, 1)
-            ),
-          ),
-          SizedBox(height: 30),
-          Container(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _GestureTapMenuActions(route: _checkRoutesToNewLoans(_cardsService.filterUserCards(_authService.currentClient.id!)), icon: Icons.payments_rounded, width: (this.width / 3), height: (this.height / 3), text: 'SOLICITAR PRÉSTAMO'),
-                _GestureTapMenuActions(route: 'myCredits', icon: Icons.payment_rounded, width: (this.width / 3), height: (this.height / 3), text: 'PAGAR PRÉSTAMO'),
-                _GestureTapMenuActions(route: '', icon: Icons.insert_chart, width: (this.width / 3), height: (this.height / 3), text: 'VER PRÉSTAMOS'),
-              ],
-            ),
-          ),
-          SizedBox(height: 15)
-        ],
-      ),
-    );
-  }
-
-  String _checkRoutesToNewLoans(List<CardModel> userCards){
-    if(userCards.length > 0) {
-      return 'newCreditStepOne';
+    switch (_currentIndex) {
+      case 0:
+        return DashboardPage();
+      case 2:
+        return HelpPage();
+      default: 
+        return DashboardPage();
     }
-    return 'registerDebitClabe';
+
   }
-}
 
-//Widget de gesto que recibe ciertos parametros para construir opciones del home
-class _GestureTapMenuActions extends StatelessWidget {
-
-  final String route;
-  final IconData icon;
-  final double width;
-  final double height;
-  final String text;
-
-  const _GestureTapMenuActions({
-    Key? key, 
-    required this.route, 
-    required this.icon, 
-    required this.width, 
-    required this.height,
-    required this.text
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-
-    return GestureDetector(
-      onTap: (){
-        Navigator.pushNamed(context, this.route);
-      },
-      child: Column(
-        children: [
-          Container(
-            width: this.width,
-            child: Column(
-              children: [
-                Container(
-                  child: Icon(this.icon, color: Color.fromRGBO(51, 114, 134, 1), size: (this.height * this.width) * 0.0019),
-                ),
-                Container(
-                  child: Text(this.text,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 3,
-                    style: TextStyle(
-                      color: Color.fromRGBO(51, 114, 134, 1),
-                      fontSize: this.width * 0.115,
-                    ),
-                  ),
-                ),
-              ],
+  Future<bool> showLogoutAndReturnLogin(BuildContext context) async {
+    bool _isTueOrFalse = false;
+    await showDialog(
+      context: context,
+      builder: (context) => WillPopScope(
+        child: AlertDialog(
+          title: Text('¿Desea cerrar sesión?'),
+          actions: [
+            TextButton(
+              child: Text('No'),
+              onPressed: (){
+                _isTueOrFalse = false;
+                Navigator.pop(context);
+              },
             ),
-          ),
-        ],
+            TextButton(
+              child: Text('Si'),
+              onPressed: (){
+                _isTueOrFalse = true;
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+        onWillPop: () async {
+          return false;
+        },
       ),
+      barrierDismissible: false
     );
+    print(_isTueOrFalse);
+    return _isTueOrFalse;
   }
 }

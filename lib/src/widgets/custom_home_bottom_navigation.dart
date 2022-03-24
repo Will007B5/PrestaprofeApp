@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'package:prestaprofe/src/providers/providers.dart';
 
-class CustomBottomNavigation extends StatelessWidget {
+class CustomHomeBottomNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
@@ -19,30 +19,30 @@ class CustomBottomNavigation extends StatelessWidget {
       type: BottomNavigationBarType.fixed, //Para que se distribuyan todos estos items a todo el ancho del dispositivo
       showSelectedLabels: false,
       showUnselectedLabels: false,
-      selectedItemColor: Color.fromRGBO(51, 114, 134, 1), //Color de item seleccionado
-      backgroundColor: Color.fromRGBO(255, 255, 255, 1),
-      unselectedItemColor: Colors.grey,
+      selectedItemColor: Color.fromARGB(255, 238, 195, 67), //Color de item seleccionado
+      backgroundColor: Color.fromRGBO(51, 114, 134, 1),
+      unselectedItemColor: Colors.white,
       items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.home),
           label: 'Inicio'
         ),
+        // BottomNavigationBarItem(
+        //   icon: Icon(Icons.settings),
+        //   label: 'Configuración'
+        // ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.settings),
-          label: 'Configuración'
+          icon: Icon(Icons.notifications_rounded),
+          label: 'Notificaciones'
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.email),
-          label: 'Email'
+          icon: Icon(Icons.help),
+          label: 'Ayuda'
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.contact_support_rounded),
-          label: 'Chat'
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.phone),
-          label: 'WhatsApp'
-        )
+        // BottomNavigationBarItem(
+        //   icon: Icon(Icons.phone),
+        //   label: 'WhatsApp'
+        // )
       ],
     );
   }

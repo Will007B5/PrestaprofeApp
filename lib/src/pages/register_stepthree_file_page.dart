@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:prestaprofe/src/providers/providers.dart';
 import 'package:provider/provider.dart';
 
 import 'package:prestaprofe/src/helpers/helpers.dart';
@@ -28,10 +29,28 @@ class StepThreeFile extends StatelessWidget {
                 child: Container(
                   child: Column(
                     children: [
-                      Column(
+                      Stack(
                         children: [
-                          RegisterFileImage(
-                              imageType: _routeArgumentsTypeImage),
+                          RegisterFileImage(imageType: _routeArgumentsTypeImage),
+                          // Positioned(
+                          //   bottom: 7,
+                          //   right: 139,
+                          //   child: TextButton(
+                          //     onPressed: () => Navigator.of(context).pop(),
+                          //     child: Text('GUARDAR', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
+                          //     style: ButtonStyle(
+                          //       backgroundColor: MaterialStateProperty.all<Color>(
+                          //         Color.fromRGBO(51, 114, 134, 0.85)
+                          //       ),
+                          //       shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          //         RoundedRectangleBorder(
+                          //           borderRadius: BorderRadius.circular(10.0),
+                          //           side: BorderSide(color: Color.fromRGBO(51, 114, 134, 1))
+                          //         )
+                          //       )
+                          //     )
+                          //   )
+                          // ),
                         ],
                       ),
                       Expanded(child: Container()),
@@ -143,23 +162,41 @@ class _CardOptions extends StatelessWidget {
       String routeArgumentsTypeImage, String action) async {
     final ImagePicker _imagePicker = ImagePicker();
     final _clientsService = Provider.of<ClientsService>(context, listen: false);
+    final _registerForm = Provider.of<RegisterFormProvider>(context, listen: false);
     final response =
         await PermissionsHelper.requestForPermission(permissionType: 'camera');
     if (response == 200) {
       if (action == 'gallery') {
-        try {
-          FilePickerResult? pickedFile = await FilePicker.platform.pickFiles(
-              type: FileType.custom, allowedExtensions: ['jpg', 'jpeg', 'png']);
+        // try {
+        //   FilePickerResult? pickedFile = await FilePicker.platform.pickFiles(
+        //       type: FileType.custom, allowedExtensions: ['jpg', 'jpeg', 'png']);
 
+        //   if (pickedFile == null) {
+        //     return;
+        //   }
+
+        //   print(
+        //       'Hay que hacer que archivo se vea ${pickedFile.files.single.path!}');
+        //   _clientsService.updateImagesPreview(
+        //       routeArgumentsTypeImage, pickedFile.files.single.path!);
+        // } catch (e) {}
+        try {
+          final XFile? pickedFile = await ImagePicker()
+              .pickImage(source: ImageSource.gallery, imageQuality: 70);
+          //await _imagePicker.retrieveLostData();
+          print('pickedFile');
           if (pickedFile == null) {
             return;
           }
 
-          print(
-              'Hay que hacer que archivo se vea ${pickedFile.files.single.path!}');
-          _clientsService.updateImagesPreview(
-              routeArgumentsTypeImage, pickedFile.files.single.path!);
-        } catch (e) {}
+          print('Hay que hacer que imagen se vea ${pickedFile.path}');
+          final responsePath = await _clientsService.updateImagesPreview(routeArgumentsTypeImage, pickedFile.path);
+          if(responsePath != null){
+            _assignImageToClient(context, routeArgumentsTypeImage, responsePath);
+          }
+        } catch (e) {
+          print(e);
+        }
       } else if (action == 'camera') {
         try {
           final XFile? pickedFile = await ImagePicker()
@@ -171,8 +208,10 @@ class _CardOptions extends StatelessWidget {
           }
 
           print('Hay que hacer que imagen se vea ${pickedFile.path}');
-          _clientsService.updateImagesPreview(
-              routeArgumentsTypeImage, pickedFile.path);
+          final responsePath = await _clientsService.updateImagesPreview(routeArgumentsTypeImage, pickedFile.path);
+          if(responsePath != null){
+            _assignImageToClient(context, routeArgumentsTypeImage, responsePath);
+          }
         } catch (e) {
           print(e);
         }
@@ -186,10 +225,32 @@ class _CardOptions extends StatelessWidget {
           }
           print(
               'Hay que hacer que archivo se vea ${pickedFile.files.single.path!}');
-          _clientsService.updateImagesPreview(
-              routeArgumentsTypeImage, pickedFile.files.single.path!);
+          final responsePath = await _clientsService.updateImagesPreview(routeArgumentsTypeImage, pickedFile.files.single.path!);
+          if(responsePath != null){
+            _assignImageToClient(context, routeArgumentsTypeImage, responsePath);
+          }
         } catch (e) {}
       }
     }
   }
+
+  void _assignImageToClient(BuildContext context, String imageType, String path){
+    final _registerForm = Provider.of<RegisterFormProvider>(context, listen: false);
+    if (imageType == 'ine') {
+      _registerForm.client.ine = path;
+    }
+    else if (imageType == 'ineBack') {
+      _registerForm.client.ineBack = path;
+    } else if (imageType == 'selfie') {
+      _registerForm.client.selfie = path;
+    } else if (imageType == 'proofAddress') {
+      _registerForm.client.proofAddress = path;
+    } else if (imageType == 'payStub') {
+      _registerForm.client.payStub = path;
+    }
+    _registerForm.refreshListeners();
+  }
 }
+
+
+

@@ -29,7 +29,7 @@ class AuthService extends ChangeNotifier {
       // 'Authorization' : 'Bearer $token'
     };
     if(authenticatedUser){
-      final String token = await this.readToken();
+      final String token = await AuthService.readToken();
       if(token != ''){
         header['Authorization'] = 'Bearer $token';
       }
@@ -43,7 +43,7 @@ class AuthService extends ChangeNotifier {
     final Map<String, dynamic> authData = {
       'email'       : email,
       'password'    : password,
-      'device_name' : 'MiA1'
+      'device_name' : DeviceInfoService.uniqueDeviceName
     };
     
     // final url = Uri.http(_baseUrl, '/api/login'); //Enviamos el cuerpo y los parametros
@@ -60,17 +60,58 @@ class AuthService extends ChangeNotifier {
     if(decodedResp.containsKey('token')){
       //Borrar ultima sesión
       await deleteAllStorage();
-      //Guardar token en secure storage
-      print(decodedResp['user']);
-      await _storage.write(key: 'token', value: decodedResp['token']);
-      await _storage.write(key: 'client', value: json.encode(decodedResp['user']));
       currentClient = ClientModel.fromMap(decodedResp['user']);
-      print(currentClient);
+      await assignFCMTokenToUser(PushNotificationService.token); //Guarda el token de FCM generado en la bd al usuario logueado
+      //Guardar token en secure storage
+      await _storage.write(key: 'token', value: decodedResp['token']);
+      await _storage.write(key: 'client', value: json.encode(currentClient.toMap()));
       return null;
     }
-    else{
-      return 'Credenciales incorrectas';
+    else {
+      String textErrors = '';
+      if(decodedResp.containsKey('message')){
+        textErrors = decodedResp['message'];
+      }
+      else if(decodedResp.containsKey('password')){
+        textErrors = decodedResp['password'];
+      }
+      //print(ErrorModel.fromJson(resp.body));
+      // ErrorModel.fromJson(resp.body).toMapErrorsText().forEach((key, value) {
+      //   if (value.length > 0) {
+      //     textErrors += '${value}';
+      //   }
+      // });
+      return textErrors;
     }
+
+  }
+
+  //Metodo estatico para pasar el token y ejecutar la operacion en la instancia normal de clase AuthService
+  static Future<void> passFCMTokenToAuthService(String? fcmToken) async {
+    await AuthService().assignFCMTokenToUser(fcmToken);
+  }
+
+  //Se asigna el token de FCM al usuario
+  Future<int> assignFCMTokenToUser (String? fcmToken) async {
+
+    if(this.currentClient != null && fcmToken != null){
+      final url = Uri.https(AuthService()._baseUrl, '/api/has-token-user/${this.currentClient.id}/$fcmToken'); //Enviamos el cuerpo y los parametros
+
+      final headers = await AuthService()._setHeaders(authenticatedUser: true);
+
+      final resp = await http.get(url, headers: headers);
+
+      if (resp.statusCode >= 200 && resp.statusCode < 299) {
+        this.currentClient.token = fcmToken;
+        await _storage.write(key: 'client', value: json.encode(this.currentClient.toMap()));
+        return 200;
+      }
+      else {
+        return 400;
+      }
+    }
+
+    return 400;
 
   }
 
@@ -94,17 +135,16 @@ class AuthService extends ChangeNotifier {
     await _storage.deleteAll(); //Borra todo el espacio designado de storage en la app
   }
 
-  Future<String> readToken() async {
-    return await _storage.read(key: 'token') ?? '';
+  static Future<String> readToken() async {
+    final r = await AuthService()._storage.read(key: 'token');
+    print('TOKEN: $r');
+    return await AuthService()._storage.read(key: 'token') ?? '';
   }
 
   Future<int> assignCurrentClient() async{
     final client = await _storage.read(key: 'client');
     if(client != null){
       this.currentClient = ClientModel.fromMap(json.decode(client));
-      this.currentClient.toMap().forEach((key, value) {
-        print('${key} - ${value}');
-      });
       return 200;
     }
     else{

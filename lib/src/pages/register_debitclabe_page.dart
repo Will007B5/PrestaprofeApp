@@ -17,6 +17,7 @@ class RegisterDebitClabe extends StatelessWidget {
   TextEditingController _textfieldCardNumberController = new TextEditingController(); //Controlador que lleva la data del numero de la tarjeta
   TextEditingController _textfieldYearController = new TextEditingController(); //Controlador que lleva la data del año de la tarjeta
   TextEditingController _textfieldMonthController = new TextEditingController(); //Controlador que lleva la data del mes de la tarjeta
+  int _textfieldClabeControllerLength = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +30,16 @@ class RegisterDebitClabe extends StatelessWidget {
     final _authService = Provider.of<AuthService>(context);
     final _cardsService = Provider.of<CardsService>(context);
     final _cardFormProvider = Provider.of<CardFormProvider>(context);
+
+    _textfieldClabeController.addListener(() async {
+      if ((_textfieldClabeController.text.length - _textfieldClabeControllerLength).abs() > 1 ){
+        ClipboardData? cdata = await Clipboard.getData(Clipboard.kTextPlain);
+        String copiedtext = cdata?.text ?? '';
+        _textfieldClabeController.text = copiedtext.replaceAll(' ', '');
+        print('DESPUES COPy: ${_textfieldClabeController.text}');
+      }
+      _textfieldClabeControllerLength = _textfieldClabeController.text.length;
+    });
 
     return SafeArea(
       top: false,
@@ -186,7 +197,7 @@ class RegisterDebitClabe extends StatelessWidget {
                                             FilteringTextInputFormatter.allow(RegexHelper.clabe)
                                         ],
                                         validator: (value) {
-                                          return (value?.length == 18 && ClabeHelper.isValidClabe(completeClabe: value ?? '')) ? null : 'Ingrese cuenta CLABE válida';
+                                          return (value?.length == 18) && ClabeHelper.isValidClabe(completeClabe: value ?? '') ? null : 'Ingrese cuenta CLABE válida';
                                         },
                                         )
                                       ],
@@ -218,30 +229,30 @@ class RegisterDebitClabe extends StatelessWidget {
                                   print(_textfieldCardNumberController.text);
                                   print(_textfieldClabeController.text);
                                   if(!_cardFormProvider.isValidFormRegisterClabeCard()) return;
+                                  
+                                  late CardModel _newCard;
 
-                                  // late CardModel _newCard;
+                                  if(_cardFormProvider.cardOrClabe == 'card'){
+                                    _newCard = new CardModel(
+                                      userId: _authService.currentClient.id!,
+                                      cardNumber: _textfieldCardNumberController.text,
+                                      expiredDate: '${_textfieldYearController.text}/${_textfieldMonthController.text}'
+                                    );
+                                  }
+                                  else if(_cardFormProvider.cardOrClabe == 'clabe'){
+                                    _newCard = new CardModel(
+                                      userId: _authService.currentClient.id!,
+                                      clabe: _textfieldClabeController.text
+                                    );
+                                  }
 
-                                  // if(_cardFormProvider.cardOrClabe == 'card'){
-                                  //   _newCard = new CardModel(
-                                  //     userId: _authService.currentClient.id!,
-                                  //     cardNumber: _currentNewClabeCard.cardNumber,
-                                  //     expiredDate: '${_textfieldYearController.text}/${_textfieldMonthController.text}'
-                                  //   );
-                                  // }
-                                  // else if(_cardFormProvider.cardOrClabe == 'clabe'){
-                                  //   _newCard = new CardModel(
-                                  //     userId: _authService.currentClient.id!,
-                                  //     clabe: _currentNewClabeCard.clabe
-                                  //   );
-                                  // }
+                                  final response = await _cardsService.registerCardClabe(_newCard);
 
-                                  // final response = await _cardsService.registerCardClabe(_newCard);
-
-                                  // if(response == 200){
-                                  //   //Del stack de rutas reemplaza y dirige hacia ruta 'newCreditStepOne'
-                                  //   //Si con el boton de navegacion back es presionado, ahora regresa al home
-                                  //   Navigator.of(context).pushReplacementNamed('newCreditStepOne');
-                                  // }
+                                  if(response == 200){
+                                    //Del stack de rutas reemplaza y dirige hacia ruta 'newCreditStepOne'
+                                    //Si con el boton de navegacion back es presionado, ahora regresa al home
+                                    Navigator.of(context).pushReplacementNamed('newCreditStepOne');
+                                  }
                                 } : null,
                               ),
                             ),

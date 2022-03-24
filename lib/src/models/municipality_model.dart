@@ -30,4 +30,12 @@ class MunicipalityModel {
         "code": code,
         "state_id": stateId,
     };
+
+    //Esto es para crear una copia limpia del municipio
+    static MunicipalityModel cleanMunicipality() => new MunicipalityModel(
+      id: 1, 
+      name: 'Aguascalientes', 
+      code: '001', 
+      stateId: 1
+    );
 }

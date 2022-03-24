@@ -2,9 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import 'package:prestaprofe/src/models/card_model.dart';
 
 import 'package:prestaprofe/src/models/models.dart';
+import 'package:prestaprofe/src/services/auth_service.dart';
+import 'package:prestaprofe/src/services/services.dart';
 
 // verificar los permisos a internet. 
 // Línea <uses-permission android:name="android.permission.INTERNET" /> en el archivo AndroidManifest.xml (de la carpeta main), 
@@ -22,6 +25,12 @@ class LoansService extends ChangeNotifier {
       'Accept' : 'application/json'
       // 'Authorization' : 'Bearer $token'
     };
+    if(authenticatedUser){
+      final String token = await AuthService.readToken();
+      if(token != ''){
+        header['Authorization'] = 'Bearer $token';
+      }
+    }
     return header;
   }
 
@@ -41,7 +50,7 @@ class LoansService extends ChangeNotifier {
 
     final url = Uri.https(_baseUrl, '/api/loans'); //Enviamos el cuerpo y los parametros
 
-    final headers = await this._setHeaders(authenticatedUser: false);
+    final headers = await this._setHeaders(authenticatedUser: true);
 
     final resp = await http.get(url, headers: headers);
 
@@ -62,20 +71,28 @@ class LoansService extends ChangeNotifier {
     return this.loans;
   }
 
-  Future<int> createLoans(LoanModel loans) async {
+  Future<int> createLoans(LoanModel loans, {required int idUser}) async {
 
     this.isLoading = true;
     notifyListeners();
 
+    loans.userId = idUser;
+
     final url = Uri.https(_baseUrl, '/api/loans'); //Enviamos el cuerpo y los parametros
 
-    final headers = await this._setHeaders(authenticatedUser: false);
+    final headers = await this._setHeaders(authenticatedUser: true);
 
     final resp = await http.post(url, headers: headers, body: loans.toJson());
 
-    final decodedData = resp.body;
+    final decodedData = json.decode(resp.body);
 
-    print(decodedData);
+    this.loans.add(LoanModel.fromMap(decodedData['data']));
+
+
+    this.isLoading = false;
+    notifyListeners();
+
+    NotificationsService.showSnackbar('¡Su préstamo se ha generado correctamente!', 'success');
     
     return 200;
   }
@@ -87,7 +104,7 @@ class LoansService extends ChangeNotifier {
 
     final url = Uri.https(_baseUrl, '/api/loans/${loans.id}'); //Enviamos el cuerpo y los parametros
 
-    final headers = await this._setHeaders(authenticatedUser: false);
+    final headers = await this._setHeaders(authenticatedUser: true);
     
     Map data = {
     'payment_reference': reference
@@ -95,12 +112,23 @@ class LoansService extends ChangeNotifier {
 
     final resp = await http.put(url, headers: headers, body: json.encode(data));
 
-    final decodedData = resp.body;
+    final decodedData = json.decode(resp.body);
 
     print(decodedData);
+
+    final tempLoan = LoanModel.fromMap(decodedData['data']);
+
+    final indexLoan = this.loans.indexWhere((loan) => loan.id == tempLoan.id);
+
+    if(indexLoan > 0){
+      this.loans[indexLoan].paymentReference = tempLoan.paymentReference;
+    }
     
     this.isLoading = false;
     notifyListeners();
+
+    NotificationsService.showSnackbar('¡Su referencia ha sido generada!', 'success');
+
     return 200;
   }
 
