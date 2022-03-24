@@ -29,6 +29,8 @@ class LoginPage extends StatelessWidget {
     return SafeArea(
       top: false,
       child: Scaffold(
+        //Crea una instancia de LoginFormProvider
+        //Y solo todo este (ChangeNotifierProvider) va a vivir en este scope (login_page.dart)
         body: Container(
           height: double.infinity,
           width: double.infinity,
@@ -38,7 +40,12 @@ class LoginPage extends StatelessWidget {
             slivers: [
               SliverFillRemaining(
                 hasScrollBody: false,
-                child: _constructLoginBody(_mediaQuerySize, context)
+                child: ChangeNotifierProvider(
+                  create: ( _ ) => LoginFormProvider(),
+                  builder: (context, _) {
+                    return _constructLoginBody(_mediaQuerySize, context);
+                  },
+                )
               )
             ],
           ),
@@ -50,6 +57,7 @@ class LoginPage extends StatelessWidget {
   Widget _constructLoginBody(Size _mediaQuerySize, BuildContext context) {
     final _clientsService = Provider.of<ClientsService>(context);
     final _registerFormProvider = Provider.of<RegisterFormProvider>(context);
+    final loginForm = Provider.of<LoginFormProvider>(context);
     return Container(
       child: Column(
         children: [
@@ -70,17 +78,14 @@ class LoginPage extends StatelessWidget {
             ),
           ),
           SizedBox(height: 25),
-          //Crea una instancia de LoginFormProvider
-          //Y solo _LoginForm() va a vivir en este scope (ChangeNotifierProvider)
-          ChangeNotifierProvider(
-            create: ( _ ) => LoginFormProvider(),
-            child: _LoginForm(),
-          ),
+
+          _LoginForm(),
+          
           Expanded(child: Container()), //Para agregar este expanden (sobre todo en elementos Scroll, es necesario que sea Container(aqui se insertan medidas)->Column->Expanded->Container)
           Column(
             mainAxisSize: MainAxisSize.max,
             children: [
-              SelectableText('TOKEN: ${PushNotificationService.token}'),
+              //SelectableText('TOKEN: ${PushNotificationService.token}'),
               Container(
                 height: 82,
                 child: Stack(
@@ -90,15 +95,17 @@ class LoginPage extends StatelessWidget {
                       child: TextButton(
                           style: _textButtonsStyle,
                           child: Text('¿Aún no estás registrado?'),
-                          onPressed: (){
+                          onPressed: !loginForm.isLoading ? (){
                             Navigator.pushNamed(context, 'registerStepOne');
-                          },
+                          } : null,
                       ),
                     ),
                     TextButton(
                         style: _textButtonsStyle,
                         child: Text('¿Olvidaste tu contraseña?'),
-                        onPressed: (){},
+                        onPressed: !loginForm.isLoading ? (){
+
+                        } : null,
                     ),
                   ],
                 ),
@@ -111,88 +118,83 @@ class LoginPage extends StatelessWidget {
     );
   }
 }
-  class _LoginForm extends StatelessWidget {
-    @override
-    Widget build(BuildContext context) {
-      
-      final loginForm = Provider.of<LoginFormProvider>(context);
+class _LoginForm extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    
+    final loginForm = Provider.of<LoginFormProvider>(context);
+    final _clientsService = Provider.of<ClientsService>(context);
 
-      final _clientsService = Provider.of<ClientsService>(context);
-
-      return Container(
-        padding: EdgeInsets.symmetric(horizontal: 25),
-        child: Form(
-          key: loginForm.formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                enabled: !loginForm.isLoading ? true : false,
-                autocorrect: false,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecorations.authInputDecoration(hintText: 'ejemplo@dominio.com', labelText: 'Correo electrónico', prefixIcon: Icons.alternate_email_sharp), //Utilizando metodo estatico de clase InputDecorations creada por mi (lib/src/ui/input_decorations.dart),
-                onChanged: (value) => loginForm.email = value,
-                validator: (value) {
-                  return RegexHelper.email.hasMatch(value ?? '') ? null : 'Ingrese un correo válido';
-                },
-              ),
-              SizedBox(height: 10),
-              TextFormField(
-                autovalidateMode: AutovalidateMode.disabled,
-                enabled: !loginForm.isLoading ? true : false,
-                enableSuggestions: false,
-                autocorrect: false,
-                obscureText: !loginForm.obscurePasswordField,
-                keyboardType: TextInputType.emailAddress,
-                decoration: InputDecorations.authInputDecoration(hintText: '', labelText: 'Contraseña', prefixIcon: Icons.lock_outline, suffixIcon: loginForm.obscurePasswordField ? Icons.visibility_off : Icons.visibility, context: context), //Utilizando metodo estatico de clase InputDecorations creada por mi (lib/src/ui/input_decorations.dart)
-                onChanged: (value) => loginForm.password = value,
-                validator: (value) {
-                  if(value != null && value.length > 0){
-                    return null;
-                  }
-                  return 'Ingrese la contraseña';
-                },
-              ),
-              SizedBox(height: 10),
-              Container(
-                width: double.infinity,
-                child: MaterialButton(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                  disabledColor: Colors.grey,
-                  color: Color.fromRGBO(191, 155, 48, 1),
-                  elevation: 0,
-                  child: Text(
-                    loginForm.isLoading ? 'Ingresando...' : 'Iniciar sesión', 
-                    style: TextStyle(
-                      color: Color.fromRGBO(27, 60, 70, 1)
-                    )
-                  ),
-                  onPressed: loginForm.isLoading ? null : () async {
-                    FocusScope.of(context).unfocus(); //Linea para ocultar el teclado
-                    final authService = Provider.of<AuthService>(context, listen: false);
-
-                    if(!loginForm.isValidForm()) return;
-
-                    loginForm.isLoading = true;
-
-                    final String? errorMessage = await authService.login(loginForm.email, loginForm.password);
-
-                    if(errorMessage == null){
-                      _clientsService.currentClient = authService.currentClient;
-                      //Inicia sesion
-                      Navigator.pushReplacementNamed(context, 'home'); //pushReplacementNamed borra el stack de rutas para que ya no se pueda regresar
-                    }
-                    else{
-                      //Manda errores
-                      NotificationsService.showSnackbar(errorMessage, 'error');
-                      loginForm.isLoading = false;
-                    }
-                  },
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 25),
+      child: Form(
+        key: loginForm.formKey,
+        child: Column(
+          children: [
+            TextFormField(
+              autovalidateMode: AutovalidateMode.onUserInteraction,
+              enabled: !loginForm.isLoading ? true : false,
+              autocorrect: false,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecorations.authInputDecoration(hintText: 'ejemplo@dominio.com', labelText: 'Correo electrónico', prefixIcon: Icons.alternate_email_sharp), //Utilizando metodo estatico de clase InputDecorations creada por mi (lib/src/ui/input_decorations.dart),
+              onChanged: (value) => loginForm.email = value,
+              validator: (value) {
+                return RegexHelper.email.hasMatch(value ?? '') ? null : 'Ingrese un correo válido';
+              },
+            ),
+            SizedBox(height: 10),
+            TextFormField(
+              autovalidateMode: AutovalidateMode.disabled,
+              enabled: !loginForm.isLoading ? true : false,
+              enableSuggestions: false,
+              autocorrect: false,
+              obscureText: !loginForm.obscurePasswordField,
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecorations.authInputDecoration(hintText: '', labelText: 'Contraseña', prefixIcon: Icons.lock_outline, suffixIcon: loginForm.obscurePasswordField ? Icons.visibility_off : Icons.visibility, context: context), //Utilizando metodo estatico de clase InputDecorations creada por mi (lib/src/ui/input_decorations.dart)
+              onChanged: (value) => loginForm.password = value,
+              validator: (value) {
+                if(value != null && value.length > 0){
+                  return null;
+                }
+                return 'Ingrese la contraseña';
+              },
+            ),
+            SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              child: MaterialButton(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                disabledColor: Colors.grey,
+                color: Color.fromRGBO(191, 155, 48, 1),
+                elevation: 0,
+                child: Text(
+                  loginForm.isLoading ? 'Ingresando...' : 'Iniciar sesión', 
+                  style: TextStyle(
+                    color: Color.fromRGBO(27, 60, 70, 1)
+                  )
                 ),
+                onPressed: loginForm.isLoading ? null : () async {
+                  FocusScope.of(context).unfocus(); //Linea para ocultar el teclado
+                  final authService = Provider.of<AuthService>(context, listen: false);
+                  if(!loginForm.isValidForm()) return;
+                  loginForm.isLoading = true;
+                  final String? errorMessage = await authService.login(loginForm.email, loginForm.password);
+                  if(errorMessage == null){
+                    _clientsService.currentClient = authService.currentClient;
+                    //Inicia sesion
+                    Navigator.pushReplacementNamed(context, 'home'); //pushReplacementNamed borra el stack de rutas para que ya no se pueda regresar
+                  }
+                  else{
+                    //Manda errores
+                    NotificationsService.showSnackbar(errorMessage, 'error');
+                    loginForm.isLoading = false;
+                  }
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
-    }
+      ),
+    );
   }
+}

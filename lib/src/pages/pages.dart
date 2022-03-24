@@ -1,7 +1,9 @@
 export 'package:prestaprofe/src/pages/check_auth_page.dart';
 export 'package:prestaprofe/src/pages/contacts_listview_widget.dart';
-export 'package:prestaprofe/src/pages/custom_camera.dart';
+export 'package:prestaprofe/src/pages/dashboard_page.dart';
 export 'package:prestaprofe/src/pages/error_page.dart';
+export 'package:prestaprofe/src/pages/frecuent_questions_page.dart';
+export 'package:prestaprofe/src/pages/help_page.dart';
 export 'package:prestaprofe/src/pages/home_page.dart';
 export 'package:prestaprofe/src/pages/loading_page.dart';
 export 'package:prestaprofe/src/pages/login_page.dart';

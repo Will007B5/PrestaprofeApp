@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_core/firebase_core.dart';
 
+import 'package:prestaprofe/src/services/services.dart';
+
 // SHA1: 28:50:63:D6:0B:DA:91:F8:03:C2:A3:7F:91:AD:48:A0:D0:2F:D3:36
 //Se instala paquete de FCM y Firebase Core
 //Foreground: Cuando la app esta en primer plano
@@ -36,18 +38,23 @@ class PushNotificationService {
     _messageStreamController.add(message.data['data'] ?? 'No data');
   }
 
+  //Verifica si el token no es nulo, entonces lo guarda en la bd
+  static Future<void> saveTokenToDatabase(String? token) async{
+    if(token != null){
+      await AuthService.passFCMTokenToAuthService(token);
+    }
+  }
+
   static Future initializeApp() async {
     // Push Notifications
     await Firebase.initializeApp();
     await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(alert: true, badge: true, sound: true);
     _token = await FirebaseMessaging.instance.getToken();
+    
     print(_token); //En este punto mediante una peticion HTTP se puede grabar en el backend en la bd de Prestaprofe
     
-    // // Save the initial token to the database
-    // await saveTokenToDatabase(token);
-
-    // // Any time the token refreshes, store this in the database too.
-    // FirebaseMessaging.instance.onTokenRefresh.listen(saveTokenToDatabase);
+    // Cada vez que el token se refresca, se guarda en la base de datos
+    FirebaseMessaging.instance.onTokenRefresh.listen(saveTokenToDatabase);
 
     // It is important to remember a user can have many tokens (from multiple devices, or token refreshes), 
     // therefore we use FieldValue.arrayUnion to store new tokens. When a message is sent via an admin SDK, 

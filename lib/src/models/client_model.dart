@@ -30,6 +30,8 @@ class ClientModel {
         this.type,
         this.isPhoneVerified,
         this.isAdmonVerified,
+        this.token,
+        this.tokens,
         this.updatedAt,
         this.createdAt
     });
@@ -63,6 +65,8 @@ class ClientModel {
     String? type;
     int? isPhoneVerified;
     String? isAdmonVerified;
+    String? token;
+    List<String>? tokens;
     DateTime? updatedAt;
     DateTime? createdAt;
 
@@ -100,6 +104,8 @@ class ClientModel {
         type: json["type"] ?? null,
         isPhoneVerified: json["isPhoneVerified"] ?? null,
         isAdmonVerified: json["isAdmonVerified"] ?? null,
+        token: json["token"] ?? null,
+        tokens: json["tokens"] != null ? List<String>.from(json["tokens"].map((x) => x)) : null
         // updatedAt: DateTime.parse(json["updated_at"]),
         // createdAt: DateTime.parse(json["created_at"])
     );
@@ -134,6 +140,8 @@ class ClientModel {
         "type": type,
         "isPhoneVerified": isPhoneVerified,
         "isAdmonVerified": isAdmonVerified,
+        "token": token,
+        "tokens": List<dynamic>.from(tokens?.map((x) => x) ?? [])
         // "updated_at": updatedAt!.toIso8601String(),
         // "created_at": createdAt!.toIso8601String()
     };
@@ -169,6 +177,8 @@ class ClientModel {
       type: this.type,
       isPhoneVerified: this.isPhoneVerified,
       isAdmonVerified: this.isAdmonVerified,
+      token: this.token,
+      tokens: this.tokens,
       updatedAt: this.updatedAt,
       createdAt: this.updatedAt
     );
