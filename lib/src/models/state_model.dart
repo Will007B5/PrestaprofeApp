@@ -32,4 +32,11 @@ class StateModel {
         name: this.name,
         code: this.code,
     );
+
+    //Esto es para crear una copia limpia del estado
+    static StateModel cleanState() => new StateModel(
+      id: 1, 
+      name: 'Aguascalientes', 
+      code: '01'
+    );
 }

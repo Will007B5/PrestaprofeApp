@@ -39,4 +39,12 @@ class CityModel {
         zipCode: this.zipCode,
         municipalityId: this.municipalityId,
     );
+
+    //Esto es para crear una copia limpia de la ciudad
+    static CityModel cleanMunicipality() => new CityModel(
+      id: 1, 
+      name: 'Zona Centro', 
+      zipCode: '20000', 
+      municipalityId: 1
+    );
 }

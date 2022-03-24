@@ -6,3 +6,4 @@ export 'package:prestaprofe/src/helpers/permissions_helper.dart';
 export 'package:prestaprofe/src/helpers/reference35_generator.dart';
 export 'package:prestaprofe/src/helpers/reference45_generator.dart';
 export 'package:prestaprofe/src/helpers/regex_helper.dart';
+export 'package:prestaprofe/src/helpers/uuid_generator_helper.dart';
