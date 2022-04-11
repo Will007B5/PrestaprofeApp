@@ -1,15 +1,15 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:prestaprofe/src/pages/pages.dart';
 import 'package:prestaprofe/src/models/models.dart';
+import 'package:prestaprofe/src/pages/pages.dart';
 import 'package:prestaprofe/src/providers/providers.dart';
 import 'package:prestaprofe/src/routes/routes.dart';
 import 'package:prestaprofe/src/services/services.dart';
+import 'package:prestaprofe/src/ui/prestaprofe_theme.dart';
 
 
 void main() async {
@@ -102,16 +102,7 @@ class _MyAppState extends State<MyApp> {
         );
       },
       //Agrega un tema general para la aplicación
-      theme: ThemeData(
-        appBarTheme: AppBarTheme(
-          centerTitle: true,
-          color: Color.fromRGBO(51, 114, 134, 1)
-        ),
-        colorScheme: ColorScheme.light(
-          primary: Color.fromRGBO(51, 114, 134, 1)
-        ),
-        fontFamily: 'Montserrat'
-      ),
+      theme: PrestaprofeTheme.prestaprofeTheme(), //Este es un customTheme en ui/prestaprofeTheme.dart
     );
   }
 }

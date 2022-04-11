@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:outline_gradient_button/outline_gradient_button.dart';
+import 'package:prestaprofe/src/widgets/widgets.dart';
 import 'package:provider/provider.dart';
 
 import 'package:prestaprofe/src/services/services.dart';
@@ -71,50 +71,7 @@ class _DrawerHeader extends StatelessWidget {
                       right: 9,
                       left: 9
                     ),
-                    child: Column(
-                      children: [
-                        OutlineGradientButton(
-                          gradient: SweepGradient(
-                            colors: [
-                              Color.fromARGB(255, 107, 91, 43),
-                              Color.fromARGB(255, 255, 225, 136),
-                              Color.fromARGB(255, 238, 195, 67), 
-                              Color.fromARGB(255, 107, 91, 43),
-                              Color.fromARGB(255, 238, 195, 67), 
-                              Color.fromARGB(255, 107, 91, 43),
-                              Color.fromARGB(255, 255, 225, 136),
-                              Color.fromARGB(255, 107, 91, 43),
-                              Color.fromARGB(255, 238, 195, 67),  
-                              Color.fromARGB(255, 107, 91, 43),
-                              Color.fromARGB(255, 238, 195, 67), 
-                              Color.fromARGB(255, 255, 225, 136),
-                              Color.fromARGB(255, 107, 91, 43),
-                              Color.fromARGB(255, 238, 195, 67),  
-                              Color.fromARGB(255, 107, 91, 43),  
-                            ],
-                            center: Alignment(0.1, 0.0),
-                            //focal: Alignment(0.6, -0.2),
-                          ),
-                          strokeWidth: 6.3,
-                          radius: Radius.circular(130),
-                          backgroundColor: Colors.black87,
-                          child: CircleAvatar(
-                            radius: (_height * _width) * 0.0002,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(130),
-                              child: Image(
-                                image: AssetImage('assets/logouser.jpg'),
-                                fit: BoxFit.fill,
-                              ),
-                            )
-                          ),
-                        ),
-                        SizedBox(height: 12),
-                        Text('${_authService.currentClient.name.toUpperCase()} ${_authService.currentClient.lastName.toUpperCase()}', style: TextStyle(fontSize: _width * 0.059, color: Color.fromARGB(255, 238, 195, 67), fontWeight: FontWeight.bold), textAlign: TextAlign.center, overflow: TextOverflow.ellipsis, maxLines: 2,),
-                        SizedBox(height: 5),
-                        Text('${_authService.currentClient.email}', style: TextStyle(fontSize: _width * 0.0388, color: Colors.white, fontWeight: FontWeight.bold), textAlign: TextAlign.center, overflow: TextOverflow.ellipsis, maxLines: 2,),
-                      ],
-                    ),
+                    child: UserAvatar(mediaQuerySize: _mediaQuerySize, height: _height, width: _width, viewedFrom: 'drawermenu'), //Widget custom,
                   ),
                 ],
               )
@@ -149,7 +106,13 @@ class _DrawerItems extends StatelessWidget {
           ListTile(
             leading: Icon(Icons.person, color: Color.fromRGBO(51, 114, 134, 1), size: _iconMediaQuery),
             title: Text('Mi perfil', style: TextStyle(color: Colors.black87, fontSize: _width * 0.041), textAlign: TextAlign.start, overflow: TextOverflow.ellipsis, maxLines: 2,),
-            onTap: null,
+            onTap: (){
+              if (Navigator.canPop(context)) {
+                //Verifica si hay rutas por sacar de la pila; esto es principalmente si se tiene abierto el menu drawer
+                Navigator.of(context).popUntil(ModalRoute.withName('home'));
+              }
+              Navigator.pushNamed(context, 'myProfileHome');
+            },
           ),
           ListTile(
             leading: Icon(Icons.credit_card_rounded, color: Color.fromRGBO(51, 114, 134, 1), size: _iconMediaQuery),

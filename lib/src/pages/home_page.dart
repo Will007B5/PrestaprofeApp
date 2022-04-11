@@ -9,12 +9,10 @@ import 'package:prestaprofe/src/widgets/widgets.dart';
 class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final _mediaQuerySize = MediaQuery.of(context)
-        .size; //MediaQuery con los detalles de medida de pantalla
+    final _mediaQuerySize = MediaQuery.of(context).size; //MediaQuery con los detalles de medida de pantalla
     final _height = _mediaQuerySize.height;
     final _width = _mediaQuerySize.width;
-    final _textInfoWidth =
-        _width * 0.055; //Medida de la fuente a utilizar en la barra de estado
+    final _textInfoWidth = _width * 0.055; //Medida de la fuente a utilizar en la barra de estado
 
     String _textStep = '';
 
@@ -24,8 +22,7 @@ class HomePage extends StatelessWidget {
 
     final _internetService = Provider.of<InternetService>(context);
 
-    double _toolbarHeight =
-        _internetService.hasInternet ? kToolbarHeight : (kToolbarHeight + 19);
+    double _toolbarHeight = _internetService.hasInternet ? kToolbarHeight : (kToolbarHeight + 19);
 
     switch (_currentIndex) {
       case 0:
@@ -44,26 +41,18 @@ class HomePage extends StatelessWidget {
         top: false,
         child: Scaffold(
           appBar: AppBarHome(
-              textStep: _textStep,
-              textWidth: _textInfoWidth,
-              toolbarHeight: _toolbarHeight), //Widget en carpeta Widgets
+            textStep: _textStep,
+            textWidth: _textInfoWidth,
+            toolbarHeight: _toolbarHeight
+          ), //Widget en carpeta Widgets
           endDrawer: DrawermenuHome(),
           body: Container(
             height: double.infinity,
             width: double.infinity,
             color: Colors.white,
-            // child: CustomScrollView(
-            //   slivers: [
-            //     SliverFillRemaining(
-            //       hasScrollBody: false,
-            //       child: _constructHomeBody(context),
-            //     )
-            //   ],
-            // ),
             child: _constructHomeBody(context),
           ),
-          bottomNavigationBar:
-              CustomHomeBottomNavigation(), //Widget en carpeta Widgets
+          bottomNavigationBar: CustomHomeBottomNavigation(), //Widget en carpeta Widgets
           // persistentFooterButtons: [
           //   Column(
           //     mainAxisAlignment: MainAxisAlignment.center,
@@ -97,12 +86,12 @@ class HomePage extends StatelessWidget {
           Navigator.of(context).popUntil(ModalRoute.withName('home'));
           return false;
         }
-        final logoutAndReturnLogin = await showLogoutAndReturnLogin(context);
-        if (logoutAndReturnLogin) {
+        final bool _logoutAndReturnLogin = await _showLogoutAndReturnLogin(context);
+        if (_logoutAndReturnLogin) {
           _authService.logout();
           Navigator.pushReplacementNamed(context, 'login');
         }
-        return logoutAndReturnLogin;
+        return _logoutAndReturnLogin;
       },
     );
   }
@@ -122,35 +111,36 @@ class HomePage extends StatelessWidget {
     }
   }
 
-  Future<bool> showLogoutAndReturnLogin(BuildContext context) async {
+  Future<bool> _showLogoutAndReturnLogin(BuildContext context) async {
     bool _isTueOrFalse = false;
     await showDialog(
-        context: context,
-        builder: (context) => WillPopScope(
-              child: AlertDialog(
-                title: Text('¿Desea cerrar sesión?'),
-                actions: [
-                  TextButton(
-                    child: Text('No'),
-                    onPressed: () {
-                      _isTueOrFalse = false;
-                      Navigator.pop(context);
-                    },
-                  ),
-                  TextButton(
-                    child: Text('Si'),
-                    onPressed: () {
-                      _isTueOrFalse = true;
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-              onWillPop: () async {
-                return false;
+      context: context,
+      builder: (context) => WillPopScope(
+        child: AlertDialog(
+          title: Text('¿Desea cerrar sesión?'),
+          actions: [
+            TextButton(
+              child: Text('No'),
+              onPressed: () {
+                _isTueOrFalse = false;
+                Navigator.pop(context);
               },
             ),
-        barrierDismissible: false);
+            TextButton(
+              child: Text('Si'),
+              onPressed: () {
+                _isTueOrFalse = true;
+                Navigator.pop(context);
+              },
+            ),
+          ],
+        ),
+        onWillPop: () async {
+          return false;
+        },
+      ),
+      barrierDismissible: false
+    );
     print(_isTueOrFalse);
     return _isTueOrFalse;
   }

@@ -9,6 +9,7 @@ export 'package:prestaprofe/src/pages/loading_page.dart';
 export 'package:prestaprofe/src/pages/login_page.dart';
 export 'package:prestaprofe/src/pages/login_page.dart';
 export 'package:prestaprofe/src/pages/mycredits_page.dart';
+export 'package:prestaprofe/src/pages/myprofile_home_page.dart';
 export 'package:prestaprofe/src/pages/newcredit_stepone_page.dart';
 export 'package:prestaprofe/src/pages/register_debitclabe_page.dart';
 export 'package:prestaprofe/src/pages/register_stepfour_page.dart';

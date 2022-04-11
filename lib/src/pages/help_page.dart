@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'package:prestaprofe/src/services/services.dart';
+import 'package:prestaprofe/src/ui/custom_uis.dart';
+import 'package:prestaprofe/src/widgets/widgets.dart';
 
 class HelpPage extends StatelessWidget {
 
@@ -8,20 +13,83 @@ class HelpPage extends StatelessWidget {
 
     final _mediaQuerySize = MediaQuery.of(context).size;
 
-    final width = _mediaQuerySize.width - 30;
-    final height = _mediaQuerySize.height - 30;
+    final _authService = Provider.of<AuthService>(context);
 
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 15),
-      child: CustomScrollView(
-        slivers: [
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: Container(
-              child: _CardsFromJSON()
+    final _height = _mediaQuerySize.height - 30;
+    final _width = _mediaQuerySize.width - 30;
+    final _textWidth = _width;
+    final _objectSize = _height * _width;
+
+    return PagesBackground(
+      height: _height,
+      child: Container(
+        width: double.infinity,
+        child: Column(
+          children: [
+            Column(
+              children: [
+                SizedBox(height: 10),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Icon(Icons.help, size: _objectSize * 0.00024, color: PrestaprofeTheme.goldenIconPages),
+                      Text('AYUDA',
+                        style: TextStyle(
+                          color: PrestaprofeTheme.whiteTextTitlePages,
+                          fontSize: _textWidth * 0.05,
+                          fontWeight: FontWeight.bold
+                        )
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
+            SizedBox(height: 3),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: PrestaprofeTheme.mainOptionsContainerFillColor,
+                  borderRadius: BorderRadius.only(topLeft: Radius.circular(43), topRight: Radius.circular(43))
+                ),
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.symmetric(horizontal: 5),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 20),
+                      Text('${_authService.currentClient.name}',
+                        style: TextStyle(
+                            color: PrestaprofeTheme.prestaprofeTheme().colorScheme.primary,
+                            fontSize: _textWidth * 0.065,
+                            fontWeight: FontWeight.bold
+                        ),
+                        textAlign: TextAlign.center
+                      ),
+                      SizedBox(height: 7),
+                      Text('¿CÓMO PODEMOS AYUDARLE?',
+                        style: TextStyle(
+                          color: PrestaprofeTheme.prestaprofeTheme().colorScheme.primary,
+                          fontSize: _textWidth * 0.039,
+                          fontWeight: FontWeight.bold
+                        ),
+                        textAlign: TextAlign.center
+                      ),
+                      _CardsFromJSON(),
+                    ],
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+        // child: Column(
+        //   children: [
+        //     _CardsFromJSON(),
+        //   ],
+        // )
       ),
     );
   }
@@ -42,8 +110,8 @@ class _CardsFromJSON extends StatelessWidget {
       {
         "mainIcon": Icons.support_agent_rounded, 
         "titleCard": "Línea Prestaprofe",
-        "bodyCard": "443 320 7494",
-        "bodyCardExtra": "Lu - Do, 08:00 a 23:00 h.",
+        "bodyCard": "443-320-7494",
+        "bodyCardExtra": "Lun a Vie 08:00 am a 18:00 hrs",
         "subText": "Llamar",
         "subIcon": Icons.phone_rounded,
         "action" : "call"
@@ -52,7 +120,7 @@ class _CardsFromJSON extends StatelessWidget {
         "mainIcon": Icons.assignment_ind_rounded, 
         "titleCard": "Contacto Prestaprofe",
         "bodyCard": "Contacte via email con nuestro equipo de soporte",
-        "bodyCardExtra": "prestaprofe@email.com",
+        "bodyCardExtra": "info@prestaprofe.com",
         "subText": "Escribir",
         "subIcon": Icons.email_rounded,
         "action" : "email"
@@ -60,7 +128,7 @@ class _CardsFromJSON extends StatelessWidget {
       {
         "mainIcon": Icons.help, 
         "titleCard": "Preguntas frecuentes",
-        "bodyCard": "Obtenga información sobre PrestaprofeApp",
+        "bodyCard": "¿Tiene dudas? En nuestra sección de preguntas frecuentes podrá encontrar información sobre la app",
         "bodyCardExtra": "",
         "subText": "Ver",
         "subIcon": Icons.zoom_in_rounded,
@@ -70,14 +138,13 @@ class _CardsFromJSON extends StatelessWidget {
 
     final List<Widget> options = [];
 
-    options.add(SizedBox(height: 15));
+    options.add(SizedBox(height: 10));
 
     data.forEach((opt) {
       final widgetTemp = Container(
-        padding: EdgeInsets.symmetric(vertical: 4),
-        height: _mediaQuerySize.height * 0.235, //Coreggir tamaño por que hace overflow
+        height: _mediaQuerySize.height * 0.2, //Coreggir tamaño por que hace overflow
         child: Card(
-          elevation: 9,
+          elevation: 0,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           child: Container(
             decoration: _containerCardBoxDecoration(context),
@@ -86,13 +153,13 @@ class _CardsFromJSON extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 ListTile(
-                  leading: Icon(opt['mainIcon']! as IconData, size: _iconSize * 0.000215, color: Color.fromRGBO(51, 114, 134, 1)),
-                  title: Text(opt['titleCard']!.toString(), style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87, fontSize: _textWidth * 0.0475), overflow: TextOverflow.ellipsis),
+                  leading: Icon(opt['mainIcon']! as IconData, size: _iconSize * 0.000215, color: PrestaprofeTheme.prestaprofeTheme().colorScheme.primary),
+                  title: Text(opt['titleCard']!.toString().toUpperCase(), style: TextStyle(fontWeight: FontWeight.bold, color: PrestaprofeTheme.prestaprofeTheme().colorScheme.primary, fontSize: _textWidth * 0.0434), overflow: TextOverflow.ellipsis),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(opt['bodyCard']!.toString(), style: TextStyle(color: Colors.black87, fontSize: _textWidth * 0.035), overflow: TextOverflow.ellipsis, maxLines: 2),
-                      opt['bodyCardExtra'] != '' ? Text(opt['bodyCardExtra']!.toString(), style: TextStyle(color: Colors.black87, fontSize: _textWidth * 0.035, fontStyle: FontStyle.italic), overflow: TextOverflow.ellipsis) : Container(),
+                      Text(opt['bodyCard']!.toString(), style: TextStyle(fontWeight: FontWeight.bold, color: PrestaprofeTheme.black87Text, fontSize: _textWidth * 0.035), overflow: TextOverflow.ellipsis, maxLines: 3),
+                      opt['bodyCardExtra'] != '' ? Text(opt['bodyCardExtra']!.toString(), style: TextStyle(color: PrestaprofeTheme.prestaprofeTheme().colorScheme.primary, fontSize: _textWidth * 0.035, fontStyle: FontStyle.italic), overflow: TextOverflow.ellipsis) : Container(),
                     ],
                   )
                 ),
@@ -101,14 +168,16 @@ class _CardsFromJSON extends StatelessWidget {
                   onTap: () async {
                     await _makeActions(context, opt['action']!.toString());
                   },
-                  child: Column(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(opt['subIcon']! as IconData, size: _iconSize * 0.00008, color: Color.fromRGBO(51, 114, 134, 1)),
-                      Text(opt['subText']!.toString(), style: TextStyle(fontSize: _textWidth * 0.0323, color: Color.fromRGBO(51, 114, 134, 1)))
+                      Icon(opt['subIcon']! as IconData, size: _iconSize * 0.00008, color: PrestaprofeTheme.prestaprofeTheme().colorScheme.primary),
+                      SizedBox(width: 7),
+                      Text(opt['subText']!.toString(), style: TextStyle(fontSize: _textWidth * 0.0323, color: PrestaprofeTheme.prestaprofeTheme().colorScheme.primary))
                     ],
                   ),
                 ),
-                SizedBox(height: 2)
+                SizedBox(height: 10)
               ],
             ),
           ),
@@ -155,11 +224,9 @@ class _CardsFromJSON extends StatelessWidget {
   //Decoration que contornea de un color la card
   BoxDecoration _containerCardBoxDecoration(BuildContext context) {
     return BoxDecoration(
-      borderRadius: BorderRadius.circular(10),
-      border: Border.all(
-        color: Color.fromRGBO(51, 114, 134, 1),
-        width: 2.3,
-      )
+      color: PrestaprofeTheme.clientOptionsContainerFilledColor,
+      border: Border.all(color: PrestaprofeTheme.clientOptionsContainerBorderColor, width: 1.5),
+      borderRadius: BorderRadius.circular(7)
     );
   }
 }
