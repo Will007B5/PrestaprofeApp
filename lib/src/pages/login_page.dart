@@ -1,25 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
 import 'package:prestaprofe/src/helpers/helpers.dart';
-import 'package:prestaprofe/src/models/models.dart';
 import 'package:prestaprofe/src/providers/providers.dart';
 import 'package:prestaprofe/src/services/services.dart';
-import 'package:prestaprofe/src/ui/input_decorations.dart';
-
+import 'package:prestaprofe/src/ui/custom_uis.dart';
 class LoginPage extends StatelessWidget {
-
-  static ButtonStyle _textButtonsStyle = ButtonStyle(
-    overlayColor: MaterialStateProperty.all(Color.fromRGBO(51, 114, 134, 0.2)),
-    shape: MaterialStateProperty.all(StadiumBorder()),
-    foregroundColor: MaterialStateProperty.all(Color.fromRGBO(255, 255, 255, 0.8)),
-    textStyle: MaterialStateProperty.all(TextStyle(
-      decoration: TextDecoration.underline,
-      fontSize: 16
-    ))
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +20,7 @@ class LoginPage extends StatelessWidget {
         body: Container(
           height: double.infinity,
           width: double.infinity,
-          color: Color.fromRGBO(51, 114, 134, 1),
+          color: PrestaprofeTheme.prestaprofeTheme().colorScheme.primary,
           // color: Colors.white,
           child: CustomScrollView(
             slivers: [
@@ -55,9 +41,9 @@ class LoginPage extends StatelessWidget {
   }
 
   Widget _constructLoginBody(Size _mediaQuerySize, BuildContext context) {
-    final _clientsService = Provider.of<ClientsService>(context);
-    final _registerFormProvider = Provider.of<RegisterFormProvider>(context);
-    final loginForm = Provider.of<LoginFormProvider>(context);
+
+    final _loginForm = Provider.of<LoginFormProvider>(context);
+
     return Container(
       child: Column(
         children: [
@@ -93,17 +79,17 @@ class LoginPage extends StatelessWidget {
                     Positioned(
                       bottom: 1,
                       child: TextButton(
-                          style: _textButtonsStyle,
-                          child: Text('¿Aún no estás registrado?'),
-                          onPressed: !loginForm.isLoading ? (){
+                          style: PrestaprofeButtonsStyle.loginUnderlineButtons(fontSize: _mediaQuerySize.width * 0.043), //Estilo custom de archivo buttons_style.dart
+                          child: Text('¿Aún no estás registrado?', style: TextStyle(color: PrestaprofeTheme.loginUnderlineButtonsColor)),
+                          onPressed: !_loginForm.isLoading ? (){
                             Navigator.pushNamed(context, 'registerStepOne');
                           } : null,
                       ),
                     ),
                     TextButton(
-                        style: _textButtonsStyle,
-                        child: Text('¿Olvidaste tu contraseña?'),
-                        onPressed: !loginForm.isLoading ? (){
+                        style: PrestaprofeButtonsStyle.loginUnderlineButtons(fontSize: _mediaQuerySize.width * 0.043), //Estilo custom de archivo buttons_style.dart
+                        child: Text('¿Olvidaste tu contraseña?', style: TextStyle(color: PrestaprofeTheme.loginUnderlineButtonsColor)),
+                        onPressed: !_loginForm.isLoading ? (){
 
                         } : null,
                     ),
@@ -119,25 +105,26 @@ class LoginPage extends StatelessWidget {
   }
 }
 class _LoginForm extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     
-    final loginForm = Provider.of<LoginFormProvider>(context);
+    final _loginForm = Provider.of<LoginFormProvider>(context);
     final _clientsService = Provider.of<ClientsService>(context);
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 25),
       child: Form(
-        key: loginForm.formKey,
+        key: _loginForm.formKey,
         child: Column(
           children: [
             TextFormField(
               autovalidateMode: AutovalidateMode.onUserInteraction,
-              enabled: !loginForm.isLoading ? true : false,
+              enabled: !_loginForm.isLoading ? true : false,
               autocorrect: false,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecorations.authInputDecoration(hintText: 'ejemplo@dominio.com', labelText: 'Correo electrónico', prefixIcon: Icons.alternate_email_sharp), //Utilizando metodo estatico de clase InputDecorations creada por mi (lib/src/ui/input_decorations.dart),
-              onChanged: (value) => loginForm.email = value,
+              onChanged: (value) => _loginForm.email = value,
               validator: (value) {
                 return RegexHelper.email.hasMatch(value ?? '') ? null : 'Ingrese un correo válido';
               },
@@ -145,13 +132,13 @@ class _LoginForm extends StatelessWidget {
             SizedBox(height: 10),
             TextFormField(
               autovalidateMode: AutovalidateMode.disabled,
-              enabled: !loginForm.isLoading ? true : false,
+              enabled: !_loginForm.isLoading ? true : false,
               enableSuggestions: false,
               autocorrect: false,
-              obscureText: !loginForm.obscurePasswordField,
+              obscureText: !_loginForm.obscurePasswordField,
               keyboardType: TextInputType.emailAddress,
-              decoration: InputDecorations.authInputDecoration(hintText: '', labelText: 'Contraseña', prefixIcon: Icons.lock_outline, suffixIcon: loginForm.obscurePasswordField ? Icons.visibility_off : Icons.visibility, context: context), //Utilizando metodo estatico de clase InputDecorations creada por mi (lib/src/ui/input_decorations.dart)
-              onChanged: (value) => loginForm.password = value,
+              decoration: InputDecorations.authInputDecoration(hintText: '', labelText: 'Contraseña', prefixIcon: Icons.lock_outline, suffixIcon: _loginForm.obscurePasswordField ? Icons.visibility_off : Icons.visibility, context: context), //Utilizando metodo estatico de clase InputDecorations creada por mi (lib/src/ui/input_decorations.dart)
+              onChanged: (value) => _loginForm.password = value,
               validator: (value) {
                 if(value != null && value.length > 0){
                   return null;
@@ -164,30 +151,30 @@ class _LoginForm extends StatelessWidget {
               width: double.infinity,
               child: MaterialButton(
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                disabledColor: Colors.grey,
-                color: Color.fromRGBO(191, 155, 48, 1),
+                disabledColor: PrestaprofeTheme.loginButtonDisabledColor,
+                color: PrestaprofeTheme.loginButtonFillColor,
                 elevation: 0,
                 child: Text(
-                  loginForm.isLoading ? 'Ingresando...' : 'Iniciar sesión', 
+                  _loginForm.isLoading ? 'Ingresando...' : 'Iniciar sesión', 
                   style: TextStyle(
-                    color: Color.fromRGBO(27, 60, 70, 1)
+                    color: PrestaprofeTheme.loginButtonTextColor
                   )
                 ),
-                onPressed: loginForm.isLoading ? null : () async {
+                onPressed: _loginForm.isLoading ? null : () async {
                   FocusScope.of(context).unfocus(); //Linea para ocultar el teclado
-                  final authService = Provider.of<AuthService>(context, listen: false);
-                  if(!loginForm.isValidForm()) return;
-                  loginForm.isLoading = true;
-                  final String? errorMessage = await authService.login(loginForm.email, loginForm.password);
+                  final _authService = Provider.of<AuthService>(context, listen: false);
+                  if(!_loginForm.isValidForm()) return;
+                  _loginForm.isLoading = true;
+                  final String? errorMessage = await _authService.login(_loginForm.email, _loginForm.password);
                   if(errorMessage == null){
-                    _clientsService.currentClient = authService.currentClient;
+                    _clientsService.currentClient = _authService.currentClient;
                     //Inicia sesion
                     Navigator.pushReplacementNamed(context, 'home'); //pushReplacementNamed borra el stack de rutas para que ya no se pueda regresar
                   }
                   else{
                     //Manda errores
                     NotificationsService.showSnackbar(errorMessage, 'error');
-                    loginForm.isLoading = false;
+                    _loginForm.isLoading = false;
                   }
                 },
               ),
