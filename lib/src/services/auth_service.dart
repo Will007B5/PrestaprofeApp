@@ -69,6 +69,7 @@ class AuthService extends ChangeNotifier {
     }
     else {
       String textErrors = '';
+      print('ERROROR $decodedResp');
       if(decodedResp.containsKey('message')){
         textErrors = decodedResp['message'];
       }
