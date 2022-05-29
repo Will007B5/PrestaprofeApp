@@ -15,7 +15,8 @@ import 'package:prestaprofe/src/ui/prestaprofe_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); //Metodo que asegura que despues de lo que se ejecuta en esta linea ya hay un context listo para usar
   await DeviceInfoService.initializeDeviceInfo(); //Inicializa la información del dispositivo para estar globalmente consumible
-  await PushNotificationService.initializeApp();
+  // await PushNotificationService.initializeApp();
+  //await SocketNotificationService.initNotificationService(2);
   runApp(AppState());
 }
 
@@ -57,9 +58,13 @@ class _MyAppState extends State<MyApp> {
     super.initState();
     //Aqui ya hay accesso al context
     //Getter messagesStream
-    PushNotificationService.messagesStream.listen((message) { 
-      print('PrestaprofeApp ${message}');
-    });
+    // PushNotificationService.messagesStream.listen((message) { 
+    //   print('PrestaprofeApp ${message}');
+    // });
+
+    // SocketNotificationService.messagesStream.listen((message) { 
+    //   print('PrestaprofeApp ${message}');
+    // });
 
     final _internetService = Provider.of<InternetService>(context, listen: false);
 
